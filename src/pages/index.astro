@@ -86,6 +86,47 @@ const factoryImages = [
   '/home/factory-7.png',
   '/home/factory-8.png',
 ]
+
+const factoryRowTop = [
+  factoryImages[2],
+  factoryImages[3],
+  factoryImages[4],
+  factoryImages[5],
+  factoryImages[2],
+  factoryImages[3],
+]
+
+const factoryRowBottom = [
+  factoryImages[6],
+  factoryImages[7],
+  factoryImages[0],
+  factoryImages[1],
+  factoryImages[6],
+  factoryImages[7],
+]
+
+const testimonials = [
+  {
+    name: 'Emily T.',
+    role: 'Corporate Buyer',
+    quote:
+      'We needed a gift solution fast for 8k+ futures and this team delivered beautiful custom candles.',
+    avatar: '/home/customers/customer-1.png',
+  },
+  {
+    name: 'Chloe Z.',
+    role: 'Event Coordinator',
+    quote:
+      'Pairing events is stressful, but their team made it easy. The candles transformed our venue.',
+    avatar: '/home/customers/customer-2.png',
+  },
+  {
+    name: 'Marcus L.',
+    role: 'Retail Manager',
+    quote: 'Our boutique saw an immediate uptick in sales after adding their seasonal scents.',
+    avatar: '/home/customers/customer-3.png',
+  },
+]
 ---
 
 <MainLayout title={homeTitle} description={homeDescription} seo={{canonicalUrl: '/'}}>
@@ -169,25 +210,33 @@ const factoryImages = [
       <h2>Your Strategic Partner in Luxury Candle Manufacturing</h2>
       <p>When you partner with MW Candle, you’re not just selecting a manufacturer—you’re choosing a strategic collaborator committed to elevating your business.</p>
       <a href="/request-quote" class="btn">Get A Free Quote</a>
-      <div class="factory-grid">
-        {[...factoryImages, ...factoryImages].map((img) => (
-          <img src={img} alt="Factory production line" loading="lazy" />
-        ))}
+      <div class="factory-marquee">
+        <div class="factory-row row-right">
+          {[...factoryRowTop, ...factoryRowTop].map((img) => (
+            <img src={img} alt="Factory production line" loading="lazy" />
+          ))}
+        </div>
+        <div class="factory-row row-left">
+          {[...factoryRowBottom, ...factoryRowBottom].map((img) => (
+            <img src={img} alt="Factory production line" loading="lazy" />
+          ))}
+        </div>
       </div>
     </section>
 
     <section class="testimonials section">
       <h2>What Our Customers Say</h2>
       <div class="testimonial-grid">
-        {[
-          ['Marcus L.', 'Retail Manager', 'Our boutique saw an immediate uptick in sales after adding their seasonal scents.'],
-          ['Emily T.', 'Corporate Buyer', 'We needed a gift solution fast for 8k+ futures and this team delivered beautiful custom candles.'],
-          ['Chloe Z.', 'Event Coordinator', 'Pairing events is stressful, but their team made it easy. The candles transformed our venue.'],
-        ].map((t) => (
+        {testimonials.map((t) => (
           <article class="testimonial">
-            <h3>{t[0]}</h3>
-            <p>{t[2]}</p>
-            <span>{t[1]}</span>
+            <div class="testimonial-head">
+              <img src={t.avatar} alt={t.name} loading="lazy" />
+              <div>
+                <h3>{t.name}</h3>
+                <span>{t.role}</span>
+              </div>
+            </div>
+            <p>{t.quote}</p>
           </article>
         ))}
       </div>
@@ -242,7 +291,8 @@ const factoryImages = [
   .hero-inner p { max-width:600px; margin:0 0 18px; color:#f3f4f6; }
 
   .card-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
-  .scent-card { border:1px solid #e5e7eb; text-decoration:none; color:inherit; background:#fff; }
+  .scent-card { border:1px solid #e5e7eb; text-decoration:none; color:inherit; background:#fff; transition:transform .22s ease, box-shadow .22s ease; }
+  .scent-card:hover { transform: translateY(-3px); box-shadow:0 12px 24px rgba(15,23,42,.1); }
   .scent-card img { width:100%; aspect-ratio:16/9; object-fit:cover; display:block; border-bottom:1px solid #e5e7eb; }
   .scent-body { padding:9px 10px 12px; }
   .scent-body h3 { margin:0 0 6px; font-size:1.7rem; line-height:1.05; }
@@ -255,7 +305,8 @@ const factoryImages = [
   .mid-banner p { margin:0; color:#f3f4f6; }
 
   .feature-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
-  .feature-card { background:#fafafa; border:1px solid #f1f5f9; padding:20px; text-align:center; }
+  .feature-card { background:#fafafa; border:1px solid #f1f5f9; padding:20px; text-align:center; transition:transform .22s ease, box-shadow .22s ease; }
+  .feature-card:hover { transform:translateY(-3px); box-shadow:0 12px 24px rgba(15,23,42,.08); }
   .feature-card .icon { width:26px; height:26px; border-radius:6px; background:#f07179; color:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:.8rem; margin-bottom:10px; }
   .feature-card h3 { margin:0 0 6px; font-size:1.5rem; }
   .feature-card p { margin:0; font-size:.84rem; }
@@ -264,32 +315,52 @@ const factoryImages = [
   .about-split h2 { text-align:left; margin-bottom:10px; }
   .about-image img { width:100%; display:block; border-radius:2px; }
 
-  .factory { text-align:center; }
+  .factory { text-align:center; overflow:hidden; }
   .factory p { max-width:760px; margin:0 auto 12px; }
-  .factory-grid { margin-top:16px; display:grid; grid-template-columns:repeat(6,1fr); gap:8px; }
-  .factory-grid img { width:100%; aspect-ratio:4/3; object-fit:cover; display:block; }
+  .factory-marquee { margin-top:16px; display:grid; gap:10px; }
+  .factory-row { display:flex; gap:8px; width:max-content; }
+  .factory-row img { width:200px; aspect-ratio:4/3; object-fit:cover; display:block; flex:0 0 auto; transition:transform .2s ease, filter .2s ease; }
+  .factory-row img:hover { transform:scale(1.03); filter:saturate(1.08); }
+  .row-right { animation: moveRight 36s linear infinite; }
+  .row-left { animation: moveLeft 36s linear infinite; }
+  .factory-marquee:hover .row-right,
+  .factory-marquee:hover .row-left { animation-play-state: paused; }
 
   .testimonials h2 { margin-bottom:14px; }
   .testimonial-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
-  .testimonial { border:1px solid #f1f5f9; background:#fafafa; padding:16px; }
-  .testimonial h3 { margin:0 0 6px; font-size:1.05rem; }
-  .testimonial p { margin:0 0 8px; font-size:.86rem; }
+  .testimonial { border:1px solid #f1f5f9; background:#fafafa; padding:16px; transition:transform .22s ease, box-shadow .22s ease; }
+  .testimonial:hover { transform:translateY(-2px); box-shadow:0 10px 18px rgba(15,23,42,.08); }
+  .testimonial-head { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+  .testimonial-head img { width:42px; height:42px; border-radius:50%; object-fit:cover; flex:0 0 auto; }
+  .testimonial h3 { margin:0 0 2px; font-size:1.05rem; }
   .testimonial span { font-size:.8rem; color:#64748b; }
+  .testimonial p { margin:0; font-size:.86rem; }
 
   .head-row { display:flex; justify-content:space-between; align-items:flex-end; gap:18px; margin-bottom:12px; }
   .head-row h2 { text-align:left; margin:0 0 8px; }
   .head-row p { max-width:620px; margin:0; }
   .blog-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
-  .blog-card { text-decoration:none; color:inherit; }
+  .blog-card { text-decoration:none; color:inherit; transition:transform .22s ease, box-shadow .22s ease; border:1px solid transparent; }
+  .blog-card:hover { transform:translateY(-3px); box-shadow:0 12px 22px rgba(15,23,42,.1); border-color:#e5e7eb; }
   .blog-card img { width:100%; aspect-ratio:16/9; object-fit:cover; display:block; }
   .meta-row { margin-top:6px; }
   .meta-row span { font-size:.72rem; color:#64748b; }
   .blog-card h3 { margin:6px 0 0; font-size:1.02rem; line-height:1.35; }
 
+  @keyframes moveLeft {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  @keyframes moveRight {
+    from { transform: translateX(-50%); }
+    to { transform: translateX(0); }
+  }
+
   @media (max-width: 980px) {
     .card-grid, .feature-grid, .blog-grid { grid-template-columns:repeat(2,1fr); }
     .about-split { grid-template-columns:1fr; }
-    .factory-grid { grid-template-columns:repeat(3,1fr); }
+    .factory-row img { width:180px; }
     .testimonial-grid { grid-template-columns:1fr; }
     .mid-banner-inner { flex-direction:column; align-items:flex-start; gap:10px; padding:18px 20px; }
   }
@@ -297,7 +368,7 @@ const factoryImages = [
   @media (max-width: 640px) {
     .hero { min-height:420px; }
     .card-grid, .feature-grid, .blog-grid { grid-template-columns:1fr; }
-    .factory-grid { grid-template-columns:repeat(2,1fr); }
+    .factory-row img { width:150px; }
     .head-row { flex-direction:column; align-items:flex-start; }
     .mid-banner h2 { font-size:1.6rem; }
   }
