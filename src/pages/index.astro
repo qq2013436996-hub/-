@@ -1,492 +1,304 @@
 ---
 import {sanityClient} from 'sanity:client'
 import MainLayout from '../layouts/MainLayout.astro'
-import {assignCategoryPathSlugs} from '../lib/slugify'
-import type {ProductCard} from '../components/ProductListing.astro'
-import ProductListing from '../components/ProductListing.astro'
-
-type CategoryRow = {
-  title: string | null
-  slug: string | null
-  imageUrl: string | null
-  description: string | null
-  count: number | null
-}
 
 type SettingsRow = {
   companyName: string | null
   companyDescription: string | null
-  logoUrl: string | null
+}
+
+type BlogRow = {
+  title: string | null
+  slug: string | null
+  excerpt: string | null
+  publishedAt: string | null
+  imageUrl: string | null
 }
 
 const settings = await sanityClient.fetch<SettingsRow | null>(`*[_type=="siteSettings"][0]{
   companyName,
-  companyDescription,
-  "logoUrl": coalesce(logo.image.asset->url, logo.asset->url)
+  companyDescription
 }`)
 
-const heroTitle = settings?.companyName?.trim() || 'Car Light'
-const heroSubtitle =
+const blogRows = await sanityClient.fetch<BlogRow[]>(
+  `*[_type == "blogPost" && defined(slug.current)] | order(coalesce(publishedAt, _createdAt) desc)[0...3]{
+    title,
+    "slug": slug.current,
+    excerpt,
+    publishedAt,
+    "imageUrl": coalesce(featuredImage.image.asset->url, coverImage.asset->url)
+  }`,
+)
+
+const blogs = (blogRows ?? []).filter((row): row is BlogRow & {slug: string} => Boolean(row.slug))
+const displayName = settings?.companyName?.trim() || 'MW Candle'
+const homeTitle = `Scented Candles Wholesale Manufacturer | ${displayName}`
+const homeDescription =
   settings?.companyDescription?.trim() ||
-  'Automotive lighting supplier focused on premium LED headlights, work lights, and OEM/ODM programs for global B2B partners.'
+  'Wholesale scented candle manufacturer with OEM/ODM service, custom fragrances, and stable production capacity.'
 
-const categoriesRaw = await sanityClient.fetch<CategoryRow[]>(
-  `*[_type == "productCategory"] | order(title asc) {
-    title,
-    "slug": slug.current,
-    "imageUrl": image.asset->url,
-    description,
-    "count": count(*[_type=="product" && defined(slug.current) && references(^._id)])
-  }`,
-)
-
-const categories = assignCategoryPathSlugs(categoriesRaw ?? [])
-
-const heroVisual = settings?.logoUrl || '/deli-hero.png'
-
-type ProductRow = {
-  title: string | null
-  slug: string | null
-  imageUrl: string | null
-  imageAlt: string | null
-  categoryName: string | null
-  price: number | null
-  updatedAt: string | null
-}
-
-const featuredProductsRaw = await sanityClient.fetch<ProductRow[]>(
-  `*[_type=="product" && defined(slug.current)] | order(_updatedAt desc)[0...6]{
-    title,
-    "slug": slug.current,
-    "imageUrl": mainImage.asset->url,
-    "imageAlt": mainImage.alt,
-    "categoryName": category->title,
-    price,
-    "updatedAt": _updatedAt
-  }`,
-)
-
-const featuredProducts: ProductCard[] = (featuredProductsRaw ?? [])
-  .filter((p): p is ProductRow & {slug: string} => typeof p.slug === 'string' && p.slug.length > 0)
-  .map((p) => ({
-    title: p.title,
-    slug: p.slug,
-    imageUrl: p.imageUrl,
-    imageAlt: p.imageAlt,
-    categoryName: p.categoryName,
-    price: p.price ?? null,
-    updatedAt: p.updatedAt ?? null,
-  }))
-
-const homeTitle = `${heroTitle} Manufacturer & Supplier | ${heroTitle}`
-const homeDescription = heroSubtitle
-const homeJsonLd = [
+const scentTypes = [
   {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: heroTitle,
-    url: Astro.url.origin,
-    description: homeDescription,
+    title: 'Floral',
+    description:
+      'Infuse your brand and events with the fresh elegance of floral scents, creating a soft, inviting atmosphere.',
+    image: '/products/types/floral.png',
   },
   {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: heroTitle,
-    url: Astro.url.origin,
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: `${Astro.url.origin}/products/?q={search_term_string}`,
-      'query-input': 'required name=search_term_string',
-    },
+    title: 'Fruity',
+    description:
+      'Sweet fruity fragrances deliver a fresh, delightful sensory experience for your gifts and events, leaving a lasting impression.',
+    image: '/products/types/fruity.png',
   },
+  {
+    title: 'Woody',
+    description:
+      'Rich woody scents bring warmth and depth, adding a unique touch to your brand and seasonal promotions.',
+    image: '/products/types/woody.png',
+  },
+  {
+    title: 'Spicy',
+    description:
+      'Spicy scents ignite special moments, infusing your gifting and promotional events with bold character and energy.',
+    image: '/products/types/spicy.png',
+  },
+  {
+    title: 'Fresh',
+    description:
+      'Fresh aromas enhance your hospitality and events, offering a clean, invigorating experience for guests.',
+    image: '/products/types/fresh.png',
+  },
+  {
+    title: 'More scents',
+    description:
+      'Explore our range of custom scented candles, offering something unique and special for every occasion.',
+    image: '/products/types/more-scents.png',
+  },
+]
+
+const factoryImages = [
+  '/home/factory-1.png',
+  '/home/factory-2.png',
+  '/home/factory-3.png',
+  '/home/factory-4.png',
+  '/home/factory-5.png',
+  '/home/factory-6.png',
+  '/home/factory-7.png',
+  '/home/factory-8.png',
 ]
 ---
 
-<MainLayout
-  title={homeTitle}
-  description={homeDescription}
-  seo={{
-    canonicalUrl: '/',
-    jsonLd: homeJsonLd,
-  }}
->
-  <style>
-    .hero {
-      max-width: 1200px;
-      margin: 26px auto 0;
-      padding: 0 20px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-      perspective: 1000px;
-    }
-    .hero-left {
-      border: 1px solid #e5e7eb;
-      border-radius: 16px;
-      background: #fff;
-      padding: 44px 38px;
-      box-shadow: 0 16px 36px rgba(15, 23, 42, 0.06);
-      opacity: 0;
-      transform: translateY(14px);
-      transition:
-        opacity 0.55s ease,
-        transform 0.55s ease,
-        box-shadow 0.28s ease;
-    }
-    .hero-left.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .hero-left:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 22px 42px rgba(15, 23, 42, 0.08);
-    }
-    .eyebrow {
-      display: inline-flex;
-      padding: 7px 10px;
-      border-radius: 999px;
-      border: 1px solid #e5e7eb;
-      font-size: 0.76rem;
-      letter-spacing: 0.09em;
-      text-transform: uppercase;
-      font-weight: 800;
-      color: #475569;
-      background: #fff;
-      margin-bottom: 12px;
-    }
-    .hero h1 {
-      margin: 0 0 12px;
-      font-size: clamp(2rem, 3.5vw, 3rem);
-      line-height: 1.04;
-      letter-spacing: -0.03em;
-      color: #0f172a;
-      font-weight: 950;
-      max-width: 11ch;
-      transition: letter-spacing 0.25s ease;
-    }
-    .hero-left:hover h1 {
-      letter-spacing: -0.028em;
-    }
-    .hero p {
-      margin: 0;
-      color: #475569;
-      font-size: 1rem;
-      line-height: 1.78;
-      max-width: 55ch;
-    }
-    .hero-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
-      flex-wrap: wrap;
-      transition: transform 0.25s ease;
-    }
-    .hero-left:hover .hero-actions {
-      transform: translateX(2px);
-    }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 12px 16px;
-      border-radius: 10px;
-      text-decoration: none;
-      font-weight: 840;
-      font-size: 0.92rem;
-      border: 1px solid transparent;
-      transition: all 0.2s ease;
-    }
-    .btn.primary {
-      background: var(--primary-color);
-      color: #fff;
-      box-shadow: 0 12px 24px color-mix(in srgb, var(--primary-color) 24%, transparent);
-    }
-    .btn.primary:hover {
-      transform: translateY(-1px);
-      filter: brightness(0.96);
-    }
-    .btn.ghost {
-      background: #fff;
-      border-color: #e5e7eb;
-      color: #0f172a;
-    }
-
-    .hero-right {
-      border: 1px solid #e5e7eb;
-      border-radius: 16px;
-      overflow: hidden;
-      min-height: 360px;
-      position: relative;
-      background: #f1f5f9;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 16px 36px rgba(15, 23, 42, 0.06);
-      opacity: 0;
-      transform: translateY(14px);
-      transition:
-        opacity 0.65s ease,
-        transform 0.65s ease,
-        box-shadow 0.28s ease;
-    }
-    .hero-right.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .hero-right:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 24px 48px rgba(15, 23, 42, 0.1);
-    }
-    .hero-right img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
-      display: block;
-      transform: scale(1.01);
-      transition: transform 0.5s ease;
-    }
-    .hero-right:hover img {
-      transform: scale(1.045);
-    }
-
-    .section-head {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 40px 20px 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: end;
-      gap: 18px;
-    }
-    .section-head h2 {
-      margin: 0;
-      font-size: 1.8rem;
-      font-weight: 950;
-      letter-spacing: -0.02em;
-      color: #0f172a;
-    }
-    .section-head p {
-      margin: 8px 0 0;
-      color: #64748b;
-      line-height: 1.7;
-      max-width: 66ch;
-    }
-    .section-head a {
-      color: var(--primary-color);
-      font-weight: 900;
-      text-decoration: none;
-      white-space: nowrap;
-    }
-
-    .category-grid {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 20px 12px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 12px;
-    }
-    .cat-card {
-      display: grid;
-      grid-template-columns: 86px 1fr;
-      gap: 12px;
-      align-items: center;
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-      background: #fff;
-      padding: 9px;
-      text-decoration: none;
-      color: inherit;
-      transition: all 0.2s ease;
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    .cat-card.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .cat-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 14px 28px rgba(15, 23, 42, 0.07);
-      border-color: color-mix(in srgb, var(--primary-color) 45%, #e5e7eb);
-    }
-    .cat-thumb {
-      height: 64px;
-      border-radius: 10px;
-      overflow: hidden;
-      background: #f8fafc;
-      border: 1px solid #e5e7eb;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .cat-thumb img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .cat-name {
-      margin: 0 0 4px;
-      color: #0f172a;
-      font-size: 0.96rem;
-      font-weight: 850;
-      line-height: 1.3;
-    }
-    .cat-meta {
-      color: #64748b;
-      font-size: 0.82rem;
-      font-weight: 700;
-    }
-
-    .cta-band {
-      max-width: 1200px;
-      margin: 34px auto 72px;
-      padding: 24px 22px;
-      border-radius: 14px;
-      border: 1px solid #e5e7eb;
-      background: #fff;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 14px;
-      align-items: center;
-    }
-    .cta-band h3 {
-      margin: 0 0 4px;
-      font-size: 1.2rem;
-      color: #0f172a;
-      font-weight: 900;
-      letter-spacing: -0.02em;
-    }
-    .cta-band p {
-      margin: 0;
-      color: #64748b;
-      line-height: 1.7;
-    }
-
-    .empty-categories {
-      text-align: center;
-      padding: 2.6rem 20px;
-      color: #6b7280;
-      max-width: 640px;
-      margin: 0 auto;
-    }
-
-    @media (max-width: 980px) {
-      .hero {
-        grid-template-columns: 1fr;
-      }
-      .hero-right {
-        min-height: 250px;
-      }
-      .section-head {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .cta-band {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
-
-  <section class="hero">
-    <div class="hero-left animate-in">
-      <div class="eyebrow">Premium Automotive Lighting</div>
-      <h1>{heroTitle}</h1>
-      <p>{heroSubtitle}</p>
-      <div class="hero-actions">
-        <a class="btn primary" href="/products">Browse Products</a>
-        <a class="btn ghost" href="/request-quote">Request a Quote</a>
+<MainLayout title={homeTitle} description={homeDescription} seo={{canonicalUrl: '/'}}>
+  <main class="home-page">
+    <section class="hero">
+      <img src="/home/hero-banner.png" alt="Scented candles wholesale manufacturer" loading="eager" />
+      <div class="hero-overlay"></div>
+      <div class="hero-inner">
+        <h1>Scented Candles Wholesale Manufacturer in China</h1>
+        <p>
+          With our wholesale candle manufacturing services, we provide unique custom scented candle
+          solutions for your retail, branding, events, and gifting, making every moment more captivating.
+        </p>
+        <a href="/contact" class="btn">Contact Now</a>
       </div>
-    </div>
+    </section>
 
-    <div class="hero-right animate-in" style="transition-delay: 110ms;">
-      <img src={heroVisual} alt={`${heroTitle} product showcase`} loading="eager" />
-    </div>
-  </section>
-
-  <header class="section-head">
-    <div>
-      <h2>Browse by Category</h2>
-      <p>Choose a category to view products, technical details, and inquiry-ready pages.</p>
-    </div>
-    <a href="/products">View all products →</a>
-  </header>
-
-  {
-    categories.length ? (
-      <div class="category-grid">
-        {categories.map((cat) => (
-          <a href={`/category/${cat.pathSlug}`} class="cat-card animate-in">
-            <div class="cat-thumb">
-              {cat.imageUrl ? (
-                <img src={cat.imageUrl} alt={cat.title ?? 'Category'} loading="lazy" />
-              ) : (
-                <span style="color:#94a3b8;font-size:0.8rem;">No image</span>
-              )}
-            </div>
-            <div>
-              <h3 class="cat-name">{cat.title}</h3>
-              <div class="cat-meta">{cat.count ?? 0} products</div>
+    <section class="scent-types section">
+      <h2>Types of scented candles</h2>
+      <div class="card-grid">
+        {scentTypes.map((item) => (
+          <a class="scent-card" href="/request-quote">
+            <img src={item.image} alt={item.title} loading="lazy" />
+            <div class="scent-body">
+              <h3>{item.title}</h3>
+              <p>{item.description}</p>
+              <span>Get Fast Quote &gt;&gt;</span>
             </div>
           </a>
         ))}
       </div>
-    ) : (
-      <p class="empty-categories">
-        No categories yet. Create and publish <strong>productCategory</strong> documents in Sanity Studio.
-      </p>
-    )
+    </section>
+
+    <section class="mid-banner">
+      <div class="mid-banner-overlay"></div>
+      <div class="mid-banner-inner">
+        <div>
+          <h2>Your Scent Solution Awaits</h2>
+          <p>Explore Our Premium Candle Collection</p>
+        </div>
+        <a href="/request-quote" class="btn">Quote Now</a>
+      </div>
+    </section>
+
+    <section class="features section">
+      <h2>Why Your Business Needs MW Candle</h2>
+      <div class="feature-grid">
+        {[
+          ['Features One', 'Tailored to you · Choose from custom packaging, fragrances, and wax types to match your brand identity.'],
+          ['Features Two', 'Eco-Friendly Focus · We use soy, beeswax, coconut, and sustainable packaging to elevate your environmental values.'],
+          ['Features Three', 'Fast and Flexible Production · 10 production lines and rapid prototyping help you meet tight deadlines.'],
+          ['Features Four', 'Stable Supply Chain · In-house design, domestic sourcing, and long-term supplier partnerships ensure reliable output.'],
+          ['Features Five', 'International Trust · Shipped to over 130 countries, trusted by global brands for 15 years.'],
+          ['Features Six', 'Full-Service Support · From design to delivery, we guide you through every step.'],
+        ].map((f, idx) => (
+          <article class="feature-card">
+            <div class="icon">{idx + 1}</div>
+            <h3>{f[0]}</h3>
+            <p>{f[1]}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="about-split section">
+      <div class="about-copy">
+        <h2>What Sets MW Candle Apart</h2>
+        <p>
+          With over 15 years of foreign trade experience and clients across 130+ countries, MW Candle
+          combines expert craftsmanship with innovative design. Backed by high-tech facility and passionate
+          team, our candles are created with precision, creativity, and reliability.
+        </p>
+        <a href="/introduction" class="btn">More About Us</a>
+      </div>
+      <div class="about-image">
+        <img src="/home/building.png" alt="MW Candle building" loading="lazy" />
+      </div>
+    </section>
+
+    <section class="factory section">
+      <h2>Your Strategic Partner in Luxury Candle Manufacturing</h2>
+      <p>When you partner with MW Candle, you’re not just selecting a manufacturer—you’re choosing a strategic collaborator committed to elevating your business.</p>
+      <a href="/request-quote" class="btn">Get A Free Quote</a>
+      <div class="factory-grid">
+        {[...factoryImages, ...factoryImages].map((img) => (
+          <img src={img} alt="Factory production line" loading="lazy" />
+        ))}
+      </div>
+    </section>
+
+    <section class="testimonials section">
+      <h2>What Our Customers Say</h2>
+      <div class="testimonial-grid">
+        {[
+          ['Marcus L.', 'Retail Manager', 'Our boutique saw an immediate uptick in sales after adding their seasonal scents.'],
+          ['Emily T.', 'Corporate Buyer', 'We needed a gift solution fast for 8k+ futures and this team delivered beautiful custom candles.'],
+          ['Chloe Z.', 'Event Coordinator', 'Pairing events is stressful, but their team made it easy. The candles transformed our venue.'],
+        ].map((t) => (
+          <article class="testimonial">
+            <h3>{t[0]}</h3>
+            <p>{t[2]}</p>
+            <span>{t[1]}</span>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="home-blog section">
+      <div class="head-row">
+        <div>
+          <h2>Blog</h2>
+          <p>
+            Discover a variety of topics on our blog—from the history and benefits of scented candles to DIY
+            guides, safety tips, and decor ideas.
+          </p>
+        </div>
+        <a href="/blog" class="btn">View All</a>
+      </div>
+      <div class="blog-grid">
+        {(blogs.length ? blogs : [
+          {
+            title: 'Late Summer to Fall Transition Scents',
+            slug: '#',
+            excerpt: 'Bridge seasons with scented candles.',
+            publishedAt: null,
+            imageUrl: '/products/types/woody.png',
+          },
+        ]).map((b) => (
+          <a class="blog-card" href={b.slug === '#' ? '/blog' : `/blog/${b.slug}`}>
+            <img src={b.imageUrl || '/products/types/floral.png'} alt={b.title ?? 'Blog'} loading="lazy" />
+            <div class="meta-row">
+              <span>{b.publishedAt ? new Date(b.publishedAt).toLocaleDateString() : 'Latest'}</span>
+            </div>
+            <h3>{b.title}</h3>
+          </a>
+        ))}
+      </div>
+    </section>
+  </main>
+</MainLayout>
+
+<style>
+  .home-page { background:#fff; color:#111; }
+  .section { max-width:1140px; margin:0 auto; padding:42px 20px; }
+  h2 { margin:0 0 16px; font-size: clamp(1.5rem,2.8vw,2.15rem); font-weight:800; letter-spacing:-0.01em; text-align:center; }
+  p { color:#4b5563; line-height:1.7; }
+  .btn { display:inline-flex; align-items:center; justify-content:center; padding:10px 18px; border-radius:6px; background:#f07179; color:#fff; text-decoration:none; font-weight:700; font-size:.9rem; border:none; }
+
+  .hero { position:relative; min-height:520px; display:flex; align-items:center; }
+  .hero > img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .hero-overlay { position:absolute; inset:0; background:rgba(0,0,0,.44); }
+  .hero-inner { position:relative; z-index:1; max-width:1140px; margin:0 auto; padding:0 20px; color:#fff; }
+  .hero-inner h1 { margin:0 0 12px; max-width:560px; font-size:clamp(2rem,4vw,3.4rem); line-height:1.08; font-weight:800; }
+  .hero-inner p { max-width:600px; margin:0 0 18px; color:#f3f4f6; }
+
+  .card-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  .scent-card { border:1px solid #e5e7eb; text-decoration:none; color:inherit; background:#fff; }
+  .scent-card img { width:100%; aspect-ratio:16/9; object-fit:cover; display:block; border-bottom:1px solid #e5e7eb; }
+  .scent-body { padding:9px 10px 12px; }
+  .scent-body h3 { margin:0 0 6px; font-size:1.7rem; line-height:1.05; }
+  .scent-body p { margin:0 0 8px; font-size:.86rem; min-height:56px; }
+  .scent-body span { color:#f07179; font-size:.84rem; font-weight:700; }
+
+  .mid-banner { position:relative; min-height:128px; background:linear-gradient(rgba(28,22,18,.4),rgba(28,22,18,.4)),url('/contact/hero-candles.png') center/cover no-repeat; display:flex; align-items:center; margin: 18px 0 0; }
+  .mid-banner-inner { position:relative; z-index:1; max-width:1140px; width:100%; margin:0 auto; padding:0 20px; display:flex; justify-content:space-between; align-items:center; }
+  .mid-banner h2 { margin:0 0 4px; color:#fff; text-align:left; font-size:2.2rem; }
+  .mid-banner p { margin:0; color:#f3f4f6; }
+
+  .feature-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  .feature-card { background:#fafafa; border:1px solid #f1f5f9; padding:20px; text-align:center; }
+  .feature-card .icon { width:26px; height:26px; border-radius:6px; background:#f07179; color:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:.8rem; margin-bottom:10px; }
+  .feature-card h3 { margin:0 0 6px; font-size:1.5rem; }
+  .feature-card p { margin:0; font-size:.84rem; }
+
+  .about-split { display:grid; grid-template-columns:1fr 1fr; gap:18px; align-items:center; }
+  .about-split h2 { text-align:left; margin-bottom:10px; }
+  .about-image img { width:100%; display:block; border-radius:2px; }
+
+  .factory { text-align:center; }
+  .factory p { max-width:760px; margin:0 auto 12px; }
+  .factory-grid { margin-top:16px; display:grid; grid-template-columns:repeat(6,1fr); gap:8px; }
+  .factory-grid img { width:100%; aspect-ratio:4/3; object-fit:cover; display:block; }
+
+  .testimonials h2 { margin-bottom:14px; }
+  .testimonial-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .testimonial { border:1px solid #f1f5f9; background:#fafafa; padding:16px; }
+  .testimonial h3 { margin:0 0 6px; font-size:1.05rem; }
+  .testimonial p { margin:0 0 8px; font-size:.86rem; }
+  .testimonial span { font-size:.8rem; color:#64748b; }
+
+  .head-row { display:flex; justify-content:space-between; align-items:flex-end; gap:18px; margin-bottom:12px; }
+  .head-row h2 { text-align:left; margin:0 0 8px; }
+  .head-row p { max-width:620px; margin:0; }
+  .blog-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  .blog-card { text-decoration:none; color:inherit; }
+  .blog-card img { width:100%; aspect-ratio:16/9; object-fit:cover; display:block; }
+  .meta-row { margin-top:6px; }
+  .meta-row span { font-size:.72rem; color:#64748b; }
+  .blog-card h3 { margin:6px 0 0; font-size:1.02rem; line-height:1.35; }
+
+  @media (max-width: 980px) {
+    .card-grid, .feature-grid, .blog-grid { grid-template-columns:repeat(2,1fr); }
+    .about-split { grid-template-columns:1fr; }
+    .factory-grid { grid-template-columns:repeat(3,1fr); }
+    .testimonial-grid { grid-template-columns:1fr; }
+    .mid-banner-inner { flex-direction:column; align-items:flex-start; gap:10px; padding:18px 20px; }
   }
 
-  {featuredProducts.length ? (
-    <ProductListing
-      products={featuredProducts}
-      sectionTitle="Featured Products"
-      sectionDescription="Latest updated products with inquiry-ready specs and media."
-    />
-  ) : null}
-
-  <section class="cta-band" aria-label="Inquiry call to action">
-    <div>
-      <h3>Need a customized lighting solution?</h3>
-      <p>
-        Tell us your vehicle platform, quantity, and requirements. We’ll respond with practical options
-        and quotation support.
-      </p>
-    </div>
-    <div>
-      <a class="btn primary" href="/request-quote">Send Inquiry</a>
-    </div>
-  </section>
-
-  <script is:inline>
-    ;(function () {
-      var nodes = document.querySelectorAll('.animate-in')
-      if (!nodes.length) return
-      if ('IntersectionObserver' in window) {
-        var io = new IntersectionObserver(
-          function (entries) {
-            entries.forEach(function (entry) {
-              if (entry.isIntersecting) {
-                entry.target.classList.add('visible')
-                io.unobserve(entry.target)
-              }
-            })
-          },
-          {threshold: 0.14},
-        )
-        nodes.forEach(function (node, idx) {
-          if (!node.getAttribute('style') || !node.getAttribute('style').includes('transition-delay')) {
-            node.style.transitionDelay = Math.min(idx * 60, 360) + 'ms'
-          }
-          io.observe(node)
-        })
-      } else {
-        nodes.forEach(function (node) {
-          node.classList.add('visible')
-        })
-      }
-    })()
-  </script>
-</MainLayout>
+  @media (max-width: 640px) {
+    .hero { min-height:420px; }
+    .card-grid, .feature-grid, .blog-grid { grid-template-columns:1fr; }
+    .factory-grid { grid-template-columns:repeat(2,1fr); }
+    .head-row { flex-direction:column; align-items:flex-start; }
+    .mid-banner h2 { font-size:1.6rem; }
+  }
+</style>
