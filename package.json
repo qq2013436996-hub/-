@@ -12,6 +12,7 @@
     "astro": "astro",
     "studio:dev": "CHOKIDAR_USEPOLLING=true npm run dev --prefix \"./Deli-main/sanity-studio\"",
     "studio:dev:3567": "CHOKIDAR_USEPOLLING=true npm run dev --prefix \"./Deli-main/sanity-studio\" -- --port=3567",
+    "studio:dev:3667": "CHOKIDAR_USEPOLLING=true npm run dev --prefix \"./Deli-main/sanity-studio\" -- --port=3667",
     "studio:build": "npm run build --prefix \"./Deli-main/sanity-studio\"",
     "studio:deploy": "npm run deploy --prefix \"./Deli-main/sanity-studio\""
   },
