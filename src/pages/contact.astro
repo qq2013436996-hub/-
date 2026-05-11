@@ -1,33 +1,598 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro'
+import {sanityClient} from 'sanity:client'
+
+const settings = await sanityClient.fetch<{
+  companyName: string | null
+  contactEmail: string | null
+  contactPhone: string | null
+  companyAddress: string | null
+} | null>(`*[_type == "siteSettings"][0]{
+  companyName,
+  contactEmail,
+  contactPhone,
+  companyAddress
+}`)
+
+const brand = settings?.companyName?.trim() || 'MW Candle'
+const phone = settings?.contactPhone?.trim() || '+86 188 5210 0127'
+const email = settings?.contactEmail?.trim() || 'lulu@mwcandle.com'
+const address =
+  settings?.companyAddress?.trim() ||
+  'Building 8, Phase I, No. 66, Yinshan Road, High-tech Industrial Development Zone Xuzhou City, China.'
+
+const pageTitle = `Contact | ${brand}`
+const accent = '#d4586e'
 ---
 
 <MainLayout
-  title="Contact | bike"
-  description="Contact our team for product information and quotation support."
+  title={pageTitle}
+  description="Contact us to explore our scented candle collection. Request a quote or discuss your custom fragrance, logo, or packaging needs."
   seo={{canonicalUrl: '/contact/'}}
 >
-  <main class="container">
-    <h1>Contact</h1>
-    <p>
-      For quick response, please use the inquiry form on
-      <a href="/request-quote">Request Quote</a>.
-    </p>
-  </main>
+  <div class="contact-page">
+    <section class="contact-hero">
+      <div class="contact-hero-inner">
+        <h1 class="contact-hero-title">Contact</h1>
+      </div>
+    </section>
+
+    <div class="contact-breadcrumb-wrap">
+      <nav class="contact-breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span class="sep">&gt;&gt;</span>
+        <span class="current">Contact</span>
+      </nav>
+    </div>
+
+    <section class="contact-intro">
+      <h2>Get in Contact with {brand}</h2>
+      <p>
+        Contact us to explore our scented candle collection. Request a quote or discuss your custom fragrance,
+        logo, or packaging needs.
+      </p>
+    </section>
+
+    <div class="contact-columns">
+      <aside class="contact-aside">
+        <h3>Contact Our Expert Team</h3>
+        <ul class="contact-info-list">
+          <li>
+            <span class="contact-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path
+                  d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+                ></path>
+              </svg>
+            </span>
+            <div>
+              <strong>Phone</strong>
+              <a href={`tel:${phone.replace(/\s/g, '')}`}>{phone}</a>
+            </div>
+          </li>
+          <li>
+            <span class="contact-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+              </svg>
+            </span>
+            <div>
+              <strong>Email</strong>
+              <a href={`mailto:${email}`}>{email}</a>
+            </div>
+          </li>
+          <li>
+            <span class="contact-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+            </span>
+            <div>
+              <strong>Address</strong>
+              <span class="address-text">{address}</span>
+            </div>
+          </li>
+        </ul>
+      </aside>
+
+      <div class="contact-form-wrap">
+        <form id="contact-form" class="contact-form">
+          <div class="form-row two">
+            <div class="form-group">
+              <label for="contact-name">Name <span class="req">*</span></label>
+              <input type="text" id="contact-name" name="name" required autocomplete="name" />
+            </div>
+            <div class="form-group">
+              <label for="contact-email">Email <span class="req">*</span></label>
+              <input type="email" id="contact-email" name="email" required autocomplete="email" />
+            </div>
+          </div>
+          <div class="form-row two">
+            <div class="form-group">
+              <label for="contact-company">Company Name <span class="req">*</span></label>
+              <input type="text" id="contact-company" name="companyName" required autocomplete="organization" />
+            </div>
+            <div class="form-group">
+              <label for="contact-phone">Phone/Whatsapp</label>
+              <input type="text" id="contact-phone" name="phoneWhatsapp" autocomplete="tel" />
+            </div>
+          </div>
+          <fieldset class="form-group quantity-fieldset">
+            <legend>Estimated Quantity for Future Orders <span class="req">*</span></legend>
+            <div class="radio-row">
+              <label class="radio-label">
+                <input type="radio" name="estimatedOrderQuantity" value="1 ~ 499" required />
+                1 ~ 499
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="estimatedOrderQuantity" value="Greater than or equal to 500" />
+                Greater than or equal to 500
+              </label>
+            </div>
+          </fieldset>
+          <div class="form-group">
+            <label for="contact-message">Message <span class="req">*</span></label>
+            <textarea
+              id="contact-message"
+              name="message"
+              required
+              rows="6"
+              placeholder="Send us your inquiry and we will get back to you shortly!"></textarea>
+          </div>
+
+          <input type="hidden" name="subject" value="Contact page inquiry" />
+          <input type="hidden" name="formType" value="contact" />
+          <input type="hidden" name="country" value="" />
+          <input type="hidden" name="productInterestedIn" value="Scented candles / general inquiry" />
+          <input type="hidden" name="buyerType" value="" />
+          <input type="hidden" name="firstSource" id="firstSource" />
+          <input type="hidden" name="firstMedium" id="firstMedium" />
+          <input type="hidden" name="firstCampaign" id="firstCampaign" />
+          <input type="hidden" name="firstContent" id="firstContent" />
+          <input type="hidden" name="firstTerm" id="firstTerm" />
+          <input type="hidden" name="landingPage" id="landingPage" />
+          <input type="hidden" name="currentPage" id="currentPage" />
+          <input type="hidden" name="referrer" id="referrer" />
+          <input type="hidden" name="gclid" id="gclid" />
+          <input type="hidden" name="gbraid" id="gbraid" />
+          <input type="hidden" name="wbraid" id="wbraid" />
+          <input type="hidden" name="msclkid" id="msclkid" />
+          <input type="hidden" name="fbclid" id="fbclid" />
+          <input type="hidden" name="visitorPath" id="visitorPath" />
+          <input type="hidden" name="submittedAt" id="submittedAt" />
+
+          <button type="submit" class="contact-submit">SUBMIT</button>
+        </form>
+        <div id="contact-form-status" class="contact-form-status" role="status" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
 </MainLayout>
 
-<style>
-  .container {
+<style define:vars={{accent}}>
+  .contact-page {
+    --mw-accent: var(--accent);
+    background: #fff;
+    padding-bottom: 72px;
+  }
+
+  .contact-hero {
+    position: relative;
+    min-height: clamp(200px, 28vw, 320px);
+    background:
+      linear-gradient(rgba(45, 28, 22, 0.45), rgba(45, 28, 22, 0.45)),
+      url('/contact/hero-candles.png') center / cover no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .contact-hero-inner {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 48px 20px;
+  }
+
+  .contact-hero-title {
+    margin: 0;
+    font-size: clamp(2.25rem, 5vw, 3.25rem);
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.02em;
+    font-family:
+      'Inter',
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      Roboto,
+      sans-serif;
+  }
+
+  .contact-breadcrumb-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 14px 20px 0;
+  }
+
+  .contact-breadcrumb {
+    font-size: 0.875rem;
+    color: var(--mw-accent);
+    font-weight: 500;
+  }
+
+  .contact-breadcrumb a {
+    color: var(--mw-accent);
+    text-decoration: none;
+  }
+
+  .contact-breadcrumb a:hover {
+    text-decoration: underline;
+  }
+
+  .contact-breadcrumb .sep {
+    margin: 0 8px;
+    opacity: 0.85;
+  }
+
+  .contact-breadcrumb .current {
+    color: var(--mw-accent);
+  }
+
+  .contact-intro {
     max-width: 900px;
     margin: 0 auto;
-    padding: 40px 20px;
+    padding: 28px 20px 36px;
+    text-align: center;
   }
-  h1 {
-    margin: 0 0 10px;
+
+  .contact-intro h2 {
+    margin: 0 0 14px;
+    font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+    font-weight: 700;
+    color: #111;
   }
-  p {
+
+  .contact-intro p {
     margin: 0;
-    color: #64748b;
-    line-height: 1.8;
+    color: #6b7280;
+    line-height: 1.75;
+    font-size: 0.98rem;
+  }
+
+  .contact-columns {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    gap: clamp(28px, 4vw, 56px);
+    align-items: start;
+  }
+
+  .contact-aside h3 {
+    margin: 0 0 22px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #111;
+  }
+
+  .contact-info-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+  }
+
+  .contact-info-list li {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .contact-icon {
+    flex-shrink: 0;
+    color: #111;
+    margin-top: 2px;
+  }
+
+  .contact-info-list strong {
+    display: block;
+    font-size: 0.95rem;
+    color: #111;
+    margin-bottom: 6px;
+  }
+
+  .contact-info-list a {
+    color: var(--mw-accent);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  .contact-info-list a:hover {
+    text-decoration: underline;
+  }
+
+  .address-text {
+    display: block;
+    color: #6b7280;
+    font-size: 0.92rem;
+    line-height: 1.65;
+    max-width: 36ch;
+  }
+
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .form-row.two {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .form-group label,
+  .quantity-fieldset legend {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #111;
+    margin-bottom: 8px;
+  }
+
+  .req {
+    color: var(--mw-accent);
+  }
+
+  .form-group input[type='text'],
+  .form-group input[type='email'],
+  .form-group textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    background: #fff;
+    transition: border-color 0.15s ease;
+  }
+
+  .form-group input:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: var(--mw-accent);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--mw-accent) 35%, transparent);
+  }
+
+  .form-group textarea {
+    resize: vertical;
+    min-height: 140px;
+  }
+
+  .quantity-fieldset {
+    border: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .quantity-fieldset legend {
+    padding: 0;
+    margin-bottom: 10px;
+  }
+
+  .radio-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px 28px;
+  }
+
+  .radio-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.92rem;
+    color: #374151;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .radio-label input {
+    accent-color: var(--mw-accent);
+    width: 16px;
+    height: 16px;
+  }
+
+  .contact-submit {
+    align-self: flex-start;
+    margin-top: 4px;
+    padding: 12px 36px;
+    background: var(--mw-accent);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: filter 0.15s ease;
+  }
+
+  .contact-submit:hover:not(:disabled) {
+    filter: brightness(0.95);
+  }
+
+  .contact-submit:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+
+  .contact-form-status {
+    display: none;
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+  }
+
+  .contact-form-status.success {
+    display: block;
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+  }
+
+  .contact-form-status.error {
+    display: block;
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+  }
+
+  @media (max-width: 880px) {
+    .contact-columns {
+      grid-template-columns: 1fr;
+    }
+
+    .form-row.two {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
+
+<script is:inline>
+  ;(function () {
+    var form = document.getElementById('contact-form')
+    var statusDiv = document.getElementById('contact-form-status')
+    var submitBtn = form && form.querySelector('.contact-submit')
+    if (!form || !statusDiv || !submitBtn) return
+
+    function setHidden(id, value) {
+      var el = document.getElementById(id)
+      if (el && 'value' in el) el.value = value || ''
+    }
+
+    function updateAttributionFields() {
+      var params = new URLSearchParams(window.location.search)
+      var currentPage = window.location.pathname + window.location.search
+      var storageKey = 'utm_first_touch_v1'
+      var pathKey = 'visitor_path_v1'
+      var stored = {}
+      try {
+        stored = JSON.parse(localStorage.getItem(storageKey) || '{}')
+      } catch (_e) {}
+
+      var firstSource = stored.firstSource || params.get('utm_source') || 'direct'
+      var firstMedium = stored.firstMedium || params.get('utm_medium') || 'none'
+      var firstCampaign = stored.firstCampaign || params.get('utm_campaign') || ''
+      var firstContent = stored.firstContent || params.get('utm_content') || ''
+      var firstTerm = stored.firstTerm || params.get('utm_term') || ''
+      var landingPage = stored.landingPage || currentPage
+      var firstReferrer = stored.referrer || document.referrer || ''
+      var gclid = stored.gclid || params.get('gclid') || ''
+      var gbraid = stored.gbraid || params.get('gbraid') || ''
+      var wbraid = stored.wbraid || params.get('wbraid') || ''
+      var msclkid = stored.msclkid || params.get('msclkid') || ''
+      var fbclid = stored.fbclid || params.get('fbclid') || ''
+
+      localStorage.setItem(
+        storageKey,
+        JSON.stringify({
+          firstSource: firstSource,
+          firstMedium: firstMedium,
+          firstCampaign: firstCampaign,
+          firstContent: firstContent,
+          firstTerm: firstTerm,
+          landingPage: landingPage,
+          referrer: firstReferrer,
+          gclid: gclid,
+          gbraid: gbraid,
+          wbraid: wbraid,
+          msclkid: msclkid,
+          fbclid: fbclid,
+        }),
+      )
+
+      var previousPath = localStorage.getItem(pathKey) || ''
+      var pathItems = previousPath ? previousPath.split(' > ') : []
+      if (!pathItems.length || pathItems[pathItems.length - 1] !== currentPage) {
+        pathItems.push(currentPage)
+      }
+      var visitorPath = pathItems.slice(-15).join(' > ')
+      localStorage.setItem(pathKey, visitorPath)
+
+      setHidden('firstSource', firstSource)
+      setHidden('firstMedium', firstMedium)
+      setHidden('firstCampaign', firstCampaign)
+      setHidden('firstContent', firstContent)
+      setHidden('firstTerm', firstTerm)
+      setHidden('landingPage', landingPage)
+      setHidden('currentPage', currentPage)
+      setHidden('referrer', document.referrer || firstReferrer)
+      setHidden('gclid', gclid)
+      setHidden('gbraid', gbraid)
+      setHidden('wbraid', wbraid)
+      setHidden('msclkid', msclkid)
+      setHidden('fbclid', fbclid)
+      setHidden('visitorPath', visitorPath)
+      setHidden('submittedAt', new Date().toISOString())
+    }
+
+    function showSuccess(msg) {
+      statusDiv.textContent = msg
+      statusDiv.style.display = 'block'
+      statusDiv.className = 'contact-form-status success'
+    }
+
+    function showError(msg) {
+      statusDiv.textContent = msg
+      statusDiv.style.display = 'block'
+      statusDiv.className = 'contact-form-status error'
+    }
+
+    updateAttributionFields()
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault()
+      updateAttributionFields()
+      var originalLabel = submitBtn.textContent
+      submitBtn.textContent = 'SENDING...'
+      submitBtn.disabled = true
+      statusDiv.style.display = 'none'
+
+      var formData = new FormData(form)
+      var data = Object.fromEntries(formData.entries())
+
+      try {
+        var response = await fetch('/api/submit-inquiry', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(data),
+        })
+        var payload = await response.json().catch(function () {
+          return {}
+        })
+        if (response.ok && payload.success) {
+          showSuccess('Thank you! Your inquiry has been sent successfully. We will contact you soon.')
+          form.reset()
+          updateAttributionFields()
+        } else {
+          showError(payload.message || 'Something went wrong. Please try again later.')
+        }
+      } catch (_err) {
+        showError('Oops! Something went wrong. Please try again later.')
+      } finally {
+        submitBtn.textContent = originalLabel || 'SUBMIT'
+        submitBtn.disabled = false
+      }
+    })
+  })()
+</script>
