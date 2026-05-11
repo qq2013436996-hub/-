@@ -51,6 +51,45 @@ const products: ProductCard[] = (productsRaw ?? [])
     price: p.price ?? null,
     updatedAt: p.updatedAt ?? null,
   }))
+
+const scentTypes = [
+  {
+    title: 'Floral',
+    description:
+      'Infuse your brand and events with the fresh elegance of floral scents, creating a soft, inviting atmosphere.',
+    image: '/products/types/floral.png',
+  },
+  {
+    title: 'Fruity',
+    description:
+      'Sweet fruity fragrances deliver a fresh, delightful sensory experience for your gifts and events, leaving a lasting impression.',
+    image: '/products/types/fruity.png',
+  },
+  {
+    title: 'Woody',
+    description:
+      'Rich woody scents bring warmth and depth, adding a unique touch to your brand and seasonal promotions.',
+    image: '/products/types/woody.png',
+  },
+  {
+    title: 'Spicy',
+    description:
+      'Spicy scents ignite special moments, infusing your gifting and promotional events with bold character and energy.',
+    image: '/products/types/spicy.png',
+  },
+  {
+    title: 'Fresh',
+    description:
+      'Fresh aromas enhance your hospitality and events, offering a clean, invigorating experience for guests.',
+    image: '/products/types/fresh.png',
+  },
+  {
+    title: 'More scents',
+    description:
+      'Explore our range of custom scented candles, offering something unique and special for every occasion.',
+    image: '/products/types/more-scents.png',
+  },
+]
 ---
 
 <MainLayout
@@ -59,6 +98,66 @@ const products: ProductCard[] = (productsRaw ?? [])
   seo={{canonicalUrl: '/products/'}}
 >
   <style>
+    .scent-types {
+      max-width: 1140px;
+      margin: 22px auto 38px;
+      padding: 0 20px;
+    }
+    .scent-types h2 {
+      margin: 0 0 22px;
+      text-align: center;
+      font-size: clamp(1.45rem, 2.7vw, 2rem);
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: #111827;
+    }
+    .scent-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .scent-card {
+      border: 1px solid #e5e7eb;
+      background: #fff;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+    .scent-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 22px rgba(15, 23, 42, 0.08);
+    }
+    .scent-card img {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      display: block;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .scent-body {
+      padding: 10px 10px 12px;
+    }
+    .scent-title {
+      margin: 0 0 6px;
+      font-size: 1.55rem;
+      line-height: 1.08;
+      font-weight: 700;
+      color: #111827;
+    }
+    .scent-desc {
+      margin: 0 0 8px;
+      color: #4b5563;
+      line-height: 1.55;
+      font-size: 0.88rem;
+      min-height: 56px;
+    }
+    .scent-link {
+      color: #e85d6f;
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+
     .page-hero {
       max-width: 1200px;
       margin: 0 auto;
@@ -143,6 +242,9 @@ const products: ProductCard[] = (productsRaw ?? [])
       padding-left: 8px;
     }
     @media (max-width: 900px) {
+      .scent-grid {
+        grid-template-columns: 1fr 1fr;
+      }
       .page-hero {
         grid-template-columns: 1fr;
         gap: 14px;
@@ -152,7 +254,31 @@ const products: ProductCard[] = (productsRaw ?? [])
         grid-template-columns: 1fr;
       }
     }
+    @media (max-width: 640px) {
+      .scent-grid {
+        grid-template-columns: 1fr;
+      }
+      .scent-title {
+        font-size: 1.35rem;
+      }
+    }
   </style>
+
+  <section class="scent-types">
+    <h2>Types of scented candles</h2>
+    <div class="scent-grid">
+      {scentTypes.map((item) => (
+        <a class="scent-card" href="/request-quote">
+          <img src={item.image} alt={item.title} loading="lazy" />
+          <div class="scent-body">
+            <h3 class="scent-title">{item.title}</h3>
+            <p class="scent-desc">{item.description}</p>
+            <span class="scent-link">Get Fast Quote &gt;&gt;</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
 
   <section class="page-hero">
     <div>
