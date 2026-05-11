@@ -135,7 +135,10 @@ const testimonials = [
       <img src="/home/hero-banner.png" alt="Scented candles wholesale manufacturer" loading="eager" />
       <div class="hero-overlay"></div>
       <div class="hero-inner">
-        <h1>Scented Candles Wholesale Manufacturer in China</h1>
+        <h1 class="hero-heading">
+          <span class="hero-line">Scented Candles Wholesale</span>
+          <span class="hero-line">Manufacturer in China</span>
+        </h1>
         <p>
           With our wholesale candle manufacturing services, we provide unique custom scented candle
           solutions for your retail, branding, events, and gifting, making every moment more captivating.
@@ -293,13 +296,20 @@ const testimonials = [
     padding:0 clamp(18px, 8vw, 96px);
     color:#fff;
   }
-  .hero-inner h1 {
+  .hero-heading {
     margin:0 0 14px;
-    max-width:720px;
-    font-size:clamp(2.15rem, 4.3vw, 4rem);
-    line-height:1.08;
+    max-width:900px;
     font-weight:800;
-    letter-spacing:-0.015em;
+    letter-spacing:-0.02em;
+    line-height:1;
+  }
+  .hero-heading .hero-line {
+    display:block;
+    font-size:clamp(2.35rem, 5.8vw, 5.2rem);
+    line-height:1.02;
+  }
+  .hero-heading .hero-line + .hero-line {
+    margin-top:0.06em;
   }
   .hero-inner p { max-width:610px; margin:0 0 22px; color:#f3f4f6; font-size:1.07rem; line-height:1.65; }
 
