@@ -1,0 +1,102 @@
+---
+import {sanityClient} from 'sanity:client'
+import MainLayout from '../../layouts/MainLayout.astro'
+
+type ApplicationRow = {
+  title: string | null
+  slug: string | null
+  summary: string | null
+  shortDescription: string | null
+  imageUrl: string | null
+  imageAlt: string | null
+  recommendedCount: number | null
+}
+
+const rows = await sanityClient.fetch<ApplicationRow[]>(
+  `*[_type == "application" && defined(slug.current)] | order(_updatedAt desc){
+    title,
+    "slug": slug.current,
+    summary,
+    shortDescription,
+    "imageUrl": heroImage.image.asset->url,
+    "imageAlt": heroImage.alt,
+    "recommendedCount": count(recommendedProducts)
+  }`,
+)
+
+const items = (rows ?? []).filter((row): row is ApplicationRow & {slug: string} => Boolean(row.slug))
+---
+
+<MainLayout
+  title="Applications | bike"
+  description="Explore application scenarios and find recommended products."
+  seo={{canonicalUrl: '/applications/'}}
+>
+  <main class="container">
+    <header class="head">
+      <h1>Applications</h1>
+      <p>Explore real use cases and discover recommended products for each scenario.</p>
+    </header>
+    <div class="grid">
+      {items.length ? (
+        items.map((item) => (
+          <a class="card" href={`/applications/${item.slug}`}>
+            {item.imageUrl ? (
+              <img src={item.imageUrl} alt={item.imageAlt ?? item.title ?? 'Application'} loading="lazy" />
+            ) : (
+              <div class="media-placeholder">No image</div>
+            )}
+            <h2>{item.title}</h2>
+          </a>
+        ))
+      ) : (
+        <p>No applications yet. Add and publish `application` documents in Sanity Studio.</p>
+      )}
+    </div>
+  </main>
+</MainLayout>
+
+<style>
+  .container { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
+  .head { margin-bottom: 18px; }
+  .head h1 { margin: 0 0 8px; }
+  .head p { margin: 0; color: #64748b; line-height: 1.8; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+  .card {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    background: #fff;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+    border-color: #cbd5e1;
+  }
+  .card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-bottom: 1px solid #e5e7eb;
+    transition: transform 0.35s ease, filter 0.35s ease;
+    transform-origin: center;
+  }
+  .card:hover img {
+    transform: scale(1.04);
+    filter: saturate(1.05) contrast(1.03);
+  }
+  .media-placeholder {
+    height: 180px;
+    display: grid;
+    place-items: center;
+    border-bottom: 1px solid #e5e7eb;
+    color: #94a3b8;
+    font-weight: 700;
+    background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+  }
+  .card h2 { margin: 12px 12px 6px; font-size: 1.04rem; }
+  .card h2 { margin: 12px; font-size: 1.1rem; }
+</style>

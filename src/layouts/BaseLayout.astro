@@ -1,0 +1,15 @@
+---
+import MainLayout from './MainLayout.astro'
+
+interface Props {
+  title?: string
+  description?: string
+  seo?: Record<string, unknown>
+}
+
+const {title, description, seo} = Astro.props as Props
+---
+
+<MainLayout title={title} description={description} seo={seo}>
+  <slot />
+</MainLayout>

@@ -1,0 +1,5 @@
+---
+interface Props { data: Record<string, unknown> }
+const {data} = Astro.props as Props
+---
+<script type="application/ld+json" set:html={JSON.stringify({'@context': 'https://schema.org', '@type': 'WebPage', ...data})} />

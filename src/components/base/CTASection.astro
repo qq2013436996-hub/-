@@ -1,0 +1,20 @@
+---
+interface Props {
+  title: string
+  description?: string
+}
+const {title, description = ''} = Astro.props as Props
+---
+
+<section class="cta-section">
+  <h2>{title}</h2>
+  {description ? <p>{description}</p> : null}
+  <div class="actions"><slot /></div>
+</section>
+
+<style>
+  .cta-section { padding: 28px; border: 1px solid #e5e7eb; border-radius: 12px; background: #fff; }
+  h2 { margin: 0 0 10px; }
+  p { margin: 0 0 16px; color: #64748b; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+</style>

@@ -1,0 +1,21 @@
+---
+type FAQ = {question: string; answer: string}
+interface Props { items: FAQ[] }
+const {items} = Astro.props as Props
+---
+
+<div class="faq-list">
+  {items.map((item) => (
+    <details>
+      <summary>{item.question}</summary>
+      <p>{item.answer}</p>
+    </details>
+  ))}
+</div>
+
+<style>
+  .faq-list { display: grid; gap: 10px; }
+  details { border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px 14px; background: #fff; }
+  summary { cursor: pointer; font-weight: 700; }
+  p { margin: 8px 0 0; color: #475569; line-height: 1.7; }
+</style>

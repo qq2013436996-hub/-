@@ -1,0 +1,14 @@
+---
+interface Props { points: string[] }
+const {points} = Astro.props as Props
+---
+<section>
+  <h2>Why Choose Us</h2>
+  <ul>
+    {points.map((point) => <li>{point}</li>)}
+  </ul>
+</section>
+<style>
+  h2 { margin: 0 0 10px; }
+  ul { margin: 0; padding-left: 20px; color: #475569; line-height: 1.8; }
+</style>

@@ -1,0 +1,10 @@
+---
+interface Props { action?: string; method?: 'post' | 'get' }
+const {action = '/api/submit-inquiry', method = 'post'} = Astro.props as Props
+---
+<form action={action} method={method} class="contact-form">
+  <slot />
+</form>
+<style>
+  .contact-form { display:grid; gap:12px; }
+</style>

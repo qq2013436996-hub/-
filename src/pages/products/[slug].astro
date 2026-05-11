@@ -1,0 +1,1355 @@
+---
+import {sanityClient} from 'sanity:client'
+import {PortableText} from 'astro-portabletext'
+import type {TypedObject} from '@portabletext/types'
+import MainLayout from '../../layouts/MainLayout.astro'
+
+type Spec = {label?: string | null; value?: string | null; unit?: string | null}
+type RichBlock = TypedObject[] | null
+
+export const prerender = false
+
+const {slug} = Astro.params
+
+const product = await sanityClient.fetch<{
+  title: string | null
+  imageUrl: string | null
+  imageAlt: string | null
+  gallery: Array<{url: string | null; alt: string | null}> | null
+  price: number | null
+  categoryTitle: string | null
+  categorySlug: string | null
+  shortDescription: string | null
+  specifications: Spec[] | null
+  keyFeatures: Array<{title?: string | null; description?: string | null; iconUrl?: string | null}> | null
+  technicalSpecifications: Spec[] | null
+  customizationOptions: string[] | null
+  moq: string | null
+  leadTime: string | null
+  sampleAvailable: boolean | null
+  certifications: Array<{title?: string | null; issuingBody?: string | null}> | null
+  description: RichBlock
+  detailTabs: Array<{title?: string | null; content?: RichBlock}> | null
+  seo: {
+    metaTitle: string | null
+    metaDescription: string | null
+    canonicalUrl: string | null
+    ogTitle: string | null
+    ogDescription: string | null
+    ogImageUrl: string | null
+    robots: string | null
+  } | null
+  relatedProducts: Array<{title: string | null; slug: string | null; imageUrl: string | null; imageAlt: string | null; price: number | null}> | null
+  relatedApplications: Array<{title: string | null; slug: string | null}> | null
+  relatedCaseStudies: Array<{title: string | null; slug: string | null}> | null
+  relatedFaqs: Array<{question: string | null; answer: string | null}> | null
+} | null>(
+  `*[_type == "product" && slug.current == $slug][0]{
+    title,
+    "imageUrl": mainImage.asset->url,
+    "imageAlt": mainImage.alt,
+    "gallery": gallery[]{
+      "url": asset->url,
+      "alt": alt
+    },
+    price,
+    "categoryTitle": category->title,
+    "categorySlug": category->slug.current,
+    shortDescription,
+    specifications,
+    "keyFeatures": keyFeatures[]{
+      title,
+      description,
+      "iconUrl": icon.asset->url
+    },
+    technicalSpecifications,
+    customizationOptions,
+    moq,
+    leadTime,
+    sampleAvailable,
+    "certifications": certifications[]->{title, issuingBody},
+    description,
+    detailTabs,
+    seo{
+      metaTitle,
+      metaDescription,
+      canonicalUrl,
+      ogTitle,
+      ogDescription,
+      "ogImageUrl": ogImage.asset->url,
+      robots
+    },
+    "relatedProducts": relatedProducts[]->{
+      title,
+      "slug": slug.current,
+      "imageUrl": mainImage.asset->url,
+      "imageAlt": mainImage.alt,
+      price
+    },
+    "relatedApplications": relatedApplications[]->{title, "slug": slug.current},
+    "relatedCaseStudies": relatedCaseStudies[]->{title, "slug": slug.current},
+    "relatedFaqs": relatedFaqs[]->{question, answer}
+  }`,
+  {slug},
+)
+
+if (!product) {
+  return Astro.redirect('/', 302)
+}
+
+const relatedProducts = (product.relatedProducts ?? []).filter(
+  (item): item is {title: string | null; slug: string; imageUrl: string | null; imageAlt: string | null; price: number | null} =>
+    typeof item.slug === 'string' && item.slug.length > 0,
+)
+
+const brandName = 'bike'
+const fallbackTitle = `${product.title ?? 'Product'} Manufacturer & Supplier | ${brandName}`
+const pageTitle = product.seo?.metaTitle?.trim() || fallbackTitle
+const pageDescription =
+  product.seo?.metaDescription?.trim() ||
+  `${product.title ?? 'Product'} technical specs, media, and quote support for B2B buyers.`
+const canonicalUrl = product.seo?.canonicalUrl?.trim() || `/products/${slug}/`
+const absoluteCanonical = canonicalUrl.startsWith('http')
+  ? canonicalUrl
+  : `${Astro.url.origin}${canonicalUrl}`
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: `${Astro.url.origin}/` },
+    { '@type': 'ListItem', position: 2, name: 'Products', item: `${Astro.url.origin}/products/` },
+    {
+      '@type': 'ListItem',
+      position: 3,
+      name: product.title ?? 'Product',
+      item: absoluteCanonical,
+    },
+  ],
+}
+const productJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: product.title ?? 'Product',
+  image: [
+    product.imageUrl,
+    ...((product.gallery ?? []).map((g) => g?.url).filter(Boolean) as string[]),
+  ].filter(Boolean),
+  description: pageDescription,
+  category: product.categoryTitle || undefined,
+  sku: slug,
+  offers: {
+    '@type': 'Offer',
+    priceCurrency: 'USD',
+    price: typeof product.price === 'number' ? product.price : undefined,
+    availability: 'https://schema.org/InStock',
+    url: absoluteCanonical,
+  },
+}
+const quoteLink = `/request-quote?product=${encodeURIComponent(product.title ?? '')}`
+const gallery = [
+  ...(product.imageUrl ? [{url: product.imageUrl, alt: product.imageAlt ?? product.title ?? 'Product'}] : []),
+  ...((product.gallery ?? []).map((g) => ({
+    url: g?.url ?? null,
+    alt: g?.alt ?? product.title ?? 'Product',
+  })) ?? []),
+].filter((g): g is {url: string; alt: string} => typeof g?.url === 'string' && g.url.length > 0)
+const quickSpecs = (product.specifications ?? []).filter((s) => s?.label && s?.value)
+---
+
+<MainLayout
+  title={pageTitle}
+  description={pageDescription}
+  seo={{
+    canonicalUrl: canonicalUrl,
+    ogTitle: product.seo?.ogTitle,
+    ogDescription: product.seo?.ogDescription,
+    ogImage: product.seo?.ogImageUrl || product.imageUrl,
+    robots: product.seo?.robots?.trim() || 'index, follow',
+    jsonLd: [productJsonLd, breadcrumbJsonLd],
+  }}
+>
+  <style>
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .breadcrumb {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 40px;
+      font-weight: 500;
+    }
+    .breadcrumb a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    .breadcrumb a:hover {
+      color: var(--primary-color);
+    }
+
+    .product-hero {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 46px;
+      margin-bottom: 80px;
+      align-items: start;
+    }
+
+    .product-image-showcase {
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      border-radius: 16px;
+      padding: 22px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+    .product-image-showcase img {
+      width: 100%;
+      max-width: 640px;
+      height: auto;
+      object-fit: contain;
+      border-radius: 12px;
+      opacity: 1;
+      transform: translateZ(0) scale(1);
+      transition:
+        opacity 420ms ease,
+        transform 520ms cubic-bezier(0.2, 0, 0.2, 1),
+        filter 520ms cubic-bezier(0.2, 0, 0.2, 1);
+      filter: blur(0px);
+    }
+    .product-image-showcase img.is-switching {
+      opacity: 0;
+      transform: translateZ(0) scale(0.985);
+      filter: blur(10px);
+    }
+    @keyframes imgIn {
+      from {
+        opacity: 0;
+        transform: translateZ(0) scale(1.02);
+        filter: blur(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateZ(0) scale(1);
+        filter: blur(0px);
+      }
+    }
+    .product-image-showcase img.img-in {
+      animation: imgIn 520ms cubic-bezier(0.2, 0, 0.2, 1) both;
+    }
+
+    .thumbs {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(86px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+      max-width: 640px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .image-caption {
+      max-width: 640px;
+      margin: 10px auto 0;
+      color: #64748b;
+      font-size: 0.9rem;
+      line-height: 1.55;
+    }
+    .thumbs button {
+      appearance: none;
+      border: 1px solid var(--border-color);
+      background: #fff;
+      border-radius: 12px;
+      padding: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .thumbs button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06);
+      border-color: color-mix(in srgb, var(--primary-color) 45%, var(--border-color));
+    }
+    .thumbs img {
+      width: 100%;
+      height: 62px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .product-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin: 0 0 16px 0;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+
+    .meta-line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+      color: var(--text-muted);
+      font-weight: 650;
+      font-size: 0.95rem;
+    }
+    .meta-line a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+    .meta-line a:hover {
+      color: var(--primary-color);
+    }
+    .meta-line a.meta-pill {
+      color: #0f172a;
+    }
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      background: #fff;
+      color: #111827;
+      font-weight: 750;
+      font-size: 0.9rem;
+    }
+
+    .product-price {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin: 0 0 28px 0;
+      letter-spacing: -0.01em;
+    }
+    .short-desc {
+      color: #475569;
+      line-height: 1.75;
+      margin: 0 0 18px;
+    }
+
+    .specs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+    .spec-card {
+      background: #ffffff;
+      padding: 16px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+    .business-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin: 0 0 24px;
+    }
+    .business-item {
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 12px;
+      background: #fff;
+    }
+    .spec-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #1e293b;
+      display: block;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+    .spec-value {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+      .btn-quote {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: var(--primary-color);
+        color: white;
+        padding: 18px 40px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        text-decoration: none;
+        border-radius: 8px;
+        transition:
+          filter 0.3s ease,
+          transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+          box-shadow 0.3s ease;
+        border: none;
+        cursor: pointer;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .btn-quote:hover {
+        filter: brightness(0.92);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px color-mix(in srgb, var(--primary-color) 35%, transparent);
+      }
+
+    .side-card {
+      margin-top: 18px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 18px 18px;
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.05);
+    }
+    .side-card :is(h2, h3) {
+      margin: 0 0 10px;
+      font-size: 1rem;
+      font-weight: 850;
+      color: #111827;
+    }
+    .side-card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #475569;
+      line-height: 1.7;
+      font-size: 0.95rem;
+    }
+    .kf {
+      margin-top: 12px;
+      display: grid;
+      gap: 10px;
+    }
+    .kf details {
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      background: #f8fafc;
+      overflow: hidden;
+    }
+    .kf summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 12px;
+      font-weight: 850;
+      color: #111827;
+      user-select: none;
+    }
+    .kf summary::-webkit-details-marker {
+      display: none;
+    }
+    .kf-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex: 0 0 auto;
+    }
+    .kf-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .kf-title {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+    .kf-chevron {
+      width: 18px !important;
+      height: 18px !important;
+      min-width: 18px;
+      min-height: 18px;
+      max-width: 18px;
+      max-height: 18px;
+      color: #0f172a;
+      opacity: 0.8;
+      transition: transform 180ms ease;
+      flex: 0 0 auto;
+      display: block;
+    }
+    .kf details[open] .kf-chevron {
+      transform: rotate(180deg);
+    }
+    .kf-body {
+      padding: 0 12px 12px;
+      color: #475569;
+      line-height: 1.65;
+      font-weight: 500;
+    }
+
+    .product-details {
+      border-top: 1px solid var(--border-color);
+      padding-top: 60px;
+      max-width: 980px;
+      margin: 0 auto;
+    }
+    .details-head {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .details-sub {
+      color: #64748b;
+      max-width: 70ch;
+      margin: 10px auto 0;
+      line-height: 1.7;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    .details-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr);
+      gap: 18px;
+      align-items: start;
+    }
+    .details-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+      padding: 18px 18px;
+    }
+    .details-card h3 {
+      margin: 0 0 12px;
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: #0f172a;
+      letter-spacing: -0.01em;
+    }
+    .specs-grid.compact {
+      margin-bottom: 0;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+    .spec-card.compact {
+      padding: 14px;
+    }
+    .detail-section {
+      margin-top: 22px;
+      padding-top: 22px;
+      border-top: 1px solid rgba(148, 163, 184, 0.25);
+    }
+    .detail-section {
+      margin-top: 40px;
+    }
+    .detail-section h3 {
+      margin: 0 0 12px;
+      font-size: 1.2rem;
+      color: #0f172a;
+    }
+    @media (max-width: 980px) {
+      .details-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .product-details h2 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 40px;
+      text-align: center;
+    }
+    .prose {
+      font-size: 1.125rem;
+      color: #374151;
+      line-height: 1.75;
+    }
+    .prose :global(h2),
+    .prose :global(h3) {
+      color: var(--text-main);
+      margin-top: 2em;
+      margin-bottom: 1em;
+    }
+    .prose :global(p) {
+      margin-bottom: 1.5em;
+    }
+    .prose :global(blockquote) {
+      margin: 1.5em 0;
+      padding-left: 1rem;
+      border-left: 4px solid var(--border-color);
+      color: var(--text-muted);
+    }
+    .prose :global(img) {
+      max-width: 100%;
+      height: auto;
+      border-radius: 12px;
+      margin: 32px 0;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .related {
+      margin-top: 70px;
+      border-top: 1px solid var(--border-color);
+      padding-top: 54px;
+    }
+    .related h2 {
+      font-size: 1.6rem;
+      font-weight: 900;
+      margin: 0 0 18px;
+      color: #111827;
+      text-align: center;
+    }
+    .related-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    .related-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      background: #fff;
+      text-decoration: none;
+      color: inherit;
+      padding: 14px;
+      transition: all 0.2s ease;
+    }
+    .related-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06);
+      border-color: color-mix(in srgb, var(--primary-color) 50%, #e5e7eb);
+    }
+    .related-thumb {
+      height: 140px;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      border: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .related-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .related-title {
+      font-weight: 850;
+      color: #111827;
+      margin: 0 0 8px;
+      line-height: 1.35;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      font-size: 1rem;
+    }
+    .related-meta {
+      color: #64748b;
+      font-weight: 750;
+      font-size: 0.92rem;
+    }
+
+    /* Premium visual overrides */
+    .container {
+      max-width: 1280px;
+      padding-top: 28px;
+      padding-bottom: 72px;
+    }
+    .breadcrumb {
+      margin-bottom: 26px;
+      font-weight: 650;
+      letter-spacing: 0.01em;
+    }
+    .premium-hero {
+      position: relative;
+      grid-template-columns: minmax(0, 1.35fr) minmax(340px, 0.65fr);
+      gap: 30px;
+      margin-bottom: 52px;
+      padding: 0;
+      border-radius: 0;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+    }
+    .media-panel {
+      padding: 0;
+      border-radius: 0;
+      background: transparent;
+      border: none;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: start;
+    }
+    .product-image-showcase {
+      border-radius: 16px;
+      border: 1px solid #d1d5db;
+      box-shadow: 0 8px 18px rgba(17, 24, 39, 0.08);
+      background: #f8fafc;
+      min-height: clamp(380px, 58vh, 700px);
+    }
+    .premium-hero .thumbs {
+      grid-template-columns: 1fr;
+      margin-top: 0;
+      width: 78px;
+      max-width: 78px;
+      max-height: clamp(380px, 58vh, 700px);
+      overflow: auto;
+    }
+    .thumbs button {
+      border-color: #d1d5db;
+      background: #f3f4f6;
+      border-radius: 10px;
+    }
+    .thumbs button[aria-current='true'] {
+      border-color: #0f172a;
+      box-shadow: inset 0 0 0 1px #0f172a;
+      background: #fff;
+    }
+    .image-caption {
+      font-size: 0.84rem;
+      color: #64748b;
+      margin-top: 8px;
+      padding: 0 4px;
+    }
+    .info-panel {
+      border-radius: 20px;
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      box-shadow: 0 20px 32px rgba(17, 24, 39, 0.12);
+      padding: 24px;
+      position: sticky;
+      top: 84px;
+      max-height: calc(100vh - 110px);
+      overflow: auto;
+    }
+    .highlight-list {
+      margin: 0 0 18px;
+      padding-left: 18px;
+      color: #334155;
+      line-height: 1.65;
+      font-size: 0.94rem;
+    }
+    .highlight-list li + li {
+      margin-top: 4px;
+    }
+    .product-title {
+      font-size: clamp(2rem, 2.7vw, 2.9rem);
+      margin-bottom: 10px;
+      color: #0f172a;
+    }
+    .short-desc {
+      color: #334155;
+      font-size: 1.02rem;
+      margin-bottom: 16px;
+    }
+    .meta-pill {
+      background: #f3f4f6;
+      border-color: #d1d5db;
+      color: #0f172a;
+    }
+    .product-price {
+      font-size: clamp(1.6rem, 2.1vw, 2rem);
+      margin-bottom: 20px;
+    }
+    .business-item,
+    .spec-card {
+      background: #f3f4f6;
+      border-color: #d1d5db;
+    }
+    .btn-quote {
+      border-radius: 12px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
+    }
+    .btn-quote:hover {
+      filter: brightness(1.05);
+      box-shadow: 0 16px 28px rgba(17, 24, 39, 0.35);
+    }
+    .mobile-cta-wrap {
+      display: none;
+    }
+    .side-card {
+      border-radius: 12px;
+      border-color: #d1d5db;
+      background: #f3f4f6;
+      box-shadow: none;
+      margin-top: 14px;
+    }
+    .kf details {
+      background: #ffffff;
+      border-color: #d1d5db;
+    }
+    .product-details {
+      margin-top: 8px;
+      padding-top: 0;
+      max-width: 1240px;
+      border-top: none;
+    }
+    .details-head h2 {
+      font-size: clamp(1.9rem, 2.3vw, 2.4rem);
+      margin-bottom: 0;
+      letter-spacing: -0.02em;
+    }
+    .details-grid {
+      gap: 22px;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    }
+    .details-card {
+      border: none;
+      border-radius: 0;
+      padding: 0;
+      box-shadow: none;
+      background: transparent;
+    }
+    .prose {
+      font-size: 1.04rem;
+      line-height: 1.85;
+    }
+    .related {
+      margin-top: 72px;
+      padding-top: 24px;
+      border-top: none;
+    }
+    .related-grid {
+      gap: 14px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+    .related-card {
+      border-radius: 0;
+      border: none;
+      box-shadow: none;
+      background: transparent;
+      padding: 10px 6px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .related-card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #334155;
+      line-height: 1.7;
+    }
+    .related-card li + li {
+      margin-top: 6px;
+    }
+    .related-card a {
+      color: #334155;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.28);
+      transition: color 0.18s ease, border-color 0.18s ease;
+    }
+    .related-card a:hover {
+      color: #0f172a;
+      border-bottom-color: #0f172a;
+    }
+    .faq-mini details {
+      border: none;
+      border-radius: 0;
+      background: transparent;
+      padding: 6px 0;
+      border-bottom: 1px dashed #d1d5db;
+    }
+    .faq-mini details + details {
+      margin-top: 8px;
+    }
+    .faq-mini summary {
+      list-style: none;
+      cursor: pointer;
+      font-weight: 700;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .faq-mini summary::-webkit-details-marker {
+      display: none;
+    }
+    .faq-mini summary::after {
+      content: '+';
+      color: #64748b;
+      font-weight: 700;
+    }
+    .faq-mini details[open] summary::after {
+      content: '−';
+    }
+    .faq-mini .ans {
+      margin-top: 8px;
+      color: #475569;
+      line-height: 1.6;
+      font-size: 0.92rem;
+    }
+    .related-thumb {
+      border-color: #d1d5db;
+      background: #f3f4f6;
+    }
+    .quick-spec-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 0 0 18px;
+    }
+    .quick-spec {
+      border: 1px solid #d1d5db;
+      background: #f3f4f6;
+      border-radius: 10px;
+      padding: 10px;
+    }
+    .quick-spec .k {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #1e293b;
+      font-weight: 700;
+    }
+    .quick-spec .v {
+      margin-top: 2px;
+      font-size: 0.95rem;
+      color: #0f172a;
+      font-weight: 800;
+    }
+
+    .details-band {
+      margin: 36px -20px 0;
+      padding: 34px 20px 16px;
+      background: transparent;
+      border: none;
+    }
+
+    @media (max-width: 980px) {
+      .premium-hero {
+        grid-template-columns: 1fr;
+      }
+      .media-panel {
+        grid-template-columns: 1fr;
+      }
+      .premium-hero .thumbs {
+        grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+        width: auto;
+        max-width: none;
+        max-height: none;
+      }
+      .info-panel {
+        position: static;
+        max-height: none;
+        overflow: visible;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding-bottom: 110px;
+      }
+      .product-hero {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+      .premium-hero {
+        padding: 14px;
+        border-radius: 16px;
+      }
+      .info-panel {
+        position: static;
+        top: auto;
+        padding: 16px;
+      }
+      .details-grid {
+        grid-template-columns: 1fr;
+      }
+      .details-band {
+        margin-left: -20px;
+        margin-right: -20px;
+        padding-top: 34px;
+        padding-bottom: 34px;
+      }
+      .quick-spec-row {
+        grid-template-columns: 1fr 1fr;
+      }
+      .product-title {
+        font-size: 2rem;
+      }
+      .product-price {
+        font-size: 1.25rem;
+      }
+      .btn-quote {
+        padding: 16px 24px;
+      }
+      .product-info > .btn-quote {
+        display: none;
+      }
+      .mobile-cta-wrap {
+        display: block;
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 60;
+        padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+        background: linear-gradient(180deg, rgba(248, 250, 252, 0.84) 0%, rgba(248, 250, 252, 0.98) 40%);
+        backdrop-filter: blur(8px);
+        border-top: 1px solid #dbe3ee;
+      }
+      .mobile-cta-wrap .btn-quote {
+        display: flex;
+        margin: 0;
+        border-radius: 12px;
+        box-shadow: 0 10px 22px rgba(15, 23, 42, 0.26);
+      }
+    }
+  </style>
+
+  <main class="container">
+    <nav class="breadcrumb">
+      <a href="/">Home</a> &gt; <a href="/products">Products</a> &gt; <span>{product.title}</span>
+    </nav>
+
+    <div class="product-hero premium-hero">
+      <div class="media-panel">
+        <div class="product-image-showcase">
+          {gallery.length ? (
+            <img id="mainImage" src={gallery[0].url} alt={gallery[0].alt} />
+          ) : (
+            <div style="color: #999;">No Image Available</div>
+          )}
+        </div>
+        {gallery.length > 1 ? (
+          <div class="thumbs" aria-label="Product gallery thumbnails">
+            {gallery.slice(0, 8).map((img, i) => (
+              <button type="button" data-img={img.url} data-alt={img.alt} aria-label={`View image ${i + 1}`}>
+                <img src={img.url} alt={img.alt} loading="lazy" />
+              </button>
+            ))}
+          </div>
+        ) : null}
+        {gallery[0]?.alt ? (
+          <p id="mainImageCaption" class="image-caption">{gallery[0].alt}</p>
+        ) : (
+          <p id="mainImageCaption" class="image-caption" style="display:none;"></p>
+        )}
+      </div>
+
+      <div class="product-info info-panel">
+        <h1 class="product-title">{product.title}</h1>
+        {product.shortDescription ? <p class="short-desc">{product.shortDescription}</p> : null}
+        <div class="meta-line">
+          {product.categoryTitle && product.categorySlug ? (
+            <a class="meta-pill" href={`/category/${product.categorySlug}`}>
+              Category: {product.categoryTitle}
+            </a>
+          ) : (
+            <span class="meta-pill">Category: —</span>
+          )}
+          <span class="meta-pill">Model: OEM/ODM</span>
+        </div>
+
+        <p class="product-price">
+          {typeof product.price === 'number' ? `$${product.price}` : 'Contact for Price'}
+        </p>
+
+        <div class="quick-spec-row">
+          {quickSpecs.map((spec) => (
+            <div class="quick-spec">
+              <div class="k">{spec.label}</div>
+              <div class="v">
+                {spec.value}
+                {spec.unit ? ` ${spec.unit}` : ''}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {(product.keyFeatures ?? []).length ? (
+          <ul class="highlight-list" aria-label="Top highlights">
+            {(product.keyFeatures ?? []).slice(0, 5).map((f) =>
+              f.title ? <li>{f.title}</li> : null,
+            )}
+          </ul>
+        ) : null}
+
+        {(product.moq || product.leadTime || typeof product.sampleAvailable === 'boolean') ? (
+          <div class="business-grid">
+            {product.moq ? (
+              <div class="business-item">
+                <span class="spec-label">MOQ</span>
+                <span class="spec-value">{product.moq}</span>
+              </div>
+            ) : null}
+            {product.leadTime ? (
+              <div class="business-item">
+                <span class="spec-label">Lead Time</span>
+                <span class="spec-value">{product.leadTime}</span>
+              </div>
+            ) : null}
+            {typeof product.sampleAvailable === 'boolean' ? (
+              <div class="business-item">
+                <span class="spec-label">Sample</span>
+                <span class="spec-value">{product.sampleAvailable ? 'Available' : 'Not Available'}</span>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+
+        <a href={quoteLink} class="btn-quote">
+          Request a Quote
+        </a>
+
+        {(product.keyFeatures ?? []).length ? (
+          <aside class="side-card" aria-label="Key features">
+            <h2>Key Features</h2>
+            <div class="kf" data-kf-root>
+              {(product.keyFeatures ?? []).map((feature) => (
+                <details>
+                  <summary>
+                    <span class="kf-icon" aria-hidden="true">
+                      {feature.iconUrl ? <img src={feature.iconUrl} alt="" loading="lazy" /> : null}
+                    </span>
+                    <span class="kf-title">{feature.title ?? 'Feature'}</span>
+                    <svg class="kf-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </summary>
+                  {feature.description ? <div class="kf-body">{feature.description}</div> : null}
+                </details>
+              ))}
+            </div>
+          </aside>
+        ) : null}
+      </div>
+    </div>
+
+    <section class="details-band">
+    <article class="product-details">
+      <div class="details-head">
+        <h2>Product Overview</h2>
+      </div>
+
+      <div class="details-grid">
+        <section class="details-card">
+          <h3>Overview</h3>
+          <div class="prose">
+            {
+              product.description ? (
+                <PortableText value={product.description} />
+              ) : (
+                <p>More details coming soon.</p>
+              )
+            }
+          </div>
+        </section>
+
+        <aside class="details-card" aria-label="Specs & business info">
+          <h3>Highlights</h3>
+
+          {(product.technicalSpecifications ?? []).length ? (
+            <section class="detail-section" style="margin-top: 0; padding-top: 0; border-top: none;">
+              <h3 style="margin-top: 0;">Technical Specs</h3>
+              <div class="specs-grid compact">
+                {(product.technicalSpecifications ?? []).slice(0, 8).map((spec) => (
+                  <div class="spec-card compact">
+                    <span class="spec-label">{spec.label}</span>
+                    <span class="spec-value">
+                      {spec.value ?? ''}
+                      {spec.unit ? ` ${spec.unit}` : ''}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
+          {(product.customizationOptions ?? []).length ? (
+            <section class="detail-section">
+              <h3>Customization</h3>
+              <div class="prose">
+                <ul>
+                  {(product.customizationOptions ?? []).slice(0, 8).map((item) => (
+                    <li>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            </section>
+          ) : null}
+
+          {(product.certifications ?? []).length ? (
+            <section class="detail-section">
+              <h3>Certifications</h3>
+              <div class="prose">
+                <ul>
+                  {(product.certifications ?? []).slice(0, 10).map((cert) => (
+                    <li>{cert.title}{cert.issuingBody ? ` - ${cert.issuingBody}` : ''}</li>
+                  ))}
+                </ul>
+              </div>
+            </section>
+          ) : null}
+        </aside>
+      </div>
+
+      {(product.detailTabs ?? []).map((tab) =>
+        tab?.title && tab?.content?.length ? (
+          <section class="detail-section">
+            <h3>{tab.title}</h3>
+            <div class="prose">
+              <PortableText value={tab.content} />
+            </div>
+          </section>
+        ) : null,
+      )}
+    </article>
+    </section>
+
+    {relatedProducts?.length ? (
+      <section class="related" aria-label="Related products">
+        <h2>Related Products</h2>
+        <div class="related-grid">
+          {relatedProducts.map((p) => (
+              <a class="related-card" href={`/products/${p.slug}`}>
+                <div class="related-thumb">
+                  {p.imageUrl ? <img src={p.imageUrl} alt={p.imageAlt ?? p.title ?? 'Product'} loading="lazy" /> : null}
+                </div>
+                <div class="related-title">{p.title}</div>
+                <div class="related-meta">
+                  {typeof p.price === 'number' ? `$${p.price}` : 'Contact for Price'}
+                </div>
+              </a>
+            ))}
+        </div>
+      </section>
+    ) : null}
+
+    {(product.relatedApplications?.length || product.relatedCaseStudies?.length || product.relatedFaqs?.length) ? (
+      <section class="related" aria-label="Cross links">
+        <h2>Related Resources</h2>
+        <div class="related-grid">
+          <div class="related-card">
+            <h3 class="related-title">Applications</h3>
+            <ul>
+              {(product.relatedApplications ?? []).map((item) =>
+                item.slug ? <li><a href={`/applications/${item.slug}`}>{item.title}</a></li> : null,
+              )}
+            </ul>
+          </div>
+          <div class="related-card">
+            <h3 class="related-title">Case Studies</h3>
+            <ul>
+              {(product.relatedCaseStudies ?? []).map((item) =>
+                item.slug ? <li><a href={`/case-studies/${item.slug}`}>{item.title}</a></li> : null,
+              )}
+            </ul>
+          </div>
+          <div class="related-card">
+            <h3 class="related-title">FAQs</h3>
+            <div class="faq-mini">
+              {(product.relatedFaqs ?? []).map((item) =>
+                item.question ? (
+                  <details>
+                    <summary>{item.question}</summary>
+                    {item.answer ? <div class="ans">{item.answer}</div> : <div class="ans"><a href="/faq">View all FAQs</a></div>}
+                  </details>
+                ) : null,
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+    ) : null}
+
+    <div class="mobile-cta-wrap">
+      <a href={quoteLink} class="btn-quote" aria-label="Request a quote for this product">
+        Request a Quote
+      </a>
+    </div>
+  </main>
+
+  <script is:inline>
+    ;(function () {
+      var img = document.getElementById('mainImage')
+      var caption = document.getElementById('mainImageCaption')
+      if (!img) return
+      var currentToken = 0
+
+      function setActive(url) {
+        document.querySelectorAll('[data-img]').forEach(function (btn) {
+          var u = btn.getAttribute('data-img')
+          if (u && u === url) {
+            btn.setAttribute('aria-current', 'true')
+          } else {
+            btn.removeAttribute('aria-current')
+          }
+        })
+      }
+
+      function setCaption(text) {
+        if (!caption) return
+        var next = (text || '').trim()
+        if (!next) {
+          caption.textContent = ''
+          caption.style.display = 'none'
+          return
+        }
+        caption.textContent = next
+        caption.style.display = ''
+      }
+
+      document.querySelectorAll('[data-img]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var url = btn.getAttribute('data-img')
+          var alt = btn.getAttribute('data-alt')
+          if (!url) return
+          if (img.getAttribute('src') === url) return
+
+          currentToken += 1
+          var token = currentToken
+
+          img.classList.add('is-switching')
+          img.classList.remove('img-in')
+          var pre = new Image()
+          pre.onload = function () {
+            if (token !== currentToken) return
+            img.setAttribute('src', url)
+            if (alt) img.setAttribute('alt', alt)
+            setCaption(alt || '')
+            setActive(url)
+            // Force a frame so the browser registers the "switching" state first.
+            requestAnimationFrame(function () {
+              // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+              img && img.offsetHeight
+              img.classList.remove('is-switching')
+              img.classList.add('img-in')
+            })
+          }
+          pre.onerror = function () {
+            if (token !== currentToken) return
+            img.setAttribute('src', url)
+            if (alt) img.setAttribute('alt', alt)
+            setCaption(alt || '')
+            setActive(url)
+            img.classList.remove('is-switching')
+            img.classList.add('img-in')
+          }
+          pre.src = url
+        })
+      })
+
+      // Initialize active state
+      setActive(img.getAttribute('src') || '')
+      setCaption(img.getAttribute('alt') || '')
+
+      // Key Features accordion: only keep one open at a time
+      document.querySelectorAll('[data-kf-root]').forEach(function (root) {
+        root.querySelectorAll('details').forEach(function (d) {
+          d.addEventListener('toggle', function () {
+            if (!d.open) return
+            root.querySelectorAll('details').forEach(function (other) {
+              if (other !== d) other.removeAttribute('open')
+            })
+          })
+        })
+      })
+    })()
+  </script>
+</MainLayout>

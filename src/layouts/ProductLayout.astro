@@ -1,0 +1,23 @@
+---
+import BaseLayout from './BaseLayout.astro'
+
+interface Props {
+  title?: string
+  description?: string
+  seo?: Record<string, unknown>
+}
+
+const {title, description, seo} = Astro.props as Props
+---
+
+<BaseLayout title={title} description={description} seo={seo}>
+  <main class="product-layout">
+    <slot />
+  </main>
+</BaseLayout>
+
+<style>
+  .product-layout {
+    min-height: 60vh;
+  }
+</style>

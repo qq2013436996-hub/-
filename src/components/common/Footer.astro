@@ -1,0 +1,40 @@
+---
+interface Props {
+  companyName?: string
+  copyrightText?: string
+}
+const {
+  companyName = 'bike',
+  copyrightText = `© ${new Date().getFullYear()} bike. All rights reserved.`,
+} = Astro.props as Props
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="name">{companyName}</p>
+    <p>{copyrightText}</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid #e5e7eb;
+    background: #fff;
+    margin-top: 40px;
+  }
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 18px 20px;
+  }
+  p {
+    margin: 0;
+    color: #64748b;
+    line-height: 1.8;
+    font-size: 0.9rem;
+  }
+  .name {
+    font-weight: 700;
+    color: #111827;
+  }
+</style>

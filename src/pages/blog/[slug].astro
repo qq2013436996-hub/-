@@ -1,0 +1,139 @@
+---
+import {sanityClient} from 'sanity:client'
+import {PortableText} from 'astro-portabletext'
+import type {TypedObject} from '@portabletext/types'
+import MainLayout from '../../layouts/MainLayout.astro'
+
+type LinkRow = {title: string | null; slug: string | null}
+
+export const prerender = false
+
+const {slug} = Astro.params
+
+const doc = await sanityClient.fetch<{
+  title: string | null
+  excerpt: string | null
+  publishedAt: string | null
+  heroImageUrl: string | null
+  heroImageAlt: string | null
+  body: TypedObject[] | null
+  relatedProducts: LinkRow[] | null
+  relatedApplications: LinkRow[] | null
+  relatedCaseStudies: LinkRow[] | null
+  ctaText: string | null
+  seo: {
+    metaTitle: string | null
+    metaDescription: string | null
+    canonicalUrl: string | null
+    ogTitle: string | null
+    ogDescription: string | null
+    ogImageUrl: string | null
+    robots: string | null
+  } | null
+} | null>(
+  `*[_type == "blogPost" && slug.current == $slug][0]{
+    title,
+    excerpt,
+    publishedAt,
+    "heroImageUrl": coalesce(featuredImage.image.asset->url, coverImage.asset->url),
+    "heroImageAlt": coalesce(featuredImage.alt, coverImage.alt),
+    body,
+    "relatedProducts": relatedProducts[]->{title, "slug": slug.current},
+    "relatedApplications": relatedApplications[]->{title, "slug": slug.current},
+    "relatedCaseStudies": relatedCaseStudies[]->{title, "slug": slug.current},
+    ctaText,
+    seo{
+      metaTitle,
+      metaDescription,
+      canonicalUrl,
+      ogTitle,
+      ogDescription,
+      "ogImageUrl": ogImage.asset->url,
+      robots
+    }
+  }`,
+  {slug},
+)
+
+if (!doc) {
+  return Astro.redirect('/', 302)
+}
+
+const pageTitle = doc.seo?.metaTitle?.trim() || `${doc.title ?? 'Article'} | bike`
+const pageDescription = doc.seo?.metaDescription?.trim() || doc.excerpt || 'Blog article with related links.'
+---
+
+<MainLayout
+  title={pageTitle}
+  description={pageDescription}
+  seo={{
+    canonicalUrl: doc.seo?.canonicalUrl || `/blog/${slug}/`,
+    ogTitle: doc.seo?.ogTitle,
+    ogDescription: doc.seo?.ogDescription,
+    ogImage: doc.seo?.ogImageUrl || doc.heroImageUrl,
+    robots: doc.seo?.robots,
+  }}
+>
+  <main class="container">
+    <h1>{doc.title}</h1>
+    {doc.publishedAt ? <p class="meta">Published {new Date(doc.publishedAt).toLocaleDateString()}</p> : null}
+    {doc.excerpt ? <p class="lead">{doc.excerpt}</p> : null}
+    {doc.heroImageUrl ? <img src={doc.heroImageUrl} alt={doc.heroImageAlt ?? doc.title ?? 'Blog cover'} class="hero" /> : null}
+    <article class="prose">
+      {doc.body ? <PortableText value={doc.body} /> : <p>Content coming soon.</p>}
+    </article>
+
+    <section class="links">
+      <div>
+        <h2>Related Products</h2>
+        <ul>
+          {(doc.relatedProducts ?? []).map((item) =>
+            item.slug ? <li><a href={`/products/${item.slug}`}>{item.title}</a></li> : null,
+          )}
+        </ul>
+      </div>
+      <div>
+        <h2>Related Applications</h2>
+        <ul>
+          {(doc.relatedApplications ?? []).map((item) =>
+            item.slug ? <li><a href={`/applications/${item.slug}`}>{item.title}</a></li> : null,
+          )}
+        </ul>
+      </div>
+      <div>
+        <h2>Related Case Studies</h2>
+        <ul>
+          {(doc.relatedCaseStudies ?? []).map((item) =>
+            item.slug ? <li><a href={`/case-studies/${item.slug}`}>{item.title}</a></li> : null,
+          )}
+        </ul>
+      </div>
+    </section>
+
+    <p class="cta"><a href="/request-quote">{doc.ctaText || 'Contact Us'}</a></p>
+  </main>
+</MainLayout>
+
+<style>
+  .container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
+  h1 { margin: 0 0 10px; }
+  .meta { margin: 0 0 8px; color: #64748b; font-size: 0.92rem; }
+  .lead { margin: 0 0 16px; color: #64748b; line-height: 1.8; }
+  .hero { width: 100%; border-radius: 12px; border: 1px solid #e5e7eb; margin: 0 0 20px; }
+  .prose { line-height: 1.8; color: #334155; }
+  .links { margin-top: 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+  .links > div { border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px; background: #fff; }
+  .links h2 { margin: 0 0 8px; font-size: 1rem; }
+  .links ul { margin: 0; padding-left: 18px; color: #475569; line-height: 1.7; }
+  .links a {
+    color: #334155;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(51, 65, 85, 0.26);
+    transition: color 0.18s ease, border-color 0.18s ease;
+  }
+  .links a:hover {
+    color: #0f172a;
+    border-bottom-color: #0f172a;
+  }
+  .cta a { display: inline-flex; margin-top: 14px; background: var(--primary-color, #ff6600); color: #fff; text-decoration: none; padding: 10px 14px; border-radius: 8px; font-weight: 700; }
+</style>

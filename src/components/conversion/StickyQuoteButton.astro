@@ -1,0 +1,8 @@
+---
+interface Props { href: string; label?: string }
+const {href, label = 'Request Quote'} = Astro.props as Props
+---
+<a class="sticky-quote" href={href}>{label}</a>
+<style>
+  .sticky-quote { position: fixed; right: 16px; bottom: 18px; z-index: 50; background: var(--primary-color, #ff6600); color:#fff; text-decoration:none; padding:10px 14px; border-radius:999px; font-weight:800; }
+</style>

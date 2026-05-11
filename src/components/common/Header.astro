@@ -1,0 +1,67 @@
+---
+interface NavItem {
+  label: string
+  href: string
+}
+interface Props {
+  brandName?: string
+  navItems?: NavItem[]
+}
+
+const {
+  brandName = 'bike',
+  navItems = [
+    {label: 'Home', href: '/'},
+    {label: 'Products', href: '/products'},
+    {label: 'Applications', href: '/applications'},
+    {label: 'Case Studies', href: '/case-studies'},
+    {label: 'Blog', href: '/blog'},
+    {label: 'FAQ', href: '/faq'},
+    {label: 'Contact', href: '/contact'},
+  ],
+} = Astro.props as Props
+---
+
+<header class="site-header">
+  <div class="container">
+    <a href="/" class="brand">{brandName}</a>
+    <nav>
+      {navItems.map((item) => (
+        <a href={item.href}>{item.label}</a>
+      ))}
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    border-bottom: 1px solid #e5e7eb;
+    background: #fff;
+  }
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .brand {
+    font-weight: 900;
+    color: #111827;
+    text-decoration: none;
+  }
+  nav {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  nav a {
+    color: #475569;
+    text-decoration: none;
+    font-size: 0.92rem;
+    font-weight: 650;
+  }
+</style>

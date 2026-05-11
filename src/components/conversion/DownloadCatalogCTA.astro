@@ -1,0 +1,8 @@
+---
+interface Props { href: string; label?: string }
+const {href, label = 'Download Catalog'} = Astro.props as Props
+---
+<a class="download-cta" href={href}>{label}</a>
+<style>
+  .download-cta { display:inline-flex; background:#0f172a; color:#fff; text-decoration:none; padding:10px 14px; border-radius:8px; font-weight:700; }
+</style>

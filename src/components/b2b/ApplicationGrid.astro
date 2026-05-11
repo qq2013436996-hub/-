@@ -1,0 +1,18 @@
+---
+type Item = {title: string; description?: string; href: string}
+interface Props { items: Item[] }
+const {items} = Astro.props as Props
+---
+<div class="grid">
+  {items.map((item) => (
+    <a href={item.href} class="item">
+      <h3>{item.title}</h3>
+      {item.description ? <p>{item.description}</p> : null}
+    </a>
+  ))}
+</div>
+<style>
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+  .item { border:1px solid #e5e7eb; border-radius:12px; padding:14px; text-decoration:none; color:inherit; background:#fff; }
+  h3 { margin:0 0 8px; } p { margin:0; color:#64748b; line-height:1.7; }
+</style>

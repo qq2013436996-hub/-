@@ -1,0 +1,11 @@
+---
+interface Props { items: string[] }
+const {items} = Astro.props as Props
+---
+<div class="strip" aria-label="Certifications">
+  {items.map((item) => <span>{item}</span>)}
+</div>
+<style>
+  .strip { display:flex; flex-wrap:wrap; gap:8px; }
+  span { border:1px solid #e5e7eb; border-radius:999px; padding:6px 10px; font-size:0.82rem; font-weight:700; background:#fff; }
+</style>

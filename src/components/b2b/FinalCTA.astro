@@ -1,0 +1,13 @@
+---
+interface Props { title: string; description?: string }
+const {title, description = ''} = Astro.props as Props
+---
+<section class="final-cta">
+  <h2>{title}</h2>
+  {description ? <p>{description}</p> : null}
+  <slot />
+</section>
+<style>
+  .final-cta { text-align:center; border:1px solid #e5e7eb; border-radius:12px; padding:26px 16px; background:#fff; }
+  h2 { margin:0 0 10px; } p { margin:0 0 14px; color:#64748b; }
+</style>

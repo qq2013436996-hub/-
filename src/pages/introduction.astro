@@ -1,0 +1,587 @@
+---
+import MainLayout from '../layouts/MainLayout.astro'
+
+const canyonImages = [
+  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_02_3000x2000_ALL_n6ldrr-e2985a27-df28-413b-80d3-9e8e87b3302c.png',
+  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_03_3000x2000_ALL_pwaeoc-65cc5de0-aea4-401c-bd2e-b98d4a4cc8f9.png',
+  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_04_3000x2000_ALL_dhmxkq-4f91e166-38ba-4a8d-8b59-0d903f4df79b.png',
+  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_05_3000x2000_ALL_a1rbur-c6057de9-ccc0-4ad4-beac-dafcad97eea1.png',
+  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_06_3000x2000_ALL_usykx7-3a426510-c549-4767-a346-b80c5bae4722.png',
+  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_07_3000x2000_ALL_dnmza8-64d2c96a-7a44-4d11-b685-e21521e078ee.png',
+  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_08_3000x2000_ALL_dirncq-ae0593e3-a75b-4454-a6b1-f2be57f748aa.png',
+  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_09_3000x2000_ALL_ffdyfw-b9049840-00bb-4004-96b2-d8fdabab88b6.png',
+  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_10_3000x2000_ALL_mab0yn-550826af-6716-45df-8dc5-ce48286e7dda.png',
+  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_11_3000x2000_ALL_xfx51s-930e5d9e-4304-4ab3-88d1-da4bd9531fa5.png',
+  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_12_3000x2000_ALL_kas35r-913f605b-490e-46c4-b46c-aebfaaf87431.png',
+  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_13_3000x2000_ALL_iee2cj-1cb81e51-5207-4d4a-9f21-7fe096337a79.png',
+  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_14_3000x2000_ALL_cdftpx-2ee28c7e-59e3-4a93-a5ba-302cd8c8bea1.png',
+  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_15_3000x2000_ALL_pxvsvp-94bb6709-586c-47b5-b822-b78c562d5983.png',
+  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_16_3000x2000_ALL_jtmov5-35860474-d947-43c6-b465-e1a5a288fd03.png',
+  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_17_3000x2000_ALL_uccvbv-a71e579e-874d-420f-bb33-edf0c609fb39.png',
+  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_18_3000x2000_ALL_gfgf28-abcc8961-f85c-4e92-bcde-3a88da6f05af.png',
+]
+
+const milestones = [
+  {
+    year: '1985',
+    text: 'The journey began with a blue trailer and a passion for racing, importing and selling bike parts rider-to-rider.',
+    image: canyonImages[4],
+  },
+  {
+    year: '1996',
+    text: 'The first Canyon-branded mountain bike marked the move from retailer to manufacturer.',
+    image: canyonImages[5],
+  },
+  {
+    year: '2003',
+    text: 'Canyon pioneered online direct sales, connecting bikes and riders without compromise.',
+    image: canyonImages[6],
+  },
+  {
+    year: '2023',
+    text: 'A new headquarters and innovation lab opened, setting the stage for the next era.',
+    image: canyonImages[7],
+  },
+]
+---
+
+<MainLayout
+  title="Introduction | bike"
+  description="Explore Inside Canyon: story, innovation, and milestones."
+  seo={{canonicalUrl: '/introduction/'}}
+>
+  <style>
+    .page {
+      background: #fff;
+      color: #111827;
+    }
+    .hero {
+      position: relative;
+      height: clamp(340px, 60vw, 620px);
+      overflow: hidden;
+    }
+    .hero img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transform: scale(1.02);
+      transition: transform 0.55s ease;
+    }
+    .hero:hover img {
+      transform: scale(1.06);
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(2, 6, 23, 0.18) 0%, rgba(2, 6, 23, 0.7) 100%);
+    }
+    .hero-text {
+      position: absolute;
+      left: max(20px, calc((100vw - 1120px) / 2 + 10px));
+      bottom: 12%;
+      z-index: 2;
+      color: #fff;
+    }
+    .hero-text h1 {
+      margin: 0 0 6px;
+      font-size: clamp(1.6rem, 3.3vw, 2.6rem);
+      letter-spacing: -0.02em;
+    }
+    .hero-text p {
+      margin: 0;
+      color: #e2e8f0;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    .crumb {
+      color: #64748b;
+      font-size: 0.83rem;
+      margin: 14px 0 30px;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: center;
+      margin: 0 0 34px;
+    }
+    .split.reverse .copy {
+      order: 2;
+    }
+    .split.reverse .media {
+      order: 1;
+    }
+    .copy .kicker {
+      color: #e11d48;
+      font-size: 0.76rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+    .copy h2 {
+      margin: 0 0 10px;
+      font-size: clamp(1.5rem, 2.8vw, 2.1rem);
+      letter-spacing: -0.02em;
+      color: #0f172a;
+    }
+    .copy p {
+      margin: 0;
+      color: #475569;
+      line-height: 1.82;
+      max-width: 56ch;
+    }
+    .media {
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08);
+      transition: transform 0.28s ease, box-shadow 0.28s ease;
+    }
+    .media:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 22px 34px rgba(15, 23, 42, 0.14);
+    }
+    .media img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      aspect-ratio: 16 / 9;
+      transition: transform 0.45s ease;
+    }
+    .media:hover img {
+      transform: scale(1.04);
+    }
+
+    .facts {
+      background: #f3f4f6;
+      margin: 46px 0 0;
+      padding: 42px 0;
+      text-align: center;
+    }
+    .facts h2 {
+      margin: 0 0 8px;
+      font-size: 2rem;
+      color: #1f2937;
+    }
+    .facts p {
+      margin: 0 0 24px;
+      color: #6b7280;
+      font-size: 0.92rem;
+    }
+    .fact-grid {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+    .fact-num {
+      color: #22d3ee;
+      font-size: 2rem;
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .fact-label {
+      color: #6b7280;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      font-weight: 700;
+    }
+
+    .milestone {
+      padding: 54px 0;
+      background: #fff;
+    }
+    .section-head {
+      text-align: center;
+      margin-bottom: 22px;
+    }
+    .section-head h2 {
+      margin: 0 0 6px;
+      font-size: 2rem;
+      color: #1f2937;
+    }
+    .section-head p {
+      margin: 0;
+      color: #6b7280;
+      font-size: 0.9rem;
+    }
+    .mile-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    .mile-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+      transition: transform 0.25s ease;
+    }
+    .mile-card:hover {
+      transform: translateY(-3px);
+    }
+    .mile-card img {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+    .mile-card:hover img {
+      transform: scale(1.05);
+    }
+    .mile-body {
+      padding: 12px 12px 14px;
+    }
+    .mile-year {
+      font-size: 1.7rem;
+      font-weight: 900;
+      color: #1f2937;
+      margin-bottom: 4px;
+    }
+    .mile-text {
+      color: #6b7280;
+      font-size: 0.9rem;
+      line-height: 1.65;
+    }
+
+    .presence {
+      background:
+        radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.2), transparent 28%),
+        radial-gradient(circle at 80% 70%, rgba(99, 102, 241, 0.18), transparent 28%),
+        linear-gradient(180deg, #0b1220 0%, #0a1020 100%);
+      padding: 56px 0;
+      text-align: center;
+      color: #fff;
+    }
+    .presence h2 {
+      margin: 0 0 10px;
+      font-size: 2rem;
+    }
+    .presence-map {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    .presence-map img {
+      width: 100%;
+      border-radius: 14px;
+      opacity: 0.96;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      transition: transform 0.45s ease, box-shadow 0.45s ease;
+    }
+    .presence-map img:hover {
+      transform: scale(1.015);
+      box-shadow: 0 18px 30px rgba(15, 23, 42, 0.35);
+    }
+
+    .news {
+      padding: 52px 0 70px;
+      background: #fff;
+    }
+    .gallery {
+      padding: 8px 20px 72px;
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+    .gallery h2 {
+      margin: 0 0 16px;
+      font-size: clamp(1.35rem, 2.8vw, 2rem);
+      color: #0f172a;
+    }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .gallery-grid img {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+      display: block;
+      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+    }
+    .reveal {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 980px) {
+      .split,
+      .split.reverse .copy,
+      .split.reverse .media {
+        grid-template-columns: 1fr;
+        order: unset;
+      }
+      .fact-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .mile-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (max-width: 640px) {
+      .mile-grid {
+        grid-template-columns: 1fr;
+      }
+      .gallery-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+  <main class="page">
+    <section class="hero">
+      <img src={canyonImages[0]} alt="Brand history and origin" loading="eager" />
+      <div class="hero-text">
+        <h1>Inside Canyon</h1>
+        <p>A different kind of bike company.</p>
+      </div>
+    </section>
+
+    <div class="container">
+      <div class="crumb">Home &gt; About &gt; Inside Canyon</div>
+
+      <section class="split reveal">
+        <div class="copy">
+          <div class="kicker">Canyon&apos;s Story</div>
+          <h2>Every Day We Build the Bikes We Dream of Riding</h2>
+          <p>
+            Performance is our obsession. But performance is not given, it is earned through every
+            pedal stroke and every design decision. From the beginning, Canyon set out to rethink
+            what riders should expect from a bike brand.
+          </p>
+        </div>
+        <figure class="media">
+          <img src={canyonImages[1]} alt="Company history image" loading="lazy" />
+        </figure>
+      </section>
+
+      <section class="split reverse reveal">
+        <div class="copy">
+          <div class="kicker">Disruptive by Design</div>
+          <h2>German Engineering, Purposeful Innovation</h2>
+          <p>
+            Canyon does things differently by pairing meticulous engineering with ideas that challenge
+            the status quo. The result is race-proven and award-winning bikes designed with no
+            compromise and pure function.
+          </p>
+        </div>
+        <figure class="media">
+          <img src={canyonImages[2]} alt="Manufacturing and design image" loading="lazy" />
+        </figure>
+      </section>
+
+      <section class="split reveal">
+        <div class="copy">
+          <div class="kicker">The Canyon Promise</div>
+          <h2>From Rider Needs to Real-World Performance</h2>
+          <p>
+            We design road, gravel, mountain, city, touring and e-bikes with one focus: helping
+            riders get the very best experience on every terrain. Innovation only matters when it
+            performs where it counts: out on the road and trail.
+          </p>
+        </div>
+        <figure class="media">
+          <img src={canyonImages[3]} alt="Innovation and technology image" loading="lazy" />
+        </figure>
+      </section>
+    </div>
+
+    <section class="facts reveal">
+      <h2>Why Canyon</h2>
+      <p>The milestones below show how Canyon evolved from a small shop into a global performance bike brand.</p>
+      <div class="fact-grid">
+        <div>
+          <div class="fact-num">1985</div>
+          <div class="fact-label">First bike shop opens</div>
+        </div>
+        <div>
+          <div class="fact-num">1996</div>
+          <div class="fact-label">First Canyon-branded MTB</div>
+        </div>
+        <div>
+          <div class="fact-num">2003</div>
+          <div class="fact-label">Online direct sales launch</div>
+        </div>
+        <div>
+          <div class="fact-num">2023</div>
+          <div class="fact-label">New HQ and Innovation Lab</div>
+        </div>
+        <div>
+          <div class="fact-num">2025</div>
+          <div class="fact-label">MyCanyon customization expands</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="milestone">
+      <div class="container">
+        <div class="section-head reveal">
+          <h2>Milestone</h2>
+          <p>Key moments from Canyon&apos;s journey of innovation and growth.</p>
+        </div>
+        <div class="mile-grid">
+          {milestones.map((item, idx) => (
+            <article class="mile-card reveal" style={`transition-delay:${idx * 70}ms;`}>
+              <img src={item.image} alt={`Milestone ${item.year}`} loading="lazy" />
+              <div class="mile-body">
+                <div class="mile-year">{item.year}</div>
+                <div class="mile-text">{item.text}</div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="presence reveal">
+      <h2>The Heart of Canyon</h2>
+      <div class="presence-map">
+        <img src={canyonImages[8]} alt="Global brand and rider image" loading="lazy" />
+      </div>
+    </section>
+
+    <section class="news">
+      <div class="container">
+        <section class="split reveal">
+          <div class="copy">
+            <div class="kicker">Award-winning</div>
+            <h2>Best in Class, Proven by Riders</h2>
+            <p>
+              Canyon bikes are consistently recognized across cycling media and competitive racing.
+              From road to mountain, performance is tested by demanding riders and validated through
+              real-world results.
+            </p>
+          </div>
+          <figure class="media">
+            <img src={canyonImages[9]} alt="News and events image" loading="lazy" />
+          </figure>
+        </section>
+
+        <section class="split reverse reveal">
+          <div class="copy">
+            <div class="kicker">Future Forward</div>
+            <h2>Responsibility for People, Planet and Product</h2>
+            <p>
+              Canyon&apos;s long-term vision combines innovation with responsibility, building better
+              products while investing in sustainable progress for riders and communities.
+            </p>
+          </div>
+          <figure class="media">
+            <img src={canyonImages[10]} alt="Social responsibility image" loading="lazy" />
+          </figure>
+        </section>
+
+        <section class="split reveal">
+          <div class="copy">
+            <div class="kicker">Always by Your Side</div>
+            <h2>Direct to Rider, Closer to Community</h2>
+            <p>
+              Canyon&apos;s direct model keeps the brand close to riders, with growing local presence
+              and digital tools that support setup, service and every step of the ownership journey.
+            </p>
+          </div>
+          <figure class="media">
+            <img src={canyonImages[11]} alt="Responsible governance image" loading="lazy" />
+          </figure>
+        </section>
+      </div>
+    </section>
+
+    <section class="gallery reveal">
+      <h2>More Brand Moments</h2>
+      <div class="gallery-grid">
+        {canyonImages.slice(12).map((img, idx) => (
+          <img src={img} alt={`Brand moment ${idx + 1}`} loading="lazy" />
+        ))}
+      </div>
+    </section>
+  </main>
+
+  <script is:inline>
+    ;(function () {
+      var items = document.querySelectorAll('.reveal')
+      function show(node) {
+        node.classList.add('visible')
+      }
+      if ('IntersectionObserver' in window) {
+        var io = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                show(entry.target)
+                io.unobserve(entry.target)
+              }
+            })
+          },
+          {threshold: 0.14},
+        )
+        items.forEach(function (item) {
+          io.observe(item)
+        })
+      } else {
+        items.forEach(show)
+      }
+
+      function count(el) {
+        var target = Number(el.getAttribute('data-target') || '0')
+        var suffix = el.getAttribute('data-suffix') || '+'
+        if (!target) return
+        var duration = 900
+        var start = 0
+        var t0 = performance.now()
+        function step(t) {
+          var p = Math.min((t - t0) / duration, 1)
+          var eased = 1 - Math.pow(1 - p, 3)
+          var value = Math.round(start + (target - start) * eased)
+          el.textContent = value + suffix
+          if (p < 1) requestAnimationFrame(step)
+        }
+        requestAnimationFrame(step)
+      }
+
+      document.querySelectorAll('.count-up').forEach(function (el) {
+        var started = false
+        if ('IntersectionObserver' in window) {
+          var io2 = new IntersectionObserver(
+            function (entries) {
+              entries.forEach(function (entry) {
+                if (entry.isIntersecting && !started) {
+                  started = true
+                  count(el)
+                  io2.unobserve(el)
+                }
+              })
+            },
+            {threshold: 0.6},
+          )
+          io2.observe(el)
+        } else {
+          count(el)
+        }
+      })
+    })()
+  </script>
+</MainLayout>

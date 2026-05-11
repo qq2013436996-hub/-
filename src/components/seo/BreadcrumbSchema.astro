@@ -1,0 +1,7 @@
+---
+type Item = {name: string; item: string}
+interface Props { items: Item[] }
+const {items} = Astro.props as Props
+const itemListElement = items.map((it, idx) => ({'@type': 'ListItem', position: idx + 1, name: it.name, item: it.item}))
+---
+<script type="application/ld+json" set:html={JSON.stringify({'@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement})} />

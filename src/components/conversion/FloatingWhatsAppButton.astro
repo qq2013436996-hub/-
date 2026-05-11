@@ -1,0 +1,8 @@
+---
+interface Props { href: string; label?: string }
+const {href, label = 'WhatsApp'} = Astro.props as Props
+---
+<a class="floating-whatsapp" href={href} target="_blank" rel="noreferrer">{label}</a>
+<style>
+  .floating-whatsapp { position: fixed; right: 16px; bottom: 68px; z-index: 50; background: #22c55e; color:#fff; text-decoration:none; padding:10px 14px; border-radius:999px; font-weight:800; }
+</style>

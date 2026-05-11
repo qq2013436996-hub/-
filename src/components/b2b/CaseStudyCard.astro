@@ -1,0 +1,12 @@
+---
+interface Props { title: string; href: string; summary?: string }
+const {title, href, summary = ''} = Astro.props as Props
+---
+<a class="case-card" href={href}>
+  <h3>{title}</h3>
+  {summary ? <p>{summary}</p> : null}
+</a>
+<style>
+  .case-card { display:block; text-decoration:none; color:inherit; border:1px solid #e5e7eb; border-radius:12px; padding:14px; background:#fff; }
+  h3 { margin:0 0 8px; } p { margin:0; color:#64748b; line-height:1.7; }
+</style>

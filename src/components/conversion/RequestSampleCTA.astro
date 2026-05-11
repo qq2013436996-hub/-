@@ -1,0 +1,8 @@
+---
+interface Props { href: string; label?: string }
+const {href, label = 'Request Sample'} = Astro.props as Props
+---
+<a class="sample-cta" href={href}>{label}</a>
+<style>
+  .sample-cta { display:inline-flex; background:#fff; color:#111827; border:1px solid #e5e7eb; text-decoration:none; padding:10px 14px; border-radius:8px; font-weight:700; }
+</style>

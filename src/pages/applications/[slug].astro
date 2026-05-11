@@ -1,0 +1,243 @@
+---
+import {sanityClient} from 'sanity:client'
+import {PortableText} from 'astro-portabletext'
+import type {TypedObject} from '@portabletext/types'
+import MainLayout from '../../layouts/MainLayout.astro'
+
+type LinkRow = {title: string | null; slug: string | null}
+
+export const prerender = false
+
+const {slug} = Astro.params
+
+const doc = await sanityClient.fetch<{
+  title: string | null
+  summary: string | null
+  shortDescription: string | null
+  heroImageUrl: string | null
+  heroImageAlt: string | null
+  content: TypedObject[] | null
+  painPoints: Array<{title: string | null; description: string | null}> | null
+  solutionBenefits: Array<{title: string | null; description: string | null}> | null
+  installationScenarios: string[] | null
+  cta: {title: string | null; description: string | null; buttonText: string | null; buttonUrl: string | null} | null
+  recommendedProducts: LinkRow[] | null
+  relatedCaseStudies: LinkRow[] | null
+  relatedFaqs: Array<{question: string | null; answer: string | null}> | null
+  relatedBlogs: LinkRow[] | null
+  seo: {
+    metaTitle: string | null
+    metaDescription: string | null
+    canonicalUrl: string | null
+    ogTitle: string | null
+    ogDescription: string | null
+    ogImageUrl: string | null
+    robots: string | null
+  } | null
+} | null>(
+  `*[_type == "application" && slug.current == $slug][0]{
+    title,
+    summary,
+    shortDescription,
+    "heroImageUrl": heroImage.image.asset->url,
+    "heroImageAlt": heroImage.alt,
+    content,
+    "painPoints": painPoints[]{title, description},
+    "solutionBenefits": solutionBenefits[]{title, description},
+    installationScenarios,
+    "cta": cta{title, description, buttonText, buttonUrl},
+    "recommendedProducts": recommendedProducts[]->{title, "slug": slug.current},
+    "relatedCaseStudies": relatedCaseStudies[]->{title, "slug": slug.current},
+    "relatedFaqs": relatedFaqs[]->{question, answer},
+    "relatedBlogs": relatedBlogs[]->{title, "slug": slug.current},
+    seo{
+      metaTitle,
+      metaDescription,
+      canonicalUrl,
+      ogTitle,
+      ogDescription,
+      "ogImageUrl": ogImage.asset->url,
+      robots
+    }
+  }`,
+  {slug},
+)
+
+if (!doc) {
+  return Astro.redirect('/', 302)
+}
+
+const pageTitle = doc.seo?.metaTitle?.trim() || `LED Work Lights for ${doc.title ?? 'Application'} | bike`
+const pageDescription =
+  doc.seo?.metaDescription?.trim() ||
+  doc.summary ||
+  'Application scenario page with recommended products and related case studies.'
+---
+
+<MainLayout
+  title={pageTitle}
+  description={pageDescription}
+  seo={{
+    canonicalUrl: doc.seo?.canonicalUrl || `/applications/${slug}/`,
+    ogTitle: doc.seo?.ogTitle,
+    ogDescription: doc.seo?.ogDescription,
+    ogImage: doc.seo?.ogImageUrl || doc.heroImageUrl,
+    robots: doc.seo?.robots?.trim() || 'index, follow',
+  }}
+>
+  <main class="container">
+    <h1>{doc.title}</h1>
+    {doc.summary ? <p class="lead">{doc.summary}</p> : null}
+    {doc.shortDescription ? <p class="lead">{doc.shortDescription}</p> : null}
+    {doc.heroImageUrl ? <img src={doc.heroImageUrl} alt={doc.heroImageAlt ?? doc.title ?? 'Application'} class="hero" /> : null}
+    <article class="prose">
+      {doc.content ? <PortableText value={doc.content} /> : <p>Content coming soon.</p>}
+    </article>
+
+    {(doc.painPoints ?? []).length ? (
+      <section class="block">
+        <h2>Pain Points</h2>
+        <ul>
+          {(doc.painPoints ?? []).map((item) => (
+            <li><strong>{item.title}</strong>{item.description ? ` - ${item.description}` : ''}</li>
+          ))}
+        </ul>
+      </section>
+    ) : null}
+
+    {(doc.solutionBenefits ?? []).length ? (
+      <section class="block">
+        <h2>Solution Benefits</h2>
+        <ul>
+          {(doc.solutionBenefits ?? []).map((item) => (
+            <li><strong>{item.title}</strong>{item.description ? ` - ${item.description}` : ''}</li>
+          ))}
+        </ul>
+      </section>
+    ) : null}
+
+    {(doc.installationScenarios ?? []).length ? (
+      <section class="block">
+        <h2>Installation Scenarios</h2>
+        <ul>
+          {(doc.installationScenarios ?? []).map((item) => (
+            <li>{item}</li>
+          ))}
+        </ul>
+      </section>
+    ) : null}
+
+    {doc.cta?.buttonText && doc.cta?.buttonUrl ? (
+      <section class="block cta-box">
+        {doc.cta.title ? <h2>{doc.cta.title}</h2> : null}
+        {doc.cta.description ? <p>{doc.cta.description}</p> : null}
+        <a href={doc.cta.buttonUrl}>{doc.cta.buttonText}</a>
+      </section>
+    ) : null}
+
+    <section class="links">
+      <div>
+        <h2>Recommended Products</h2>
+        <ul>
+          {(doc.recommendedProducts ?? []).map((item) =>
+            item.slug ? <li><a href={`/products/${item.slug}`}>{item.title}</a></li> : null,
+          )}
+        </ul>
+      </div>
+      <div>
+        <h2>Related Case Studies</h2>
+        <ul>
+          {(doc.relatedCaseStudies ?? []).map((item) =>
+            item.slug ? <li><a href={`/case-studies/${item.slug}`}>{item.title}</a></li> : null,
+          )}
+        </ul>
+      </div>
+      <div>
+        <h2>Related Blogs</h2>
+        <ul>
+          {(doc.relatedBlogs ?? []).map((item) =>
+            item.slug ? <li><a href={`/blog/${item.slug}`}>{item.title}</a></li> : null,
+          )}
+        </ul>
+      </div>
+      <div>
+        <h2>Related FAQs</h2>
+        <div class="faq-mini">
+          {(doc.relatedFaqs ?? []).map((item) =>
+            item.question ? (
+              <details>
+                <summary>{item.question}</summary>
+                {item.answer ? <div class="ans">{item.answer}</div> : <div class="ans"><a href="/faq">View all FAQs</a></div>}
+              </details>
+            ) : null,
+          )}
+        </div>
+      </div>
+    </section>
+  </main>
+</MainLayout>
+
+<style>
+  .container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
+  h1 { margin: 0 0 10px; }
+  .lead { margin: 0 0 16px; color: #64748b; line-height: 1.8; }
+  .hero { width: 100%; border-radius: 12px; border: 1px solid #e5e7eb; margin: 0 0 20px; }
+  .prose { line-height: 1.8; color: #334155; }
+  .block { margin-top: 22px; }
+  .block h2 { margin: 0 0 10px; font-size: 1.12rem; }
+  .block ul { margin: 0; padding-left: 18px; color: #475569; line-height: 1.7; }
+  .cta-box { border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px; background: #fff; }
+  .cta-box p { margin: 0 0 10px; color: #475569; line-height: 1.7; }
+  .cta-box a { display: inline-flex; background: #111827; color: #fff; text-decoration: none; border-radius: 8px; padding: 9px 12px; font-weight: 700; }
+  .links { margin-top: 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+  .links > div { border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px; background: #fff; }
+  .links h2 { margin: 0 0 8px; font-size: 1rem; }
+  .links ul { margin: 0; padding-left: 18px; color: #475569; line-height: 1.7; }
+  .links a {
+    color: #334155;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(51, 65, 85, 0.26);
+    transition: color 0.18s ease, border-color 0.18s ease;
+  }
+  .links a:hover {
+    color: #0f172a;
+    border-bottom-color: #0f172a;
+  }
+  .faq-mini details {
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    padding: 6px 0;
+    border-bottom: 1px dashed #d1d5db;
+  }
+  .faq-mini details + details {
+    margin-top: 6px;
+  }
+  .faq-mini summary {
+    list-style: none;
+    cursor: pointer;
+    font-weight: 700;
+    color: #334155;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .faq-mini summary::-webkit-details-marker {
+    display: none;
+  }
+  .faq-mini summary::after {
+    content: '+';
+    color: #64748b;
+    font-weight: 700;
+  }
+  .faq-mini details[open] summary::after {
+    content: '−';
+  }
+  .faq-mini .ans {
+    margin-top: 8px;
+    color: #475569;
+    line-height: 1.6;
+    font-size: 0.92rem;
+  }
+</style>

@@ -1,0 +1,18 @@
+---
+interface Props { title: string; subtitle?: string; imageUrl?: string }
+const {title, subtitle = '', imageUrl} = Astro.props as Props
+---
+<section class="hero">
+  <div>
+    <h1>{title}</h1>
+    {subtitle ? <p>{subtitle}</p> : null}
+    <slot />
+  </div>
+  {imageUrl ? <img src={imageUrl} alt={title} loading="eager" /> : null}
+</section>
+<style>
+  .hero { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: center; }
+  h1 { margin: 0 0 10px; }
+  p { margin: 0; color: #64748b; }
+  img { width: 100%; border-radius: 12px; border: 1px solid #e5e7eb; }
+</style>

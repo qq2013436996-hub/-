@@ -1,0 +1,33 @@
+---
+import MainLayout from '../layouts/MainLayout.astro'
+---
+
+<MainLayout
+  title="Contact | bike"
+  description="Contact our team for product information and quotation support."
+  seo={{canonicalUrl: '/contact/'}}
+>
+  <main class="container">
+    <h1>Contact</h1>
+    <p>
+      For quick response, please use the inquiry form on
+      <a href="/request-quote">Request Quote</a>.
+    </p>
+  </main>
+</MainLayout>
+
+<style>
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
+  h1 {
+    margin: 0 0 10px;
+  }
+  p {
+    margin: 0;
+    color: #64748b;
+    line-height: 1.8;
+  }
+</style>

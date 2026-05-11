@@ -1,0 +1,14 @@
+---
+interface Props {
+  title: string
+  description: string
+  canonicalUrl?: string
+  robots?: string
+}
+const {title, description, canonicalUrl} = Astro.props as Props
+---
+<title>{title}</title>
+<meta name="description" content={description} />
+{canonicalUrl ? <link rel="canonical" href={canonicalUrl} /> : null}
+<!-- 不管父组件传了什么，我只要 index, follow（排查用，可还原为 content={robots}） -->
+<meta name="robots" content="index, follow" />

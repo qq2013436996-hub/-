@@ -1,0 +1,18 @@
+---
+type Item = {title: string; href: string; count?: number}
+interface Props { items: Item[] }
+const {items} = Astro.props as Props
+---
+<div class="grid">
+  {items.map((item) => (
+    <a class="card" href={item.href}>
+      <h3>{item.title}</h3>
+      {typeof item.count === 'number' ? <p>{item.count} products</p> : null}
+    </a>
+  ))}
+</div>
+<style>
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 14px; text-decoration: none; color: inherit; background: #fff; }
+  h3 { margin: 0 0 6px; } p { margin: 0; color: #64748b; }
+</style>
