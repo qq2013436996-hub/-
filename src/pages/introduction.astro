@@ -1,586 +1,641 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro'
+import {sanityClient} from 'sanity:client'
 
-const canyonImages = [
-  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_02_3000x2000_ALL_n6ldrr-e2985a27-df28-413b-80d3-9e8e87b3302c.png',
-  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_03_3000x2000_ALL_pwaeoc-65cc5de0-aea4-401c-bd2e-b98d4a4cc8f9.png',
-  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_04_3000x2000_ALL_dhmxkq-4f91e166-38ba-4a8d-8b59-0d903f4df79b.png',
-  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_05_3000x2000_ALL_a1rbur-c6057de9-ccc0-4ad4-beac-dafcad97eea1.png',
-  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_06_3000x2000_ALL_usykx7-3a426510-c549-4767-a346-b80c5bae4722.png',
-  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_07_3000x2000_ALL_dnmza8-64d2c96a-7a44-4d11-b685-e21521e078ee.png',
-  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_08_3000x2000_ALL_dirncq-ae0593e3-a75b-4454-a6b1-f2be57f748aa.png',
-  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_09_3000x2000_ALL_ffdyfw-b9049840-00bb-4004-96b2-d8fdabab88b6.png',
-  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_10_3000x2000_ALL_mab0yn-550826af-6716-45df-8dc5-ce48286e7dda.png',
-  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_11_3000x2000_ALL_xfx51s-930e5d9e-4304-4ab3-88d1-da4bd9531fa5.png',
-  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_12_3000x2000_ALL_kas35r-913f605b-490e-46c4-b46c-aebfaaf87431.png',
-  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_13_3000x2000_ALL_iee2cj-1cb81e51-5207-4d4a-9f21-7fe096337a79.png',
-  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_14_3000x2000_ALL_cdftpx-2ee28c7e-59e3-4a93-a5ba-302cd8c8bea1.png',
-  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_15_3000x2000_ALL_pxvsvp-94bb6709-586c-47b5-b822-b78c562d5983.png',
-  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_16_3000x2000_ALL_jtmov5-35860474-d947-43c6-b465-e1a5a288fd03.png',
-  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_17_3000x2000_ALL_uccvbv-a71e579e-874d-420f-bb33-edf0c609fb39.png',
-  '/introduction/canyon/2026_BRA_About_x_Web_Why_Canyon_18_3000x2000_ALL_gfgf28-abcc8961-f85c-4e92-bcde-3a88da6f05af.png',
-]
+const settings = await sanityClient.fetch<{companyName: string | null} | null>(
+  `*[_type=="siteSettings"][0]{ companyName }`,
+)
+const brand = settings?.companyName?.trim() || 'MW Candle'
+const pageTitle = `About Us | ${brand}`
 
-const milestones = [
-  {
-    year: '1985',
-    text: 'The journey began with a blue trailer and a passion for racing, importing and selling bike parts rider-to-rider.',
-    image: canyonImages[4],
-  },
-  {
-    year: '1996',
-    text: 'The first Canyon-branded mountain bike marked the move from retailer to manufacturer.',
-    image: canyonImages[5],
-  },
-  {
-    year: '2003',
-    text: 'Canyon pioneered online direct sales, connecting bikes and riders without compromise.',
-    image: canyonImages[6],
-  },
-  {
-    year: '2023',
-    text: 'A new headquarters and innovation lab opened, setting the stage for the next era.',
-    image: canyonImages[7],
-  },
+const accent = '#e85d6f'
+const heroImage = '/contact/hero-candles.png'
+const teamImage = '/introduction/mw/team-group.png'
+const founderImage = '/introduction/mw/founder.png'
+const certificatesImage = '/introduction/mw/certificates.png'
+const officeImages = [
+  '/introduction/mw/office-1.png',
+  '/introduction/mw/office-2.png',
+  '/introduction/mw/office-3.png',
+  '/introduction/mw/office-4.png',
+  '/introduction/mw/office-5.png',
 ]
 ---
 
 <MainLayout
-  title="Introduction | bike"
-  description="Explore Inside Canyon: story, innovation, and milestones."
+  title={pageTitle}
+  description={`Learn about ${brand}: our mission, team, factory, and commitment to quality scented candles and OEM/ODM partnerships.`}
   seo={{canonicalUrl: '/introduction/'}}
 >
-  <style>
-    .page {
-      background: #fff;
-      color: #111827;
-    }
-    .hero {
-      position: relative;
-      height: clamp(340px, 60vw, 620px);
-      overflow: hidden;
-    }
-    .hero img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      transform: scale(1.02);
-      transition: transform 0.55s ease;
-    }
-    .hero:hover img {
-      transform: scale(1.06);
-    }
-    .hero::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(180deg, rgba(2, 6, 23, 0.18) 0%, rgba(2, 6, 23, 0.7) 100%);
-    }
-    .hero-text {
-      position: absolute;
-      left: max(20px, calc((100vw - 1120px) / 2 + 10px));
-      bottom: 12%;
-      z-index: 2;
-      color: #fff;
-    }
-    .hero-text h1 {
-      margin: 0 0 6px;
-      font-size: clamp(1.6rem, 3.3vw, 2.6rem);
-      letter-spacing: -0.02em;
-    }
-    .hero-text p {
-      margin: 0;
-      color: #e2e8f0;
-      line-height: 1.6;
-    }
-
-    .container {
-      max-width: 1120px;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
-    .crumb {
-      color: #64748b;
-      font-size: 0.83rem;
-      margin: 14px 0 30px;
-    }
-
-    .split {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-      align-items: center;
-      margin: 0 0 34px;
-    }
-    .split.reverse .copy {
-      order: 2;
-    }
-    .split.reverse .media {
-      order: 1;
-    }
-    .copy .kicker {
-      color: #e11d48;
-      font-size: 0.76rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 6px;
-    }
-    .copy h2 {
-      margin: 0 0 10px;
-      font-size: clamp(1.5rem, 2.8vw, 2.1rem);
-      letter-spacing: -0.02em;
-      color: #0f172a;
-    }
-    .copy p {
-      margin: 0;
-      color: #475569;
-      line-height: 1.82;
-      max-width: 56ch;
-    }
-    .media {
-      border-radius: 14px;
-      overflow: hidden;
-      border: 1px solid #e5e7eb;
-      box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08);
-      transition: transform 0.28s ease, box-shadow 0.28s ease;
-    }
-    .media:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 22px 34px rgba(15, 23, 42, 0.14);
-    }
-    .media img {
-      width: 100%;
-      height: 100%;
-      display: block;
-      object-fit: cover;
-      aspect-ratio: 16 / 9;
-      transition: transform 0.45s ease;
-    }
-    .media:hover img {
-      transform: scale(1.04);
-    }
-
-    .facts {
-      background: #f3f4f6;
-      margin: 46px 0 0;
-      padding: 42px 0;
-      text-align: center;
-    }
-    .facts h2 {
-      margin: 0 0 8px;
-      font-size: 2rem;
-      color: #1f2937;
-    }
-    .facts p {
-      margin: 0 0 24px;
-      color: #6b7280;
-      font-size: 0.92rem;
-    }
-    .fact-grid {
-      max-width: 1120px;
-      margin: 0 auto;
-      padding: 0 20px;
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 12px;
-    }
-    .fact-num {
-      color: #22d3ee;
-      font-size: 2rem;
-      font-weight: 900;
-      line-height: 1;
-      margin-bottom: 6px;
-    }
-    .fact-label {
-      color: #6b7280;
-      font-size: 0.78rem;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
-      font-weight: 700;
-    }
-
-    .milestone {
-      padding: 54px 0;
-      background: #fff;
-    }
-    .section-head {
-      text-align: center;
-      margin-bottom: 22px;
-    }
-    .section-head h2 {
-      margin: 0 0 6px;
-      font-size: 2rem;
-      color: #1f2937;
-    }
-    .section-head p {
-      margin: 0;
-      color: #6b7280;
-      font-size: 0.9rem;
-    }
-    .mile-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-    }
-    .mile-card {
-      background: #fff;
-      border: 1px solid #e5e7eb;
-      border-radius: 14px;
-      overflow: hidden;
-      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
-      transition: transform 0.25s ease;
-    }
-    .mile-card:hover {
-      transform: translateY(-3px);
-    }
-    .mile-card img {
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      object-fit: cover;
-      display: block;
-      transition: transform 0.4s ease;
-    }
-    .mile-card:hover img {
-      transform: scale(1.05);
-    }
-    .mile-body {
-      padding: 12px 12px 14px;
-    }
-    .mile-year {
-      font-size: 1.7rem;
-      font-weight: 900;
-      color: #1f2937;
-      margin-bottom: 4px;
-    }
-    .mile-text {
-      color: #6b7280;
-      font-size: 0.9rem;
-      line-height: 1.65;
-    }
-
-    .presence {
-      background:
-        radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.2), transparent 28%),
-        radial-gradient(circle at 80% 70%, rgba(99, 102, 241, 0.18), transparent 28%),
-        linear-gradient(180deg, #0b1220 0%, #0a1020 100%);
-      padding: 56px 0;
-      text-align: center;
-      color: #fff;
-    }
-    .presence h2 {
-      margin: 0 0 10px;
-      font-size: 2rem;
-    }
-    .presence-map {
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
-    .presence-map img {
-      width: 100%;
-      border-radius: 14px;
-      opacity: 0.96;
-      border: 1px solid rgba(148, 163, 184, 0.18);
-      transition: transform 0.45s ease, box-shadow 0.45s ease;
-    }
-    .presence-map img:hover {
-      transform: scale(1.015);
-      box-shadow: 0 18px 30px rgba(15, 23, 42, 0.35);
-    }
-
-    .news {
-      padding: 52px 0 70px;
-      background: #fff;
-    }
-    .gallery {
-      padding: 8px 20px 72px;
-      max-width: 1120px;
-      margin: 0 auto;
-    }
-    .gallery h2 {
-      margin: 0 0 16px;
-      font-size: clamp(1.35rem, 2.8vw, 2rem);
-      color: #0f172a;
-    }
-    .gallery-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-    }
-    .gallery-grid img {
-      width: 100%;
-      aspect-ratio: 16 / 10;
-      object-fit: cover;
-      display: block;
-      border-radius: 10px;
-      border: 1px solid #e5e7eb;
-    }
-    .reveal {
-      opacity: 0;
-      transform: translateY(16px);
-      transition: opacity 0.6s ease, transform 0.6s ease;
-    }
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    @media (max-width: 980px) {
-      .split,
-      .split.reverse .copy,
-      .split.reverse .media {
-        grid-template-columns: 1fr;
-        order: unset;
-      }
-      .fact-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .mile-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
-    @media (max-width: 640px) {
-      .mile-grid {
-        grid-template-columns: 1fr;
-      }
-      .gallery-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
-
-  <main class="page">
-    <section class="hero">
-      <img src={canyonImages[0]} alt="Brand history and origin" loading="eager" />
-      <div class="hero-text">
-        <h1>Inside Canyon</h1>
-        <p>A different kind of bike company.</p>
+  <main class="about-page" style={`--about-accent: ${accent}`}>
+    <section class="about-hero">
+      <div class="about-hero-bg" style={`background-image: url('${heroImage}')`}></div>
+      <div class="about-hero-overlay"></div>
+      <div class="about-hero-inner">
+        <h1>About Us</h1>
       </div>
     </section>
 
-    <div class="container">
-      <div class="crumb">Home &gt; About &gt; Inside Canyon</div>
+    <div class="about-wrap">
+      <nav class="about-crumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span class="sep">&gt;&gt;</span>
+        <span class="current">About Us</span>
+      </nav>
 
-      <section class="split reveal">
-        <div class="copy">
-          <div class="kicker">Canyon&apos;s Story</div>
-          <h2>Every Day We Build the Bikes We Dream of Riding</h2>
+      <section class="about-welcome">
+        <div class="about-welcome-copy">
+          <h2>Welcome to {brand}</h2>
           <p>
-            Performance is our obsession. But performance is not given, it is earned through every
-            pedal stroke and every design decision. From the beginning, Canyon set out to rethink
-            what riders should expect from a bike brand.
+            At <strong>{brand}</strong>, we don&apos;t just make candles—we create
+            <strong>timeless, personalized experiences</strong> through scent, design, and craftsmanship.
+            Our candles have become synonymous with <strong>luxury, sustainability, and elegance</strong>,
+            providing high-quality, customizable solutions for a variety of businesses, from corporate gifting
+            to event planning and home decor.
+          </p>
+          <h3 class="about-subhead">Our Mission</h3>
+          <p>
+            <strong
+              >To enhance your world with bespoke candles that resonate with your brand, your style, and
+              your values.</strong
+            >
+            Whether you&apos;re looking to leave a lasting impression at an event, create a personalized gift,
+            or elevate your brand&apos;s identity, {brand} brings your vision to life with every flicker of
+            light.
           </p>
         </div>
-        <figure class="media">
-          <img src={canyonImages[1]} alt="Company history image" loading="lazy" />
-        </figure>
-      </section>
-
-      <section class="split reverse reveal">
-        <div class="copy">
-          <div class="kicker">Disruptive by Design</div>
-          <h2>German Engineering, Purposeful Innovation</h2>
-          <p>
-            Canyon does things differently by pairing meticulous engineering with ideas that challenge
-            the status quo. The result is race-proven and award-winning bikes designed with no
-            compromise and pure function.
-          </p>
-        </div>
-        <figure class="media">
-          <img src={canyonImages[2]} alt="Manufacturing and design image" loading="lazy" />
-        </figure>
-      </section>
-
-      <section class="split reveal">
-        <div class="copy">
-          <div class="kicker">The Canyon Promise</div>
-          <h2>From Rider Needs to Real-World Performance</h2>
-          <p>
-            We design road, gravel, mountain, city, touring and e-bikes with one focus: helping
-            riders get the very best experience on every terrain. Innovation only matters when it
-            performs where it counts: out on the road and trail.
-          </p>
-        </div>
-        <figure class="media">
-          <img src={canyonImages[3]} alt="Innovation and technology image" loading="lazy" />
+        <figure class="about-welcome-media">
+          <img src={teamImage} alt={`${brand} team`} width="800" height="600" loading="eager" />
         </figure>
       </section>
     </div>
 
-    <section class="facts reveal">
-      <h2>Why Canyon</h2>
-      <p>The milestones below show how Canyon evolved from a small shop into a global performance bike brand.</p>
-      <div class="fact-grid">
-        <div>
-          <div class="fact-num">1985</div>
-          <div class="fact-label">First bike shop opens</div>
+    <section class="about-partner">
+      <div class="about-partner-inner">
+        <div class="about-partner-left">
+          <h2>Your Trusted Candle Manufacturing Partner</h2>
+          <p>From boutique brands to global retailers—we scale to your needs.</p>
+          <a href="/contact" class="about-btn">Contact Now</a>
         </div>
-        <div>
-          <div class="fact-num">1996</div>
-          <div class="fact-label">First Canyon-branded MTB</div>
-        </div>
-        <div>
-          <div class="fact-num">2003</div>
-          <div class="fact-label">Online direct sales launch</div>
-        </div>
-        <div>
-          <div class="fact-num">2023</div>
-          <div class="fact-label">New HQ and Innovation Lab</div>
-        </div>
-        <div>
-          <div class="fact-num">2025</div>
-          <div class="fact-label">MyCanyon customization expands</div>
-        </div>
-      </div>
-    </section>
-
-    <section class="milestone">
-      <div class="container">
-        <div class="section-head reveal">
-          <h2>Milestone</h2>
-          <p>Key moments from Canyon&apos;s journey of innovation and growth.</p>
-        </div>
-        <div class="mile-grid">
-          {milestones.map((item, idx) => (
-            <article class="mile-card reveal" style={`transition-delay:${idx * 70}ms;`}>
-              <img src={item.image} alt={`Milestone ${item.year}`} loading="lazy" />
-              <div class="mile-body">
-                <div class="mile-year">{item.year}</div>
-                <div class="mile-text">{item.text}</div>
-              </div>
-            </article>
-          ))}
+        <div class="about-stats">
+          <div class="about-stat">
+            <span class="about-stat-num">15+</span>
+            <span class="about-stat-label">Years of Expertise</span>
+          </div>
+          <div class="about-stat">
+            <span class="about-stat-num">130+</span>
+            <span class="about-stat-label">Countries Served</span>
+          </div>
+          <div class="about-stat">
+            <span class="about-stat-num">300+</span>
+            <span class="about-stat-label">Flexible Low-MOQ</span>
+          </div>
+          <div class="about-stat">
+            <span class="about-stat-num">10+</span>
+            <span class="about-stat-label">Production Lines</span>
+          </div>
         </div>
       </div>
     </section>
 
-    <section class="presence reveal">
-      <h2>The Heart of Canyon</h2>
-      <div class="presence-map">
-        <img src={canyonImages[8]} alt="Global brand and rider image" loading="lazy" />
-      </div>
-    </section>
-
-    <section class="news">
-      <div class="container">
-        <section class="split reveal">
-          <div class="copy">
-            <div class="kicker">Award-winning</div>
-            <h2>Best in Class, Proven by Riders</h2>
+    <div class="about-wrap">
+      <section class="about-company">
+        <div class="about-company-head">
+          <div>
+            <h2>Company inside</h2>
             <p>
-              Canyon bikes are consistently recognized across cycling media and competitive racing.
-              From road to mountain, performance is tested by demanding riders and validated through
-              real-world results.
+              Backed by a seasoned team of fragrance experts and candle artisans, we bring your OEM/ODM
+              concepts to life with precision. From custom scents to bespoke packaging, every detail reflects
+              our commitment to excellence.
             </p>
           </div>
-          <figure class="media">
-            <img src={canyonImages[9]} alt="News and events image" loading="lazy" />
-          </figure>
-        </section>
-
-        <section class="split reverse reveal">
-          <div class="copy">
-            <div class="kicker">Future Forward</div>
-            <h2>Responsibility for People, Planet and Product</h2>
-            <p>
-              Canyon&apos;s long-term vision combines innovation with responsibility, building better
-              products while investing in sustainable progress for riders and communities.
-            </p>
+          <div class="about-carousel-nav" role="group" aria-label="Gallery navigation">
+            <button type="button" class="about-arrow" id="office-prev" aria-label="Previous images">
+              ←
+            </button>
+            <button type="button" class="about-arrow" id="office-next" aria-label="Next images">→</button>
           </div>
-          <figure class="media">
-            <img src={canyonImages[10]} alt="Social responsibility image" loading="lazy" />
-          </figure>
-        </section>
-
-        <section class="split reveal">
-          <div class="copy">
-            <div class="kicker">Always by Your Side</div>
-            <h2>Direct to Rider, Closer to Community</h2>
-            <p>
-              Canyon&apos;s direct model keeps the brand close to riders, with growing local presence
-              and digital tools that support setup, service and every step of the ownership journey.
-            </p>
+        </div>
+        <div class="about-carousel-viewport" id="office-viewport">
+          <div class="about-carousel-track" id="office-track">
+            {
+              officeImages.map((src) => (
+                <div class="about-carousel-slide">
+                  <img src={src} alt="Office and production environment" loading="lazy" />
+                </div>
+              ))
+            }
           </div>
-          <figure class="media">
-            <img src={canyonImages[11]} alt="Responsible governance image" loading="lazy" />
-          </figure>
-        </section>
-      </div>
-    </section>
+        </div>
+      </section>
 
-    <section class="gallery reveal">
-      <h2>More Brand Moments</h2>
-      <div class="gallery-grid">
-        {canyonImages.slice(12).map((img, idx) => (
-          <img src={img} alt={`Brand moment ${idx + 1}`} loading="lazy" />
-        ))}
-      </div>
-    </section>
+      <section class="about-founder">
+        <h2 class="about-founder-title">Founder&apos;s Story</h2>
+        <p class="about-founder-sub">15 years of experience in product development and market research</p>
+        <div class="about-founder-card">
+          <div class="about-founder-body">
+            <img src={founderImage} alt="Founder" width="400" height="500" loading="lazy" />
+            <div class="about-founder-text">
+              <p>
+                Over the past 15 years, we have assisted customers in more than 130 countries, partnering with
+                retailers, hospitality brands, and distributors to launch and grow their candle and home
+                fragrance programs—with rigorous quality control and responsive service at every step.
+              </p>
+              <p class="about-founder-name">Miss Wei</p>
+              <p class="about-founder-role">CEO</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="about-quality">
+        <div class="about-quality-copy">
+          <h2>Our Commitment to Quality</h2>
+          <p>
+            Passed the ISO:9001 international quality management system and products have been approved by CE,
+            GS, RoHS, LVD, LFGB, ETL. Strengthen your brand&apos;s credibility and attract more business
+            partnerships, helping you stand out from other wholesalers.
+          </p>
+          <a href="/contact" class="about-btn">Contact Now</a>
+        </div>
+        <figure class="about-quality-media">
+          <a href={certificatesImage} target="_blank" rel="noopener noreferrer">
+            <img
+              src={certificatesImage}
+              alt="Quality certifications and test reports"
+              loading="lazy"
+              width="800"
+              height="600"
+            />
+          </a>
+        </figure>
+      </section>
+
+      <section class="about-grow">
+        <h2>Let&apos;s Grow Together</h2>
+        <p>Welcome to establish long-term and mutually beneficial business relationships.</p>
+        <div class="about-grow-actions">
+          <a href="/contact" class="about-btn">Contact Us</a>
+          <a href="/request-quote" class="about-btn about-btn-ghost">Get a Quote</a>
+        </div>
+      </section>
+    </div>
   </main>
+
+  <style>
+    .about-page {
+      background: #fff;
+      color: #111;
+      padding-bottom: 72px;
+    }
+
+    .about-hero {
+      position: relative;
+      min-height: clamp(220px, 32vw, 380px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .about-hero-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .about-hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(rgba(35, 24, 20, 0.5), rgba(35, 24, 20, 0.55));
+    }
+
+    .about-hero-inner {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 48px 20px;
+    }
+
+    .about-hero-inner h1 {
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.02em;
+    }
+
+    .about-wrap {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .about-crumb {
+      padding: 16px 0 8px;
+      font-size: 0.875rem;
+      color: var(--about-accent);
+      font-weight: 500;
+    }
+
+    .about-crumb a {
+      color: var(--about-accent);
+      text-decoration: none;
+    }
+
+    .about-crumb a:hover {
+      text-decoration: underline;
+    }
+
+    .about-crumb .sep {
+      margin: 0 8px;
+    }
+
+    .about-welcome {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(28px, 4vw, 48px);
+      align-items: center;
+      padding: 36px 0 56px;
+    }
+
+    .about-welcome-copy h2 {
+      margin: 0 0 18px;
+      font-size: clamp(1.5rem, 2.8vw, 2rem);
+      font-weight: 700;
+    }
+
+    .about-welcome-copy p {
+      margin: 0 0 16px;
+      color: #333;
+      line-height: 1.85;
+      font-size: 0.98rem;
+    }
+
+    .about-welcome-copy p:last-child {
+      margin-bottom: 0;
+    }
+
+    .about-subhead {
+      margin: 22px 0 12px;
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .about-welcome-media {
+      margin: 0;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .about-welcome-media img {
+      width: 100%;
+      height: auto;
+      display: block;
+      vertical-align: middle;
+    }
+
+    .about-partner {
+      background: #f5f5f5;
+      padding: 48px 20px 56px;
+      margin: 0 0 56px;
+    }
+
+    .about-partner-inner {
+      max-width: 1140px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 28px;
+      align-items: stretch;
+    }
+
+    .about-partner-left {
+      background: #ebebeb;
+      padding: 32px 28px;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .about-partner-left h2 {
+      margin: 0 0 12px;
+      font-size: clamp(1.35rem, 2.4vw, 1.75rem);
+      font-weight: 700;
+    }
+
+    .about-partner-left p {
+      margin: 0 0 22px;
+      color: #444;
+      line-height: 1.7;
+      font-size: 0.95rem;
+    }
+
+    .about-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      align-self: flex-start;
+      padding: 12px 28px;
+      background: var(--about-accent);
+      color: #fff !important;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      border: none;
+      cursor: pointer;
+      transition: filter 0.15s ease;
+    }
+
+    .about-btn:hover {
+      filter: brightness(0.95);
+    }
+
+    .about-btn-ghost {
+      background: #fff;
+      color: #111 !important;
+      border: 1px solid #ddd;
+    }
+
+    .about-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .about-stat {
+      background: #ebebeb;
+      padding: 24px 20px;
+      border-radius: 4px;
+      text-align: center;
+    }
+
+    .about-stat-num {
+      display: block;
+      font-size: 2rem;
+      font-weight: 800;
+      color: #111;
+      margin-bottom: 8px;
+    }
+
+    .about-stat-label {
+      font-size: 0.88rem;
+      color: #555;
+      line-height: 1.4;
+    }
+
+    .about-company {
+      margin-bottom: 56px;
+    }
+
+    .about-company-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      margin-bottom: 18px;
+    }
+
+    .about-company-head h2 {
+      margin: 0 0 10px;
+      font-size: clamp(1.4rem, 2.5vw, 1.85rem);
+      font-weight: 700;
+    }
+
+    .about-company-head p {
+      margin: 0;
+      max-width: 720px;
+      color: #444;
+      line-height: 1.75;
+      font-size: 0.95rem;
+    }
+
+    .about-carousel-nav {
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .about-arrow {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid #ccc;
+      background: #fff;
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition:
+        background 0.15s ease,
+        border-color 0.15s ease;
+    }
+
+    .about-arrow:hover {
+      border-color: var(--about-accent);
+      color: var(--about-accent);
+    }
+
+    .about-carousel-viewport {
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      margin: 0 -20px;
+      padding: 0 20px 8px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .about-carousel-track {
+      display: flex;
+      gap: 12px;
+    }
+
+    .about-carousel-slide {
+      flex: 0 0 calc(33.333% - 8px);
+      min-width: min(320px, 85vw);
+      scroll-snap-align: start;
+    }
+
+    .about-carousel-slide img {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+      display: block;
+      border-radius: 4px;
+    }
+
+    .about-founder {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+
+    .about-founder-title {
+      margin: 0 0 8px;
+      font-size: clamp(1.4rem, 2.5vw, 1.85rem);
+      font-weight: 700;
+    }
+
+    .about-founder-sub {
+      margin: 0 0 28px;
+      color: #666;
+      font-size: 0.95rem;
+    }
+
+    .about-founder-card {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: #f5f5f5;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .about-founder-body {
+      display: grid;
+      grid-template-columns: minmax(200px, 38%) 1fr;
+      gap: 0;
+      text-align: left;
+    }
+
+    .about-founder-body img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      min-height: 280px;
+    }
+
+    .about-founder-text {
+      padding: 28px 32px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .about-founder-text p {
+      margin: 0 0 16px;
+      color: #333;
+      line-height: 1.8;
+      font-size: 0.98rem;
+    }
+
+    .about-founder-name {
+      margin: 8px 0 4px !important;
+      font-weight: 800;
+      font-size: 1.05rem !important;
+    }
+
+    .about-founder-role {
+      margin: 0 !important;
+      color: #666 !important;
+      font-size: 0.9rem !important;
+    }
+
+    .about-quality {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 36px;
+      align-items: center;
+      margin-bottom: 56px;
+    }
+
+    .about-quality-copy h2 {
+      margin: 0 0 14px;
+      font-size: clamp(1.35rem, 2.4vw, 1.75rem);
+      font-weight: 700;
+    }
+
+    .about-quality-copy p {
+      margin: 0 0 22px;
+      color: #444;
+      line-height: 1.8;
+      font-size: 0.95rem;
+    }
+
+    .about-quality-media {
+      margin: 0;
+    }
+
+    .about-quality-media a {
+      display: block;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
+    }
+
+    .about-quality-media img {
+      width: 100%;
+      height: auto;
+      display: block;
+      vertical-align: middle;
+    }
+
+    .about-grow {
+      text-align: center;
+      padding: 40px 20px 20px;
+      border-top: 1px solid #eee;
+    }
+
+    .about-grow h2 {
+      margin: 0 0 10px;
+      font-size: clamp(1.35rem, 2.4vw, 1.75rem);
+      font-weight: 700;
+    }
+
+    .about-grow p {
+      margin: 0 0 22px;
+      color: #555;
+      font-size: 0.95rem;
+    }
+
+    .about-grow-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    @media (max-width: 900px) {
+      .about-welcome,
+      .about-partner-inner,
+      .about-founder-body,
+      .about-quality {
+        grid-template-columns: 1fr;
+      }
+
+      .about-partner-inner {
+        gap: 18px;
+      }
+
+      .about-carousel-slide {
+        flex: 0 0 85%;
+      }
+
+    }
+  </style>
 
   <script is:inline>
     ;(function () {
-      var items = document.querySelectorAll('.reveal')
-      function show(node) {
-        node.classList.add('visible')
-      }
-      if ('IntersectionObserver' in window) {
-        var io = new IntersectionObserver(
-          function (entries) {
-            entries.forEach(function (entry) {
-              if (entry.isIntersecting) {
-                show(entry.target)
-                io.unobserve(entry.target)
-              }
-            })
-          },
-          {threshold: 0.14},
-        )
-        items.forEach(function (item) {
-          io.observe(item)
-        })
-      } else {
-        items.forEach(show)
+      var viewport = document.getElementById('office-viewport')
+      var prev = document.getElementById('office-prev')
+      var next = document.getElementById('office-next')
+      if (!viewport || !prev || !next) return
+
+      function step() {
+        var slide = viewport.querySelector('.about-carousel-slide')
+        if (!slide) return viewport.clientWidth * 0.5
+        return slide.getBoundingClientRect().width + 12
       }
 
-      function count(el) {
-        var target = Number(el.getAttribute('data-target') || '0')
-        var suffix = el.getAttribute('data-suffix') || '+'
-        if (!target) return
-        var duration = 900
-        var start = 0
-        var t0 = performance.now()
-        function step(t) {
-          var p = Math.min((t - t0) / duration, 1)
-          var eased = 1 - Math.pow(1 - p, 3)
-          var value = Math.round(start + (target - start) * eased)
-          el.textContent = value + suffix
-          if (p < 1) requestAnimationFrame(step)
-        }
-        requestAnimationFrame(step)
-      }
-
-      document.querySelectorAll('.count-up').forEach(function (el) {
-        var started = false
-        if ('IntersectionObserver' in window) {
-          var io2 = new IntersectionObserver(
-            function (entries) {
-              entries.forEach(function (entry) {
-                if (entry.isIntersecting && !started) {
-                  started = true
-                  count(el)
-                  io2.unobserve(el)
-                }
-              })
-            },
-            {threshold: 0.6},
-          )
-          io2.observe(el)
-        } else {
-          count(el)
-        }
+      prev.addEventListener('click', function () {
+        viewport.scrollBy({left: -step(), behavior: 'smooth'})
+      })
+      next.addEventListener('click', function () {
+        viewport.scrollBy({left: step(), behavior: 'smooth'})
       })
     })()
   </script>
