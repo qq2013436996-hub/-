@@ -51,5 +51,6 @@ cp .env.example .env
 
 ## 备注
 
-- 目前默认连接的 Sanity 项目是 `kz1Lpdyn / production`。
+- 目前默认连接的 Sanity 项目是 **`kzl6pdyn` / `production`**（Project ID）。
+- 组织 ID（Organization ID）为 **`oDtAPliRg`**，在 [sanity.io/manage](https://www.sanity.io/manage) 里管理成员、计费、项目列表时会用到；Astro 前台读内容只需要 Project ID + Dataset，不必配置组织 ID。
 - 若需要切换到你自己的 Sanity 项目，修改 `.env` 和 `Deli-main/sanity-studio/sanity.config.ts`/`sanity.cli.ts` 中的 `projectId` 与 `dataset` 即可。

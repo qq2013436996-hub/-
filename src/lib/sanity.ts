@@ -1,6 +1,6 @@
 import {createClient} from '@sanity/client'
 
-const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID || 'kz1Lpdyn'
+const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID || 'kzl6pdyn'
 const dataset = import.meta.env.PUBLIC_SANITY_DATASET || 'production'
 const apiVersion = '2024-05-02'
 

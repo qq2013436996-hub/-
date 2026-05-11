@@ -8,7 +8,7 @@ export default defineConfig({
   name: 'banana',
   title: '香蕉',
 
-  projectId: 'kz1Lpdyn',
+  projectId: 'kzl6pdyn',
   dataset: 'production',
 
   plugins: [structureTool({structure: deskStructure}), visionTool()],

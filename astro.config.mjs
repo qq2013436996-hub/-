@@ -3,7 +3,7 @@ import {defineConfig} from 'astro/config'
 import sanity from '@sanity/astro'
 import vercel from '@astrojs/vercel'
 
-const projectId = process.env.PUBLIC_SANITY_PROJECT_ID || 'kz1Lpdyn'
+const projectId = process.env.PUBLIC_SANITY_PROJECT_ID || 'kzl6pdyn'
 const dataset = process.env.PUBLIC_SANITY_DATASET || 'production'
 
 // https://astro.build/config
