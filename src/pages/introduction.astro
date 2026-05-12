@@ -65,13 +65,7 @@ const officeImages = [
           </p>
         </div>
         <figure class="about-welcome-media">
-          <img
-            src={certificatesImage}
-            alt="Quality certifications and test reports"
-            width="800"
-            height="600"
-            loading="eager"
-          />
+          <img src={teamImage} alt={`${brand} team`} width="800" height="600" loading="eager" />
         </figure>
       </section>
     </div>
@@ -165,7 +159,15 @@ const officeImages = [
           <a href="/contact" class="about-btn">Contact Now</a>
         </div>
         <figure class="about-quality-media">
-          <img src={teamImage} alt={`${brand} team`} loading="lazy" width="800" height="600" />
+          <a href={certificatesImage} target="_blank" rel="noopener noreferrer">
+            <img
+              src={certificatesImage}
+              alt="Quality certifications and test reports"
+              loading="lazy"
+              width="800"
+              height="600"
+            />
+          </a>
         </figure>
       </section>
 

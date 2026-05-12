@@ -23,10 +23,8 @@ const rows = await sanityClient.fetch<BlogRow[]>(
 )
 
 const items = (rows ?? []).filter((row): row is BlogRow & {slug: string} => Boolean(row.slug))
-const pageSize = 4
-const pageChunks = Array.from({length: Math.ceil(items.length / pageSize)}, (_, i) =>
-  items.slice(i * pageSize, (i + 1) * pageSize),
-)
+const featured = items.slice(0, 4)
+const rest = items.slice(4)
 ---
 
 <MainLayout
@@ -50,66 +48,66 @@ const pageChunks = Array.from({length: Math.ceil(items.length / pageSize)}, (_, 
 
       {items.length ? (
         <>
-          {pageChunks.map((chunk, pageIdx) => (
-            <section class={`featured-grid page-grid ${pageIdx === 0 ? 'active' : ''}`} data-page={pageIdx + 1} aria-label={`Blog page ${pageIdx + 1}`}>
-              {chunk[0] ? (
-                <a class="tile tile-main" href={`/blog/${chunk[0].slug}`}>
-                  {chunk[0].imageUrl ? (
-                    <img src={chunk[0].imageUrl} alt={chunk[0].imageAlt ?? chunk[0].title ?? 'Blog cover'} loading={pageIdx === 0 ? 'eager' : 'lazy'} />
-                  ) : null}
-                  <div class="overlay">
-                    <h2>{chunk[0].title}</h2>
-                    {chunk[0].excerpt ? <p>{chunk[0].excerpt}</p> : null}
-                  </div>
-                </a>
-              ) : null}
+          <section class="featured-grid" aria-label="Featured blog posts">
+            {featured[0] ? (
+              <a class="tile tile-main" href={`/blog/${featured[0].slug}`}>
+                {featured[0].imageUrl ? (
+                  <img src={featured[0].imageUrl} alt={featured[0].imageAlt ?? featured[0].title ?? 'Blog cover'} loading="eager" />
+                ) : null}
+                <div class="overlay">
+                  <h2>{featured[0].title}</h2>
+                  {featured[0].excerpt ? <p>{featured[0].excerpt}</p> : null}
+                </div>
+              </a>
+            ) : null}
 
-              {chunk[1] ? (
-                <a class="tile tile-tall" href={`/blog/${chunk[1].slug}`}>
-                  {chunk[1].imageUrl ? (
-                    <img src={chunk[1].imageUrl} alt={chunk[1].imageAlt ?? chunk[1].title ?? 'Blog cover'} loading="lazy" />
-                  ) : null}
-                  <div class="overlay">
-                    <h2>{chunk[1].title}</h2>
-                    {chunk[1].excerpt ? <p>{chunk[1].excerpt}</p> : null}
-                  </div>
-                </a>
-              ) : null}
+            {featured[1] ? (
+              <a class="tile tile-tall" href={`/blog/${featured[1].slug}`}>
+                {featured[1].imageUrl ? (
+                  <img src={featured[1].imageUrl} alt={featured[1].imageAlt ?? featured[1].title ?? 'Blog cover'} loading="eager" />
+                ) : null}
+                <div class="overlay">
+                  <h2>{featured[1].title}</h2>
+                  {featured[1].excerpt ? <p>{featured[1].excerpt}</p> : null}
+                </div>
+              </a>
+            ) : null}
 
-              {chunk[2] ? (
-                <a class="tile tile-small-left" href={`/blog/${chunk[2].slug}`}>
-                  {chunk[2].imageUrl ? (
-                    <img src={chunk[2].imageUrl} alt={chunk[2].imageAlt ?? chunk[2].title ?? 'Blog cover'} loading="lazy" />
-                  ) : null}
-                  <div class="overlay">
-                    <h2>{chunk[2].title}</h2>
-                    {chunk[2].excerpt ? <p>{chunk[2].excerpt}</p> : null}
-                  </div>
-                </a>
-              ) : null}
+            {featured[2] ? (
+              <a class="tile tile-small-left" href={`/blog/${featured[2].slug}`}>
+                {featured[2].imageUrl ? (
+                  <img src={featured[2].imageUrl} alt={featured[2].imageAlt ?? featured[2].title ?? 'Blog cover'} loading="lazy" />
+                ) : null}
+                <div class="overlay">
+                  <h2>{featured[2].title}</h2>
+                  {featured[2].excerpt ? <p>{featured[2].excerpt}</p> : null}
+                </div>
+              </a>
+            ) : null}
 
-              {chunk[3] ? (
-                <a class="tile tile-small-right" href={`/blog/${chunk[3].slug}`}>
-                  {chunk[3].imageUrl ? (
-                    <img src={chunk[3].imageUrl} alt={chunk[3].imageAlt ?? chunk[3].title ?? 'Blog cover'} loading="lazy" />
-                  ) : null}
-                  <div class="overlay">
-                    <h2>{chunk[3].title}</h2>
-                    {chunk[3].excerpt ? <p>{chunk[3].excerpt}</p> : null}
-                  </div>
-                </a>
-              ) : null}
-            </section>
-          ))}
+            {featured[3] ? (
+              <a class="tile tile-small-right" href={`/blog/${featured[3].slug}`}>
+                {featured[3].imageUrl ? (
+                  <img src={featured[3].imageUrl} alt={featured[3].imageAlt ?? featured[3].title ?? 'Blog cover'} loading="lazy" />
+                ) : null}
+                <div class="overlay">
+                  <h2>{featured[3].title}</h2>
+                  {featured[3].excerpt ? <p>{featured[3].excerpt}</p> : null}
+                </div>
+              </a>
+            ) : null}
+          </section>
 
-          {pageChunks.length > 1 ? (
-            <nav class="pager" aria-label="Blog pagination">
-              {pageChunks.map((_, idx) => (
-                <button class={`pager-btn ${idx === 0 ? 'active' : ''}`} data-page-btn={idx + 1} type="button">
-                  {idx + 1}
-                </button>
+          {rest.length ? (
+            <section class="rest-grid" aria-label="More blog posts">
+              {rest.map((item) => (
+                <a class="rest-card" href={`/blog/${item.slug}`}>
+                  {item.imageUrl ? <img src={item.imageUrl} alt={item.imageAlt ?? item.title ?? 'Blog cover'} loading="lazy" /> : null}
+                  <h3>{item.title}</h3>
+                  {item.publishedAt ? <p class="meta">{new Date(item.publishedAt).toLocaleDateString()}</p> : null}
+                </a>
               ))}
-            </nav>
+            </section>
           ) : null}
         </>
       ) : (
@@ -176,14 +174,6 @@ const pageChunks = Array.from({length: Math.ceil(items.length / pageSize)}, (_, 
     grid-template-rows: minmax(220px, 260px) minmax(170px, 200px);
     gap: 12px;
     margin-bottom: 26px;
-  }
-
-  .page-grid {
-    display: none;
-  }
-
-  .page-grid.active {
-    display: grid;
   }
 
   .tile {
@@ -269,27 +259,46 @@ const pageChunks = Array.from({length: Math.ceil(items.length / pageSize)}, (_, 
     overflow: hidden;
   }
 
-  .pager {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    margin: 8px 0 6px;
+  .rest-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 14px;
   }
 
-  .pager-btn {
-    border: none;
-    background: transparent;
-    color: #f08b99;
-    font-size: 0.9rem;
+  .rest-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    background: #fff;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .rest-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(15, 23, 42, 0.1);
+  }
+
+  .rest-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    display: block;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .rest-card h3 {
+    margin: 10px 12px 6px;
+    font-size: 1rem;
+    line-height: 1.35;
+  }
+
+  .rest-card .meta {
+    margin: 0 12px 12px;
+    color: #64748b;
+    font-size: 0.84rem;
     font-weight: 600;
-    cursor: pointer;
-    padding: 2px 6px;
-  }
-
-  .pager-btn.active {
-    color: #e85d6f;
-    text-decoration: underline;
   }
 
   .empty {
@@ -348,27 +357,3 @@ const pageChunks = Array.from({length: Math.ceil(items.length / pageSize)}, (_, 
     }
   }
 </style>
-
-<script is:inline>
-  ;(function () {
-    var grids = Array.prototype.slice.call(document.querySelectorAll('.page-grid'))
-    var btns = Array.prototype.slice.call(document.querySelectorAll('.pager-btn'))
-    if (!grids.length || !btns.length) return
-
-    function setPage(page) {
-      grids.forEach(function (grid) {
-        grid.classList.toggle('active', Number(grid.getAttribute('data-page')) === page)
-      })
-      btns.forEach(function (btn) {
-        btn.classList.toggle('active', Number(btn.getAttribute('data-page-btn')) === page)
-      })
-    }
-
-    btns.forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var page = Number(btn.getAttribute('data-page-btn') || '1')
-        setPage(page)
-      })
-    })
-  })()
-</script>
