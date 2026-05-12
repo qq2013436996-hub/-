@@ -83,7 +83,7 @@ export const application = defineType({
     }),
     defineField({
       name: 'relatedCaseStudies',
-      title: 'Related Case Studies',
+      title: 'Related Shows & Events',
       type: 'array',
       group: 'links',
       of: [{type: 'reference', to: [{type: 'caseStudy'}]}],

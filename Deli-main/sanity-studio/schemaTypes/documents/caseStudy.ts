@@ -2,7 +2,7 @@ import {defineField, defineType} from 'sanity'
 
 export const caseStudy = defineType({
   name: 'caseStudy',
-  title: 'Case Study',
+  title: 'Shows & Events',
   type: 'document',
   groups: [
     {name: 'content', title: 'Content', default: true},
@@ -152,7 +152,7 @@ export const caseStudy = defineType({
     }),
     defineField({
       name: 'similarCaseStudies',
-      title: 'Similar Case Studies',
+      title: 'Similar Shows & Events',
       type: 'array',
       group: 'links',
       of: [{type: 'reference', to: [{type: 'caseStudy'}]}],

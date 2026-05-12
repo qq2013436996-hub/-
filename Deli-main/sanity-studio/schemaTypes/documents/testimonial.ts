@@ -20,7 +20,7 @@ export const testimonial = defineType({
     defineField({name: 'relatedProduct', title: 'Related Product', type: 'reference', to: [{type: 'product'}]}),
     defineField({
       name: 'relatedCaseStudy',
-      title: 'Related Case Study',
+      title: 'Related Shows & Events',
       type: 'reference',
       to: [{type: 'caseStudy'}],
     }),

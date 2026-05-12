@@ -71,7 +71,7 @@ const pageTitle = doc.seo?.metaTitle?.trim() || `LED Work Lights for ${doc.title
 const pageDescription =
   doc.seo?.metaDescription?.trim() ||
   doc.summary ||
-  'Application scenario page with recommended products and related case studies.'
+  'Application scenario page with recommended products and related shows and events.'
 ---
 
 <MainLayout
@@ -145,7 +145,7 @@ const pageDescription =
         </ul>
       </div>
       <div>
-        <h2>Related Case Studies</h2>
+        <h2>Related Shows & Events</h2>
         <ul>
           {(doc.relatedCaseStudies ?? []).map((item) =>
             item.slug ? <li><a href={`/case-studies/${item.slug}`}>{item.title}</a></li> : null,

@@ -28,26 +28,26 @@ const items = (rows ?? []).filter((row): row is CaseRow & {slug: string} => Bool
 ---
 
 <MainLayout
-  title="Case Studies | bike"
-  description="Read project case studies and see linked products and applications."
+  title="Shows & Events | bike"
+  description="Browse shows and events with linked products and applications."
   seo={{canonicalUrl: '/case-studies/'}}
 >
   <main class="container">
     <header class="head">
-      <h1>Case Studies</h1>
+      <h1>Shows & Events</h1>
       <p>Real project outcomes with practical implementation details.</p>
     </header>
     <div class="grid">
       {items.length ? (
         items.map((item) => (
           <a class="card" href={`/case-studies/${item.slug}`}>
-            {item.imageUrl ? <img src={item.imageUrl} alt={item.imageAlt ?? item.title ?? 'Case study'} loading="lazy" /> : null}
+            {item.imageUrl ? <img src={item.imageUrl} alt={item.imageAlt ?? item.title ?? 'Shows & events'} loading="lazy" /> : null}
             <h2>{item.title}</h2>
             <p class="meta">{item.projectType || 'Project'}{item.country ? ` · ${item.country}` : ''}</p>
           </a>
         ))
       ) : (
-        <p>No case studies yet. Add and publish `caseStudy` documents in Sanity Studio.</p>
+        <p>No shows or events yet. Add and publish caseStudy documents in Sanity Studio.</p>
       )}
     </div>
   </main>

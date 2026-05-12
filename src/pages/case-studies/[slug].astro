@@ -82,10 +82,10 @@ if (!doc) {
   return Astro.redirect('/', 302)
 }
 
-const fallbackTitle = `${doc.projectType ?? 'Project'} Case Study in ${doc.country ?? 'Global'} | bike`
+const fallbackTitle = `${doc.title ?? doc.projectType ?? 'Shows & Events'} | bike`
 const pageTitle = doc.seo?.metaTitle?.trim() || fallbackTitle
 const pageDescription =
-  doc.seo?.metaDescription?.trim() || doc.summary || 'Case study with linked products and applications.'
+  doc.seo?.metaDescription?.trim() || doc.summary || 'Shows and events with linked products and applications.'
 ---
 
 <MainLayout
@@ -100,7 +100,7 @@ const pageDescription =
   }}
 >
   <main class="container">
-    <p class="eyebrow">Case Study</p>
+    <p class="eyebrow">Shows & Events</p>
     <h1>{doc.title}</h1>
     <div class="meta">
       {doc.projectType ? <span>{doc.projectType}</span> : null}
@@ -110,7 +110,7 @@ const pageDescription =
       {doc.projectYear ? <span>{doc.projectYear}</span> : null}
     </div>
     {doc.summary ? <p class="lead">{doc.summary}</p> : null}
-    {doc.heroImageUrl ? <img src={doc.heroImageUrl} alt={doc.heroImageAlt ?? doc.title ?? 'Case study'} class="hero" /> : null}
+    {doc.heroImageUrl ? <img src={doc.heroImageUrl} alt={doc.heroImageAlt ?? doc.title ?? 'Shows & events'} class="hero" /> : null}
     <article class="prose">
       {doc.content ? <PortableText value={doc.content} /> : <p>Content coming soon.</p>}
     </article>
@@ -156,7 +156,7 @@ const pageDescription =
         <h2>Gallery</h2>
         <div class="gallery">
           {(doc.gallery ?? []).map((img) =>
-            img.url ? <img src={img.url} alt={img.alt ?? doc.title ?? 'Case study image'} loading="lazy" /> : null,
+            img.url ? <img src={img.url} alt={img.alt ?? doc.title ?? 'Shows & events image'} loading="lazy" /> : null,
           )}
         </div>
       </section>
@@ -183,7 +183,7 @@ const pageDescription =
         </ul>
       </div>
       <div>
-        <h2>Similar Case Studies</h2>
+        <h2>Similar Shows & Events</h2>
         <ul>
           {(doc.similarCaseStudies ?? []).map((item) =>
             item.slug ? <li><a href={`/case-studies/${item.slug}`}>{item.title}</a></li> : null,

@@ -59,13 +59,13 @@ export const homePage = defineType({
     }),
     defineField({
       name: 'caseStudySection',
-      title: 'Case Study Section',
+      title: 'Shows & Events Section',
       type: 'sectionHeader',
       group: 'sections',
     }),
     defineField({
       name: 'featuredCaseStudies',
-      title: 'Featured Case Studies',
+      title: 'Featured Shows & Events',
       type: 'array',
       of: [{type: 'reference', to: [{type: 'caseStudy'}]}],
       group: 'sections',
