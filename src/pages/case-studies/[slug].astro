@@ -31,6 +31,12 @@ const doc = await sanityClient.fetch<{
   relatedApplications: LinkRow[] | null
   similarCaseStudies: LinkRow[] | null
   inquiryCtaText: string | null
+  eventStartDate: string | null
+  eventEndDate: string | null
+  venue: string | null
+  boothNumber: string | null
+  showWebsiteUrl: string | null
+  appointmentUrl: string | null
   seo: {
     metaTitle: string | null
     metaDescription: string | null
@@ -65,6 +71,12 @@ const doc = await sanityClient.fetch<{
     "relatedApplications": relatedApplications[]->{title, "slug": slug.current},
     "similarCaseStudies": similarCaseStudies[]->{title, "slug": slug.current},
     inquiryCtaText,
+    eventStartDate,
+    eventEndDate,
+    venue,
+    boothNumber,
+    showWebsiteUrl,
+    appointmentUrl,
     seo{
       metaTitle,
       metaDescription,
@@ -86,6 +98,33 @@ const fallbackTitle = `${doc.title ?? doc.projectType ?? 'Shows & Events'} | bik
 const pageTitle = doc.seo?.metaTitle?.trim() || fallbackTitle
 const pageDescription =
   doc.seo?.metaDescription?.trim() || doc.summary || 'Shows and events with linked products and applications.'
+
+function formatIsoDate(d: string | null | undefined) {
+  if (!d) return null
+  const part = d.includes('T') ? d.split('T')[0] : d.slice(0, 10)
+  return part || null
+}
+
+function formatDateRange(start: string | null, end: string | null) {
+  const a = formatIsoDate(start)
+  const b = formatIsoDate(end)
+  if (a && b) return a === b ? a : `${a} - ${b}`
+  if (a) return a
+  if (b) return b
+  return null
+}
+
+function resolveAppointmentHref(raw: string | null | undefined) {
+  const s = raw?.trim()
+  if (!s) return '/contact'
+  if (s.startsWith('http://') || s.startsWith('https://')) return s
+  if (s.startsWith('/')) return s
+  return `/${s}`
+}
+
+const dateLine = formatDateRange(doc.eventStartDate, doc.eventEndDate)
+const location = doc.venue?.trim() || doc.country?.trim() || ''
+const appointmentHref = resolveAppointmentHref(doc.appointmentUrl)
 ---
 
 <MainLayout
@@ -99,18 +138,75 @@ const pageDescription =
     robots: doc.seo?.robots,
   }}
 >
-  <main class="container">
-    <p class="eyebrow">Shows & Events</p>
-    <h1>{doc.title}</h1>
-    <div class="meta">
-      {doc.projectType ? <span>{doc.projectType}</span> : null}
-      {doc.clientType ? <span>{doc.clientType}</span> : null}
-      {doc.industry ? <span>{doc.industry}</span> : null}
-      {doc.country ? <span>{doc.country}</span> : null}
-      {doc.projectYear ? <span>{doc.projectYear}</span> : null}
-    </div>
-    {doc.summary ? <p class="lead">{doc.summary}</p> : null}
-    {doc.heroImageUrl ? <img src={doc.heroImageUrl} alt={doc.heroImageAlt ?? doc.title ?? 'Shows & events'} class="hero" /> : null}
+  <div class="sd-page">
+    <section class="sd-hero" aria-label="Shows and events">
+      <img
+        class="sd-hero-bg"
+        src="/shows-events/hero-bg.png"
+        alt=""
+        width="1024"
+        height="682"
+        loading="eager"
+        fetchpriority="high"
+      />
+      <div class="sd-hero-overlay"></div>
+      <div class="sd-hero-inner">
+        <p class="sd-hero-eyebrow"><a href="/case-studies">Shows & Events</a></p>
+        <h1 class="sd-hero-title">{doc.title}</h1>
+      </div>
+    </section>
+
+    <div class="sd-wrap">
+      <article class="sd-lead-card">
+        <div class="sd-lead-media">
+          {doc.heroImageUrl ? (
+            <img src={doc.heroImageUrl} alt={doc.heroImageAlt ?? doc.title ?? 'Event'} width="480" height="320" loading="eager" />
+          ) : (
+            <div class="sd-lead-fallback"></div>
+          )}
+        </div>
+        <div class="sd-lead-body">
+          {(dateLine || location) ? (
+            <p class="sd-meta">
+              {dateLine ? (
+                <span class="sd-meta-dates">
+                  <svg class="sd-cal" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      fill="currentColor"
+                      d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"
+                    />
+                  </svg>
+                  {dateLine}
+                </span>
+              ) : null}
+              {location ? <span class="sd-meta-loc">{location}</span> : null}
+            </p>
+          ) : null}
+          {doc.summary ? <p class="sd-desc">{doc.summary}</p> : null}
+          {doc.boothNumber?.trim() ? (
+            <p class="sd-booth">
+              <strong>Booth No.:</strong> {doc.boothNumber.trim()}
+            </p>
+          ) : null}
+          <div class="sd-actions">
+            <a class="sd-btn" href={appointmentHref}>
+              Get Appointment
+            </a>
+            {doc.showWebsiteUrl?.trim() ? (
+              <a
+                class="sd-link"
+                href={doc.showWebsiteUrl.trim()}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Visit Show Website &gt;&gt;
+              </a>
+            ) : null}
+          </div>
+        </div>
+      </article>
+
+      <div class="sd-main">
     <article class="prose">
       {doc.content ? <PortableText value={doc.content} /> : <p>Content coming soon.</p>}
     </article>
@@ -191,40 +287,315 @@ const pageDescription =
         </ul>
       </div>
     </section>
-  </main>
+      </div>
+    </div>
+  </div>
 </MainLayout>
 
 <style>
-  .container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
-  .eyebrow { margin: 0 0 10px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.8rem; }
-  h1 { margin: 0 0 10px; }
-  .meta { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 14px; }
-  .meta span { font-size: 0.82rem; color: #475569; border: 1px solid #e5e7eb; border-radius: 999px; padding: 4px 10px; background: #fff; }
-  .lead { margin: 0 0 16px; color: #64748b; line-height: 1.8; }
-  .hero { width: 100%; border-radius: 12px; border: 1px solid #e5e7eb; margin: 0 0 20px; }
-  .prose { line-height: 1.8; color: #334155; }
-  .block { margin-top: 26px; }
-  .block h2 { margin: 0 0 10px; font-size: 1.15rem; }
-  .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
-  .result-card { border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px; background: #fff; }
-  .result-card h3 { margin: 0 0 6px; font-size: 1rem; color: #0f172a; }
-  .result-card p { margin: 0; color: #475569; line-height: 1.6; }
-  .quote blockquote { margin: 0; padding: 12px 14px; border-left: 4px solid #cbd5e1; background: #f8fafc; color: #334155; border-radius: 8px; }
-  .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
-  .gallery img { width: 100%; height: 170px; object-fit: cover; border-radius: 10px; border: 1px solid #e5e7eb; }
-  .cta a { display: inline-flex; background: var(--primary-color, #ff6600); color: #fff; text-decoration: none; padding: 10px 14px; border-radius: 8px; font-weight: 700; margin-top: 12px; }
-  .links { margin-top: 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
-  .links > div { border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px; background: #fff; }
-  .links h2 { margin: 0 0 8px; font-size: 1rem; }
-  .links ul { margin: 0; padding-left: 18px; color: #475569; line-height: 1.7; }
-  .links a {
+  .sd-page {
+    background: #eceff3;
+  }
+
+  .sd-hero {
+    position: relative;
+    min-height: min(42vw, 340px);
+    max-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .sd-hero-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.03);
+  }
+
+  .sd-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.38) 0%, rgba(15, 23, 42, 0.58) 100%);
+  }
+
+  .sd-hero-inner {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 40px 20px 44px;
+    max-width: 900px;
+  }
+
+  .sd-hero-eyebrow {
+    margin: 0 0 10px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .sd-hero-eyebrow a {
+    color: rgba(248, 250, 252, 0.92);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(248, 250, 252, 0.35);
+  }
+
+  .sd-hero-eyebrow a:hover {
+    color: #fff;
+    border-bottom-color: #fff;
+  }
+
+  .sd-hero-title {
+    margin: 0;
+    font-size: clamp(1.35rem, 3.5vw, 2rem);
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1.2;
+    color: #fff;
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.35);
+  }
+
+  .sd-wrap {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 36px 20px 48px;
+  }
+
+  .sd-lead-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    gap: 0;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
+    overflow: hidden;
+    margin-bottom: 32px;
+  }
+
+  .sd-lead-media {
+    background: #f1f5f9;
+    min-height: 220px;
+  }
+
+  .sd-lead-media img {
+    width: 100%;
+    height: 100%;
+    min-height: 220px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .sd-lead-fallback {
+    min-height: 240px;
+    background: linear-gradient(135deg, #e2e8f0, #f8fafc);
+  }
+
+  .sd-lead-body {
+    padding: 26px 28px 30px;
+  }
+
+  .sd-meta {
+    margin: 0 0 14px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 18px;
+    font-size: 0.95rem;
+    color: #64748b;
+  }
+
+  .sd-meta-dates {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #475569;
+    font-weight: 600;
+  }
+
+  .sd-meta-loc {
+    color: #94a3b8;
+    font-weight: 500;
+  }
+
+  .sd-desc {
+    margin: 0 0 12px;
+    color: #334155;
+    line-height: 1.75;
+    font-size: 0.98rem;
+    white-space: pre-line;
+  }
+
+  .sd-booth {
+    margin: 0 0 20px;
+    font-size: 0.98rem;
+    color: #1e293b;
+  }
+
+  .sd-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px 22px;
+  }
+
+  .sd-btn {
+    display: inline-flex;
+    padding: 11px 24px;
+    background: #f07179;
+    color: #fff !important;
+    font-weight: 700;
+    font-size: 0.93rem;
+    text-decoration: none;
+    border-radius: 2px;
+    transition: filter 0.2s ease;
+  }
+
+  .sd-btn:hover {
+    filter: brightness(0.94);
+  }
+
+  .sd-link {
+    color: #f07179;
+    font-weight: 700;
+    font-size: 0.93rem;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(240, 113, 121, 0.45);
+  }
+
+  .sd-link:hover {
+    color: #d85d65;
+  }
+
+  .sd-main {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 28px 24px 32px;
+    box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04);
+  }
+
+  .sd-main .prose {
+    line-height: 1.8;
+    color: #334155;
+  }
+
+  .sd-main .block {
+    margin-top: 26px;
+  }
+
+  .sd-main .block h2 {
+    margin: 0 0 10px;
+    font-size: 1.15rem;
+  }
+
+  .sd-main .result-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+  }
+
+  .sd-main .result-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px;
+    background: #fff;
+  }
+
+  .sd-main .result-card h3 {
+    margin: 0 0 6px;
+    font-size: 1rem;
+    color: #0f172a;
+  }
+
+  .sd-main .result-card p {
+    margin: 0;
+    color: #475569;
+    line-height: 1.6;
+  }
+
+  .sd-main .quote blockquote {
+    margin: 0;
+    padding: 12px 14px;
+    border-left: 4px solid #cbd5e1;
+    background: #f8fafc;
+    color: #334155;
+    border-radius: 8px;
+  }
+
+  .sd-main .gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+  }
+
+  .sd-main .gallery img {
+    width: 100%;
+    height: 170px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+  }
+
+  .sd-main .cta a {
+    display: inline-flex;
+    background: var(--primary-color, #f07179);
+    color: #fff;
+    text-decoration: none;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-weight: 700;
+    margin-top: 12px;
+  }
+
+  .sd-main .links {
+    margin-top: 28px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+  }
+
+  .sd-main .links > div {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px;
+    background: #fff;
+  }
+
+  .sd-main .links h2 {
+    margin: 0 0 8px;
+    font-size: 1rem;
+  }
+
+  .sd-main .links ul {
+    margin: 0;
+    padding-left: 18px;
+    color: #475569;
+    line-height: 1.7;
+  }
+
+  .sd-main .links a {
     color: #334155;
     text-decoration: none;
     border-bottom: 1px solid rgba(51, 65, 85, 0.26);
-    transition: color 0.18s ease, border-color 0.18s ease;
+    transition:
+      color 0.18s ease,
+      border-color 0.18s ease;
   }
-  .links a:hover {
+
+  .sd-main .links a:hover {
     color: #0f172a;
     border-bottom-color: #0f172a;
+  }
+
+  @media (max-width: 780px) {
+    .sd-lead-card {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
