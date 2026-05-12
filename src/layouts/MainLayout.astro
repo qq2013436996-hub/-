@@ -108,6 +108,17 @@ const footerCategoryRows = await sanityClient.fetch<FooterCategoryRow[]>(
 const footerProductLinks = assignCategoryPathSlugs(footerCategoryRows ?? [])
   .filter((r) => Boolean(r.title && r.pathSlug))
   .slice(0, 4)
+
+type NavAppRow = {title: string | null; slug: string | null}
+const navApplicationRows = await sanityClient.fetch<NavAppRow[]>(
+  `*[_type == "application" && defined(slug.current)] | order(title asc)[0...8]{
+    title,
+    "slug": slug.current
+  }`,
+)
+const navApplicationLinks = (navApplicationRows ?? []).filter(
+  (r): r is NavAppRow & {slug: string; title: string} => Boolean(r.slug && r.title),
+)
 ---
 
 <!doctype html>
@@ -262,6 +273,20 @@ const footerProductLinks = assignCategoryPathSlugs(footerCategoryRows ?? [])
         content: '▾';
         font-size: 0.72rem;
         opacity: 0.8;
+      }
+      .nav-menu-btn {
+        font-family: inherit;
+        font-size: 0.92rem;
+        font-weight: 650;
+        color: #cbd5e1;
+        background: transparent;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        transition: color 0.2s ease;
+      }
+      .nav-menu-btn:hover {
+        color: #ffffff;
       }
       .dropdown-menu {
         position: absolute;
@@ -471,8 +496,6 @@ const footerProductLinks = assignCategoryPathSlugs(footerCategoryRows ?? [])
           }
         </a>
         <nav class="main-nav">
-          <a href="/">Home</a>
-          <a href="/introduction">About Us</a>
           <div class="nav-item">
             <a href="/products" class="dropdown-toggle">Products</a>
             <div class="dropdown-menu" role="menu" aria-label="Products menu">
@@ -496,11 +519,45 @@ const footerProductLinks = assignCategoryPathSlugs(footerCategoryRows ?? [])
               <a href="/products">All Products</a>
             </div>
           </div>
-          <a href="/applications">Applications</a>
-          <a href="/case-studies">Shows & Events</a>
-          <a href="/blog">Blog</a>
-          <a href="/contact">Contact Us</a>
-          <a href="/request-quote" class="btn-quote-nav">Get a Quote</a>
+          <div class="nav-item">
+            <a href="/applications" class="dropdown-toggle">Applications</a>
+            <div class="dropdown-menu" role="menu" aria-label="Applications menu">
+              <a href="/applications" role="menuitem">All applications</a>
+              {navApplicationLinks.length ? (
+                <>
+                  <div class="dropdown-divider"></div>
+                  {navApplicationLinks.map((item) => (
+                    <a href={`/applications/${item.slug}`} role="menuitem">
+                      {item.title}
+                    </a>
+                  ))}
+                </>
+              ) : (
+                <>
+                  <div class="dropdown-divider"></div>
+                  <a href="/applications" role="menuitem">Browse scenarios</a>
+                </>
+              )}
+            </div>
+          </div>
+          <div class="nav-item">
+            <button type="button" class="dropdown-toggle nav-menu-btn" aria-haspopup="true">Company</button>
+            <div class="dropdown-menu" role="menu" aria-label="Company menu">
+              <a href="/introduction" role="menuitem">About Us</a>
+              <a href="/contact" role="menuitem">Contact Us</a>
+            </div>
+          </div>
+          <div class="nav-item">
+            <button type="button" class="dropdown-toggle nav-menu-btn" aria-haspopup="true">Resources</button>
+            <div class="dropdown-menu" role="menu" aria-label="Resources menu">
+              <a href="/case-studies" role="menuitem">Shows & Events</a>
+              <a href="/faqs" role="menuitem">Help center</a>
+              <a href="/blog" role="menuitem">Blog</a>
+              <a href="/video" role="menuitem">Video</a>
+            </div>
+          </div>
+          <a href="/contact">Contact</a>
+          <a href="/request-quote" class="btn-quote-nav">Get Instant Quote</a>
         </nav>
       </div>
     </header>
@@ -557,7 +614,8 @@ const footerProductLinks = assignCategoryPathSlugs(footerCategoryRows ?? [])
           <div class="footer-link-list">
             <a href="/introduction">About Us</a>
             <a href="/blog">Blog</a>
-            <a href="/faq">Help Center</a>
+            <a href="/faqs">Help Center</a>
+            <a href="/video">Video</a>
             <a href="/applications">Applications</a>
             <a href="/case-studies">Shows & Events</a>
             <a href="/contact">Contact Us</a>

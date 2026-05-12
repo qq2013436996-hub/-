@@ -1,0 +1,207 @@
+---
+import MainLayout from '../layouts/MainLayout.astro'
+
+const videoTitle = 'Video | bike'
+const videoDescription =
+  'Watch our factory and product highlights — learn how we craft wholesale scented candles with consistent quality.'
+---
+
+<MainLayout title={videoTitle} description={videoDescription} seo={{canonicalUrl: '/video/'}}>
+  <div class="video-page">
+    <section class="video-hero" aria-label="Video">
+      <img
+        class="video-hero-bg"
+        src="/video/hero-bg.png"
+        alt=""
+        width="1200"
+        height="630"
+        loading="eager"
+        fetchpriority="high"
+      />
+      <div class="video-hero-overlay"></div>
+      <div class="video-hero-inner">
+        <h1>Video</h1>
+      </div>
+    </section>
+
+    <div class="video-breadcrumb">
+      <a href="/">Home</a>
+      <span class="sep">&gt;&gt;</span>
+      <span class="here">Video</span>
+    </div>
+
+    <div class="video-wrap">
+      <div class="video-grid">
+        <div class="video-col video-col-media">
+          <div class="video-frame">
+            <iframe
+              title="Company video"
+              src="https://player.vimeo.com/video/76979871"
+              loading="lazy"
+              allow="autoplay; fullscreen; picture-in-picture"
+              allowfullscreen></iframe>
+          </div>
+          <p class="video-note">
+            Placeholder video (Vimeo sample). Replace the iframe <code>src</code> in <code>src/pages/video.astro</code> with
+            your own YouTube or Vimeo embed.
+          </p>
+        </div>
+        <div class="video-col video-col-copy">
+          <h2>This is us</h2>
+          <p>
+            We focus on timeless, personalized experiences for brands and retailers — combining luxury, sustainability,
+            and elegance in every candle we make. From fragrance development to packaging and stable bulk production, our
+            team supports OEM and ODM programs tailored to your market.
+          </p>
+          <a class="btn-coral-solid" href="/contact">Send Your Inquiry</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</MainLayout>
+
+<style>
+  .video-page {
+    background: #fff;
+    color: #111827;
+  }
+
+  .video-hero {
+    position: relative;
+    min-height: min(38vw, 320px);
+    max-height: 420px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .video-hero-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .video-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, rgba(15, 23, 42, 0.75) 0%, rgba(15, 23, 42, 0.35) 55%, rgba(15, 23, 42, 0.2) 100%);
+  }
+
+  .video-hero-inner {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 48px 20px 52px;
+  }
+
+  .video-hero-inner h1 {
+    margin: 0;
+    max-width: 12ch;
+    font-size: clamp(2.4rem, 5vw, 3.4rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: #fff;
+    line-height: 1.05;
+    text-shadow: 0 2px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  .video-breadcrumb {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 14px 20px 0;
+    font-size: 0.88rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .video-breadcrumb a {
+    color: #f07179;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .video-breadcrumb a:hover {
+    text-decoration: underline;
+  }
+
+  .video-breadcrumb .sep {
+    color: #f07179;
+    font-weight: 700;
+    opacity: 0.85;
+  }
+
+  .video-breadcrumb .here {
+    color: #64748b;
+    font-weight: 600;
+  }
+
+  .video-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 28px 20px 56px;
+  }
+
+  .video-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 36px 48px;
+    align-items: start;
+  }
+
+  .video-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #0f172a;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+  }
+
+  .video-frame iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .video-note {
+    margin: 10px 0 0;
+    font-size: 0.82rem;
+    color: #94a3b8;
+    line-height: 1.5;
+  }
+
+  .video-note code {
+    font-size: 0.78rem;
+  }
+
+  .video-col-copy h2 {
+    margin: 0 0 14px;
+    font-size: clamp(1.75rem, 2.8vw, 2.25rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #0f172a;
+  }
+
+  .video-col-copy p {
+    margin: 0 0 22px;
+    color: #475569;
+    line-height: 1.8;
+    font-size: 1.02rem;
+  }
+
+  @media (max-width: 900px) {
+    .video-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

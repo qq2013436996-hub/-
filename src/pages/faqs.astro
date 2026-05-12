@@ -1,0 +1,63 @@
+---
+import {sanityClient} from 'sanity:client'
+import MainLayout from '../layouts/MainLayout.astro'
+
+const faqs = await sanityClient.fetch<Array<{question: string | null; answer: string | null}>>(
+  `*[_type == "faq"] | order(coalesce(displayOrder, sortOrder, 100) asc){
+    question,
+    answer
+  }`,
+)
+---
+
+<MainLayout
+  title="Help Center | bike"
+  description="Frequently asked questions on products, customization, MOQ, and lead time."
+  seo={{canonicalUrl: '/faqs/'}}
+>
+  <main class="container">
+    <h1>Help Center</h1>
+    {faqs?.length ? (
+      <div class="faq-list">
+        {faqs.map((item) => (
+          <details>
+            <summary>{item.question || 'Question'}</summary>
+            <p>{item.answer || ''}</p>
+          </details>
+        ))}
+      </div>
+    ) : (
+      <p>No FAQs yet. Add and publish `faq` documents in Sanity Studio.</p>
+    )}
+  </main>
+</MainLayout>
+
+<style>
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
+  h1 {
+    margin: 0 0 14px;
+  }
+  .faq-list {
+    display: grid;
+    gap: 10px;
+  }
+  details {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px;
+    background: #fff;
+  }
+  summary {
+    cursor: pointer;
+    font-weight: 700;
+  }
+  p {
+    margin: 8px 0 0;
+    color: #475569;
+    line-height: 1.8;
+  }
+</style>
