@@ -65,7 +65,13 @@ const officeImages = [
           </p>
         </div>
         <figure class="about-welcome-media">
-          <img src={teamImage} alt={`${brand} team`} width="800" height="600" loading="eager" />
+          <img
+            src={certificatesImage}
+            alt={`${brand} certifications and test reports`}
+            width="800"
+            height="600"
+            loading="eager"
+          />
         </figure>
       </section>
     </div>
@@ -77,21 +83,21 @@ const officeImages = [
           <p>From boutique brands to global retailers—we scale to your needs.</p>
           <a href="/contact" class="about-btn">Contact Now</a>
         </div>
-        <div class="about-stats">
+        <div class="about-stats" data-about-stats>
           <div class="about-stat">
-            <span class="about-stat-num">15+</span>
+            <span class="about-stat-num"><span class="about-stat-value" data-count-target="15">0</span>+</span>
             <span class="about-stat-label">Years of Expertise</span>
           </div>
           <div class="about-stat">
-            <span class="about-stat-num">130+</span>
+            <span class="about-stat-num"><span class="about-stat-value" data-count-target="130">0</span>+</span>
             <span class="about-stat-label">Countries Served</span>
           </div>
           <div class="about-stat">
-            <span class="about-stat-num">300+</span>
+            <span class="about-stat-num"><span class="about-stat-value" data-count-target="300">0</span>+</span>
             <span class="about-stat-label">Flexible Low-MOQ</span>
           </div>
           <div class="about-stat">
-            <span class="about-stat-num">10+</span>
+            <span class="about-stat-num"><span class="about-stat-value" data-count-target="10">0</span>+</span>
             <span class="about-stat-label">Production Lines</span>
           </div>
         </div>
@@ -149,6 +155,11 @@ const officeImages = [
       </section>
 
       <section class="about-quality">
+        <figure class="about-quality-media">
+          <a href={teamImage} target="_blank" rel="noopener noreferrer">
+            <img src={teamImage} alt={`${brand} team`} loading="lazy" width="800" height="600" />
+          </a>
+        </figure>
         <div class="about-quality-copy">
           <h2>Our Commitment to Quality</h2>
           <p>
@@ -158,17 +169,6 @@ const officeImages = [
           </p>
           <a href="/contact" class="about-btn">Contact Now</a>
         </div>
-        <figure class="about-quality-media">
-          <a href={certificatesImage} target="_blank" rel="noopener noreferrer">
-            <img
-              src={certificatesImage}
-              alt="Quality certifications and test reports"
-              loading="lazy"
-              width="800"
-              height="600"
-            />
-          </a>
-        </figure>
       </section>
 
       <section class="about-grow">
@@ -379,6 +379,13 @@ const officeImages = [
       font-weight: 800;
       color: #111;
       margin-bottom: 8px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .about-stat-value {
+      display: inline-block;
+      min-width: 2.2ch;
+      text-align: right;
     }
 
     .about-stat-label {
@@ -637,6 +644,68 @@ const officeImages = [
       next.addEventListener('click', function () {
         viewport.scrollBy({left: step(), behavior: 'smooth'})
       })
+    })()
+  </script>
+
+  <script is:inline>
+    ;(function () {
+      var root = document.querySelector('[data-about-stats]')
+      if (!root) return
+      var els = root.querySelectorAll('[data-count-target]')
+      if (!els.length) return
+
+      function setFinal() {
+        els.forEach(function (el) {
+          var t = parseInt(el.getAttribute('data-count-target'), 10)
+          if (!isNaN(t)) el.textContent = String(t)
+        })
+      }
+
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        setFinal()
+        return
+      }
+
+      var done = false
+      function run() {
+        if (done) return
+        done = true
+        var duration = 1650
+        els.forEach(function (el, i) {
+          var target = parseInt(el.getAttribute('data-count-target'), 10)
+          if (isNaN(target)) return
+          var delay = i * 110
+          el.textContent = '0'
+          window.setTimeout(function () {
+            var start = performance.now()
+            function frame(now) {
+              var p = Math.min(1, (now - start) / duration)
+              var eased = 1 - Math.pow(1 - p, 3)
+              el.textContent = String(Math.round(target * eased))
+              if (p < 1) requestAnimationFrame(frame)
+              else el.textContent = String(target)
+            }
+            requestAnimationFrame(frame)
+          }, delay)
+        })
+      }
+
+      if ('IntersectionObserver' in window) {
+        var io = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (e) {
+              if (e.isIntersecting) {
+                run()
+                io.disconnect()
+              }
+            })
+          },
+          {threshold: 0.2, rootMargin: '0px 0px -10% 0px'},
+        )
+        io.observe(root)
+      } else {
+        run()
+      }
     })()
   </script>
 </MainLayout>

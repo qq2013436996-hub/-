@@ -1,9 +1,17 @@
 ---
+import {sanityClient} from 'sanity:client'
 import MainLayout from '../layouts/MainLayout.astro'
 
-const videoTitle = 'Video | bike'
-const videoDescription =
-  'Watch our factory and product highlights — learn how we craft wholesale scented candles with consistent quality.'
+const brand =
+  (
+    await sanityClient.fetch<{companyName: string | null}>(`*[_type == "siteSettings"][0]{companyName}`)
+  )?.companyName?.trim() || 'MW Candle'
+
+const youtubeId = 'kKuiXChZtjk'
+const embedUrl = `https://www.youtube.com/embed/${youtubeId}?rel=0&modestbranding=1`
+
+const videoTitle = `Video | ${brand}`
+const videoDescription = `Watch ${brand} — craftsmanship, fragrance, and how we support wholesale candles, OEM programs, and corporate gifting.`
 ---
 
 <MainLayout title={videoTitle} description={videoDescription} seo={{canonicalUrl: '/video/'}}>
@@ -35,28 +43,36 @@ const videoDescription =
         <div class="video-col video-col-media">
           <div class="video-frame">
             <iframe
-              title="Company video"
-              src="https://player.vimeo.com/video/76979871"
+              title={`${brand} — featured video`}
+              src={embedUrl}
               loading="lazy"
-              allow="autoplay; fullscreen; picture-in-picture"
-              allowfullscreen></iframe>
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allowfullscreen
+            />
           </div>
-          <p class="video-note">
-            Placeholder video (Vimeo sample). Replace the iframe <code>src</code> in <code>src/pages/video.astro</code> with
-            your own YouTube or Vimeo embed.
-          </p>
         </div>
         <div class="video-col video-col-copy">
+          <p class="video-kicker">Company film</p>
           <h2>This is us</h2>
-          <p>
-            We focus on timeless, personalized experiences for brands and retailers — combining luxury, sustainability,
-            and elegance in every candle we make. From fragrance development to packaging and stable bulk production, our
-            team supports OEM and ODM programs tailored to your market.
+          <p class="video-lead">
+            At <strong>{brand}</strong>, we don't just make candles—we create <strong>timeless, personalized experiences</strong> through scent, design, and craftsmanship. Our candles have become synonymous with <strong>luxury, sustainability, and elegance</strong>, offering high-quality, customizable solutions for businesses worldwide—from <strong>corporate gifting</strong> and event planning to retail and home decor.
           </p>
+          <ul class="video-points">
+            <li>In-house fragrance development and stable bulk production</li>
+            <li>Premium packaging, labeling, and OEM / ODM support</li>
+            <li>Dedicated team for sampling, compliance, and lead times</li>
+          </ul>
           <a class="btn-coral-solid" href="/contact">Send Your Inquiry</a>
         </div>
       </div>
     </div>
+
+    <section class="video-cta-band" aria-labelledby="video-cta-h">
+      <h2 id="video-cta-h">Contact our specialist</h2>
+      <p class="video-cta-sub">We're here to help you</p>
+      <a href="/request-quote" class="btn-coral-solid">Get An Instant Quote</a>
+    </section>
   </div>
 </MainLayout>
 
@@ -87,7 +103,7 @@ const videoDescription =
   .video-hero-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(105deg, rgba(15, 23, 42, 0.75) 0%, rgba(15, 23, 42, 0.35) 55%, rgba(15, 23, 42, 0.2) 100%);
+    background: linear-gradient(105deg, rgba(15, 23, 42, 0.78) 0%, rgba(15, 23, 42, 0.4) 55%, rgba(15, 23, 42, 0.22) 100%);
   }
 
   .video-hero-inner {
@@ -145,13 +161,13 @@ const videoDescription =
   .video-wrap {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 28px 20px 56px;
+    padding: 32px 20px 56px;
   }
 
   .video-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-    gap: 36px 48px;
+    grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
+    gap: 40px 52px;
     align-items: start;
   }
 
@@ -160,9 +176,10 @@ const videoDescription =
     width: 100%;
     aspect-ratio: 16 / 9;
     background: #0f172a;
-    border-radius: 8px;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.14);
+    border: 1px solid #e5e7eb;
   }
 
   .video-frame iframe {
@@ -173,30 +190,70 @@ const videoDescription =
     border: 0;
   }
 
-  .video-note {
-    margin: 10px 0 0;
-    font-size: 0.82rem;
-    color: #94a3b8;
-    line-height: 1.5;
-  }
-
-  .video-note code {
+  .video-kicker {
+    margin: 0 0 8px;
     font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #f07179;
   }
 
   .video-col-copy h2 {
-    margin: 0 0 14px;
+    margin: 0 0 16px;
     font-size: clamp(1.75rem, 2.8vw, 2.25rem);
     font-weight: 800;
     letter-spacing: -0.02em;
     color: #0f172a;
+    line-height: 1.15;
   }
 
-  .video-col-copy p {
-    margin: 0 0 22px;
+  .video-lead {
+    margin: 0 0 18px;
     color: #475569;
-    line-height: 1.8;
-    font-size: 1.02rem;
+    line-height: 1.85;
+    font-size: 1.04rem;
+  }
+
+  .video-lead strong {
+    color: #1e293b;
+    font-weight: 700;
+  }
+
+  .video-points {
+    margin: 0 0 24px;
+    padding: 0 0 0 1.15rem;
+    color: #64748b;
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+
+  .video-points li {
+    margin-bottom: 8px;
+  }
+
+  .video-points li:last-child {
+    margin-bottom: 0;
+  }
+
+  .video-cta-band {
+    padding: 48px 20px 52px;
+    text-align: center;
+    background: #fdecef;
+    border-top: 1px solid #f9d6dc;
+  }
+
+  .video-cta-band h2 {
+    margin: 0 0 8px;
+    font-size: clamp(1.65rem, 3vw, 2.1rem);
+    font-weight: 800;
+    color: #334155;
+  }
+
+  .video-cta-sub {
+    margin: 0 0 22px;
+    color: #64748b;
+    font-size: 1.05rem;
   }
 
   @media (max-width: 900px) {

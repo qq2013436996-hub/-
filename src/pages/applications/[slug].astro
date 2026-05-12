@@ -3,12 +3,139 @@ import {sanityClient} from 'sanity:client'
 import {PortableText} from 'astro-portabletext'
 import type {TypedObject} from '@portabletext/types'
 import MainLayout from '../../layouts/MainLayout.astro'
+import {scentTypeCards} from '../../data/scentTypes'
 
 type LinkRow = {title: string | null; slug: string | null}
+
+type FeatureRow = {title: string | null; description: string | null; iconUrl: string | null}
+
+type TestimonialRow = {
+  quote: string | null
+  clientName: string | null
+  clientTitle: string | null
+  companyName: string | null
+  avatarUrl: string | null
+}
 
 export const prerender = false
 
 const {slug} = Astro.params
+
+/**
+ * MW Corporate Gifting zigzag — image must match row copy (left/right alternates via `.is-reverse`):
+ * 1 Stand Out: black/gold gift set + botanicals on wood → gift-01
+ * 2 Build Stronger: hands opening white box with black jars → gift-03
+ * 3 Celebrate: black satin box + lit black candle → gift-02
+ */
+const mwZigzagRowImages = [
+  '/applications/mw/gift-01.png',
+  '/applications/mw/gift-03.png',
+  '/applications/mw/gift-02.png',
+]
+
+/**
+ * MW “Benefits for Your Business” — four slides (left→right): 黑金礼盒场景 → 白盒开箱 → 黑缎带蜡烛 → 办公桌蜡烛礼盒
+ */
+const benefitStripImages = [
+  '/applications/mw/benefit-mw-01.png',
+  '/applications/mw/benefit-mw-02.png',
+  '/applications/mw/benefit-mw-03.png',
+  '/applications/mw/benefit-mw-04.png',
+]
+
+/** Application page testimonials always use portrait headshots (ignore wrong CMS avatars). */
+const testimonialHeadshots = [
+  '/applications/mw/client-adam.png',
+  '/applications/mw/client-bennett.png',
+  '/applications/mw/client-natalie.png',
+]
+
+const testimonialAvatarByName: Record<string, string> = {
+  'adam smith': '/applications/mw/client-adam.png',
+  'bennett f.': '/applications/mw/client-bennett.png',
+  'bennett f': '/applications/mw/client-bennett.png',
+  'natalie chen': '/applications/mw/client-natalie.png',
+}
+
+function resolveTestimonialHeadshot(clientName: string | null | undefined, index: number) {
+  const key = (clientName ?? '').trim().toLowerCase().replace(/\s+/g, ' ')
+  return testimonialAvatarByName[key] ?? testimonialHeadshots[index % testimonialHeadshots.length]
+}
+
+const WHY_CHOOSE_SIDE_IMAGE = '/applications/mw/office-building.png'
+
+const defaultZigzag: FeatureRow[] = [
+  {
+    title: 'Stand Out with Unique Gifts',
+    description:
+      "Go beyond traditional gifts like pens or mugs and offer something truly memorable. A custom candle speaks volumes about your company's thoughtfulness and attention to detail.",
+    iconUrl: null,
+  },
+  {
+    title: 'Build Stronger Relationships',
+    description:
+      'Whether for clients, partners, or employees, receiving a personalized candle from your company will leave a lasting positive impression and foster stronger connections.',
+    iconUrl: null,
+  },
+  {
+    title: 'Celebrate Milestones & Achievements',
+    description:
+      'Candles are an elegant way to commemorate corporate milestones, holidays, and special events while giving employees and clients a meaningful token to cherish.',
+    iconUrl: null,
+  },
+]
+
+const defaultWhy: FeatureRow[] = [
+  {
+    title: 'Customizable for Any Occasion',
+    description:
+      'Tailored candles for client gifts, seasonal collections, product launches, and milestones.',
+    iconUrl: null,
+  },
+  {
+    title: 'Premium Quality',
+    description:
+      'Made with soy wax, beeswax, and essential oils for a clean, long-lasting burn and elegant design.',
+    iconUrl: null,
+  },
+  {
+    title: 'Eco-Friendly',
+    description:
+      "Sustainable waxes and recyclable packaging to reflect your company's environmental commitment.",
+    iconUrl: null,
+  },
+  {
+    title: 'Brand Customization',
+    description:
+      "Fully customizable fragrance, packaging, and labels to align with your brand's identity.",
+    iconUrl: null,
+  },
+]
+
+const fallbackTestimonials: TestimonialRow[] = [
+  {
+    quote: 'Their team made OEM straightforward — from wax samples to final carton artwork.',
+    clientName: 'Adam Smith',
+    clientTitle: 'OEM Candle Studio',
+    companyName: '',
+    avatarUrl: '/applications/mw/client-adam.png',
+  },
+  {
+    quote:
+      'We needed a polished gifting program fast — the candles and packaging looked incredible for our client event.',
+    clientName: 'Bennett F.',
+    clientTitle: 'Brand Purchasing',
+    companyName: '',
+    avatarUrl: '/applications/mw/client-bennett.png',
+  },
+  {
+    quote: 'Quality is consistent batch to batch. Our shop customers always comment on the scent throw.',
+    clientName: 'Natalie Chen',
+    clientTitle: 'Gift Shop Owner',
+    companyName: '',
+    avatarUrl: '/applications/mw/client-natalie.png',
+  },
+]
 
 const doc = await sanityClient.fetch<{
   title: string | null
@@ -17,8 +144,8 @@ const doc = await sanityClient.fetch<{
   heroImageUrl: string | null
   heroImageAlt: string | null
   content: TypedObject[] | null
-  painPoints: Array<{title: string | null; description: string | null}> | null
-  solutionBenefits: Array<{title: string | null; description: string | null}> | null
+  painPoints: FeatureRow[] | null
+  solutionBenefits: FeatureRow[] | null
   installationScenarios: string[] | null
   cta: {title: string | null; description: string | null; buttonText: string | null; buttonUrl: string | null} | null
   recommendedProducts: LinkRow[] | null
@@ -42,8 +169,8 @@ const doc = await sanityClient.fetch<{
     "heroImageUrl": heroImage.image.asset->url,
     "heroImageAlt": heroImage.alt,
     content,
-    "painPoints": painPoints[]{title, description},
-    "solutionBenefits": solutionBenefits[]{title, description},
+    "painPoints": painPoints[]{title, description, "iconUrl": icon.asset->url},
+    "solutionBenefits": solutionBenefits[]{title, description, "iconUrl": icon.asset->url},
     installationScenarios,
     "cta": cta{title, description, buttonText, buttonUrl},
     "recommendedProducts": recommendedProducts[]->{title, "slug": slug.current},
@@ -63,15 +190,62 @@ const doc = await sanityClient.fetch<{
   {slug},
 )
 
+const brand =
+  (
+    await sanityClient.fetch<{companyName: string | null}>(`*[_type == "siteSettings"][0]{companyName}`)
+  )?.companyName?.trim() || 'MW Candle'
+
+const testimonialRows = await sanityClient.fetch<TestimonialRow[]>(
+  `*[_type == "testimonial"] | order(coalesce(displayOrder, 100) asc, _updatedAt desc)[0...8]{
+    quote,
+    clientName,
+    clientTitle,
+    companyName,
+    "avatarUrl": avatar.asset->url
+  }`,
+)
+
 if (!doc) {
   return Astro.redirect('/', 302)
 }
 
-const pageTitle = doc.seo?.metaTitle?.trim() || `LED Work Lights for ${doc.title ?? 'Application'} | bike`
+const pageTitle = doc.seo?.metaTitle?.trim() || `${doc.title ?? 'Application'} | ${brand}`
 const pageDescription =
   doc.seo?.metaDescription?.trim() ||
   doc.summary ||
-  'Application scenario page with recommended products and related shows and events.'
+  doc.shortDescription ||
+  'Application scenarios for wholesale scented candles and custom gifting programs.'
+
+const introH2 = doc.summary?.trim() || doc.title || 'Solutions for your brand'
+const introP = doc.shortDescription?.trim() || ''
+
+const zigSource = [...(doc.painPoints ?? []), ...(doc.solutionBenefits ?? [])].filter((r) => r.title)
+const zigzagRows = (zigSource.length ? zigSource : defaultZigzag).map((row, i) => ({
+  ...row,
+  image: row.iconUrl || mwZigzagRowImages[i % mwZigzagRowImages.length],
+}))
+
+const whyRows = (doc.painPoints?.length ? doc.painPoints : defaultWhy).filter((r) => r.title)
+
+const contactHref = doc.cta?.buttonUrl?.trim() || '/contact'
+const contactLabel = doc.cta?.buttonText?.trim() || 'Contact'
+
+const testimonialSource = (testimonialRows?.length ? testimonialRows : fallbackTestimonials).filter((t) => t.quote)
+
+function testimonialMwOrder(name: string | null | undefined) {
+  const n = (name ?? '').trim().toLowerCase()
+  if (n.includes('adam') && n.includes('smith')) return 0
+  if (n.includes('bennett')) return 1
+  if (n.includes('natalie')) return 2
+  return 50
+}
+
+testimonialSource.sort((a, b) => testimonialMwOrder(a.clientName) - testimonialMwOrder(b.clientName))
+
+const testimonials = testimonialSource.map((t, i) => ({
+  ...t,
+  avatarUrl: resolveTestimonialHeadshot(t.clientName, i),
+}))
 ---
 
 <MainLayout
@@ -85,159 +259,1189 @@ const pageDescription =
     robots: doc.seo?.robots?.trim() || 'index, follow',
   }}
 >
-  <main class="container">
-    <h1>{doc.title}</h1>
-    {doc.summary ? <p class="lead">{doc.summary}</p> : null}
-    {doc.shortDescription ? <p class="lead">{doc.shortDescription}</p> : null}
-    {doc.heroImageUrl ? <img src={doc.heroImageUrl} alt={doc.heroImageAlt ?? doc.title ?? 'Application'} class="hero" /> : null}
-    <article class="prose">
-      {doc.content ? <PortableText value={doc.content} /> : <p>Content coming soon.</p>}
-    </article>
-
-    {(doc.painPoints ?? []).length ? (
-      <section class="block">
-        <h2>Pain Points</h2>
-        <ul>
-          {(doc.painPoints ?? []).map((item) => (
-            <li><strong>{item.title}</strong>{item.description ? ` - ${item.description}` : ''}</li>
-          ))}
-        </ul>
-      </section>
-    ) : null}
-
-    {(doc.solutionBenefits ?? []).length ? (
-      <section class="block">
-        <h2>Solution Benefits</h2>
-        <ul>
-          {(doc.solutionBenefits ?? []).map((item) => (
-            <li><strong>{item.title}</strong>{item.description ? ` - ${item.description}` : ''}</li>
-          ))}
-        </ul>
-      </section>
-    ) : null}
-
-    {(doc.installationScenarios ?? []).length ? (
-      <section class="block">
-        <h2>Installation Scenarios</h2>
-        <ul>
-          {(doc.installationScenarios ?? []).map((item) => (
-            <li>{item}</li>
-          ))}
-        </ul>
-      </section>
-    ) : null}
-
-    {doc.cta?.buttonText && doc.cta?.buttonUrl ? (
-      <section class="block cta-box">
-        {doc.cta.title ? <h2>{doc.cta.title}</h2> : null}
-        {doc.cta.description ? <p>{doc.cta.description}</p> : null}
-        <a href={doc.cta.buttonUrl}>{doc.cta.buttonText}</a>
-      </section>
-    ) : null}
-
-    <section class="links">
-      <div>
-        <h2>Recommended Products</h2>
-        <ul>
-          {(doc.recommendedProducts ?? []).map((item) =>
-            item.slug ? <li><a href={`/products/${item.slug}`}>{item.title}</a></li> : null,
-          )}
-        </ul>
+  <div class="app-page">
+    <section class="app-hero" aria-label={doc.title ?? 'Application'}>
+      {doc.heroImageUrl ? (
+        <img
+          class="app-hero-bg"
+          src={doc.heroImageUrl}
+          alt={doc.heroImageAlt ?? doc.title ?? ''}
+          width="1600"
+          height="700"
+          loading="eager"
+          fetchpriority="high"
+        />
+      ) : (
+        <div class="app-hero-fallback"></div>
+      )}
+      <div class="app-hero-overlay"></div>
+      <div class="app-hero-inner">
+        <h1>{doc.title}</h1>
       </div>
-      <div>
-        <h2>Related Shows & Events</h2>
-        <ul>
-          {(doc.relatedCaseStudies ?? []).map((item) =>
-            item.slug ? <li><a href={`/case-studies/${item.slug}`}>{item.title}</a></li> : null,
-          )}
-        </ul>
+    </section>
+
+    <nav class="app-crumb" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      <span class="sep">&gt;&gt;</span>
+      <a href="/applications">Applications</a>
+      <span class="sep">&gt;&gt;</span>
+      <span class="here">{doc.title}</span>
+    </nav>
+
+    <section class="app-intro app-wrap">
+      <h2>{introH2}</h2>
+      {introP ? (
+        introP.includes('**') ? (
+          <p class="app-intro-copy" set:html={introP.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')} />
+        ) : (
+          <p class="app-intro-copy">{introP}</p>
+        )
+      ) : null}
+    </section>
+
+    {
+      doc.content?.length ? (
+        <section class="app-rich app-wrap">
+          <div class="app-prose">
+            <PortableText value={doc.content} />
+          </div>
+        </section>
+      ) : null
+    }
+
+    <section class="app-scents">
+      <div class="app-scents-head app-wrap">
+        <h2 class="app-scents-title">Explore scent directions</h2>
+        <div class="app-strip-nav">
+          <button type="button" class="app-round-btn app-scents-prev" aria-label="Scroll left">‹</button>
+          <button type="button" class="app-round-btn app-scents-next" aria-label="Scroll right">›</button>
+        </div>
       </div>
-      <div>
-        <h2>Related Blogs</h2>
-        <ul>
-          {(doc.relatedBlogs ?? []).map((item) =>
-            item.slug ? <li><a href={`/blog/${item.slug}`}>{item.title}</a></li> : null,
-          )}
-        </ul>
-      </div>
-      <div>
-        <h2>Related FAQs</h2>
-        <div class="faq-mini">
-          {(doc.relatedFaqs ?? []).map((item) =>
-            item.question ? (
-              <details>
-                <summary>{item.question}</summary>
-                {item.answer ? <div class="ans">{item.answer}</div> : <div class="ans"><a href="/faqs">View all FAQs</a></div>}
-              </details>
-            ) : null,
-          )}
+      <div class="app-scents-track-wrap app-wrap">
+        <div class="app-scents-track" data-app-scents>
+          {scentTypeCards.map((s) => (
+            <article class="app-scent-card">
+              <div class="app-scent-media">
+                <img src={s.image} alt="" width="280" height="200" loading="lazy" />
+              </div>
+              <div class="app-scent-body">
+                <h3>{s.title}</h3>
+                <p>{s.description}</p>
+                <a class="app-read-more" href="/request-quote">
+                  Read More &gt;&gt;
+                </a>
+              </div>
+            </article>
+          ))}
         </div>
       </div>
     </section>
-  </main>
+
+    <section class="app-zigzag">
+      {
+        zigzagRows.map((row, i) => (
+          <div
+            class:list={['app-zig-row', i % 2 === 1 && 'is-reverse']}
+            data-reveal
+            style={`--reveal-i:${i}`}
+          >
+            <div class="app-zig-media">
+              <img src={row.image} alt="" width="640" height="480" loading="lazy" />
+            </div>
+            <div class="app-zig-copy">
+              <h2>{row.title}</h2>
+              {row.description ? <p>{row.description}</p> : null}
+              <a class="btn-coral-solid" href={contactHref}>
+                {contactLabel}
+              </a>
+            </div>
+          </div>
+        ))
+      }
+    </section>
+
+    <section class="app-testimonials">
+      <div class="app-wrap app-t-inner" data-reveal>
+        <h2 class="app-t-title">What Our Clients Have to Say</h2>
+        <p class="app-t-sub">Your trust is the greatest motivation</p>
+        <div class="app-t-track-wrap">
+          <div class="app-t-track" data-app-testimonials>
+            {testimonials.map((t) => (
+              <article class="app-t-card">
+                {t.avatarUrl ? (
+                  <img
+                    class="app-t-avatar"
+                    src={t.avatarUrl}
+                    alt={t.clientName ? `Photo of ${t.clientName}` : ''}
+                    width="72"
+                    height="72"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div class="app-t-avatar app-t-avatar-ph" aria-hidden="true" />
+                )}
+                <div class="app-t-right">
+                  <p class="app-t-name">{t.clientName || 'Client'}</p>
+                  <p class="app-t-role">
+                    {[t.clientTitle, t.companyName].filter(Boolean).join(' · ')}
+                  </p>
+                  <p class="app-t-quote">“{t.quote}”</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+        <div class="app-t-dots" data-t-dots>
+          {testimonials.map((_, i) => (
+            <button type="button" class:list={['app-t-dot', i === 0 && 'is-on']} data-t-dot={i} aria-label={`Slide ${i + 1}`} />
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="app-why app-wrap">
+      <div class="app-why-grid">
+        <div class="app-why-copy" data-reveal>
+          <h2>Why Choose {brand} for Corporate Gifts?</h2>
+          <ul class="app-check-list">
+            {whyRows.map((row, idx) => (
+              <li class="app-check-item" style={`--check-i:${idx}`}>
+                <span class="app-check" aria-hidden="true">✓</span>
+                <span>
+                  <strong>{row.title}</strong>
+                  {row.description ? ` ${row.description}` : ''}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <a class="btn-coral-solid" href="/request-quote">
+            Get An Instant Quote
+          </a>
+        </div>
+        <div class="app-why-media" data-reveal>
+          <img
+            src={WHY_CHOOSE_SIDE_IMAGE}
+            alt=""
+            width="640"
+            height="480"
+            loading="lazy"
+          />
+        </div>
+      </div>
+    </section>
+
+    <section class="app-benefits">
+      <h2 class="app-benefits-title">Benefits for Your Business</h2>
+      <div class="app-benefits-wrap app-wrap">
+        <div class="app-benefits-track" data-app-benefits>
+          {[...benefitStripImages, ...benefitStripImages].map((src) => (
+            <div class="app-benefit-slide">
+              <img src={src} alt="" width="360" height="260" loading="lazy" />
+            </div>
+          ))}
+        </div>
+        <div class="app-ben-scroll-track" aria-hidden="true">
+          <div class="app-ben-scroll-thumb" data-ben-scroll-thumb />
+        </div>
+        <div class="app-benefits-nav">
+          <button type="button" class="app-round-btn app-ben-prev" aria-label="Previous">‹</button>
+          <button type="button" class="app-round-btn app-ben-next" aria-label="Next">›</button>
+        </div>
+      </div>
+    </section>
+
+    {
+      (doc.recommendedProducts ?? []).filter((p) => p.slug).length ? (
+        <section class="app-rec app-wrap">
+          <h2>Recommended products</h2>
+          <div class="app-rec-row">
+            {(doc.recommendedProducts ?? []).map((item) =>
+              item.slug ? (
+                <a class="app-rec-pill" href={`/products/${item.slug}`}>
+                  {item.title}
+                </a>
+              ) : null,
+            )}
+          </div>
+        </section>
+      ) : null
+    }
+
+    {
+      (doc.relatedFaqs ?? []).some((f) => f.question) ? (
+        <section class="app-faq-wrap app-wrap">
+          <div class="app-faq-card" data-reveal>
+            <h2 class="app-faq-h">FAQs</h2>
+            <div class="app-faq-list">
+              {(doc.relatedFaqs ?? []).map((item, idx) =>
+                item.question ? (
+                  <details class="app-faq-item">
+                    <summary>
+                      <span class="app-faq-n">{idx + 1}.</span>
+                      <span class="app-faq-q">{item.question}</span>
+                      <span class="app-faq-toggle" aria-hidden="true" />
+                    </summary>
+                    <div class="app-faq-a">
+                      {item.answer ? <p>{item.answer}</p> : <a href="/faqs">View all FAQs</a>}
+                    </div>
+                  </details>
+                ) : null,
+              )}
+            </div>
+          </div>
+        </section>
+      ) : null
+    }
+
+    <section class="app-cta-band" aria-labelledby="app-cta-h">
+      <h2 id="app-cta-h">Contact our specialist</h2>
+      <p class="app-cta-sub">We're here to help you</p>
+      <a href="/request-quote" class="btn-coral-solid">
+        Get An Instant Quote
+      </a>
+    </section>
+  </div>
 </MainLayout>
 
+<script is:inline>
+  var scents = document.querySelector('[data-app-scents]')
+  if (scents) {
+    var p = document.querySelector('.app-scents-prev')
+    var n = document.querySelector('.app-scents-next')
+    if (p)
+      p.addEventListener('click', function () {
+        scents.scrollBy({left: -300, behavior: 'smooth'})
+      })
+    if (n)
+      n.addEventListener('click', function () {
+        scents.scrollBy({left: 300, behavior: 'smooth'})
+      })
+  }
+
+  var ben = document.querySelector('[data-app-benefits]')
+  var benThumb = document.querySelector('[data-ben-scroll-thumb]')
+  function benSlideStep() {
+    if (!ben) return 296
+    var slide = ben.querySelector('.app-benefit-slide')
+    if (!slide) return 296
+    var st = getComputedStyle(ben)
+    var gap = parseFloat(st.gap || st.columnGap || '16') || 16
+    return slide.getBoundingClientRect().width + gap
+  }
+  function syncBenThumb() {
+    if (!ben || !benThumb) return
+    var total = ben.scrollWidth
+    var view = ben.clientWidth
+    var max = Math.max(0, total - view)
+    var wPct = total > 0 ? Math.min(100, (view / total) * 100) : 100
+    benThumb.style.width = wPct + '%'
+    var leftPct = max <= 0 ? 0 : (ben.scrollLeft / max) * (100 - wPct)
+    benThumb.style.left = leftPct + '%'
+  }
+  if (ben) {
+    var benRoot = ben.parentElement
+    var benPrev = benRoot && benRoot.querySelector('.app-ben-prev')
+    var benNext = benRoot && benRoot.querySelector('.app-ben-next')
+    var bStep = function () {
+      return benSlideStep()
+    }
+    if (benPrev) benPrev.addEventListener('click', function () { ben.scrollBy({left: -bStep(), behavior: 'smooth'}) })
+    if (benNext) benNext.addEventListener('click', function () { ben.scrollBy({left: bStep(), behavior: 'smooth'}) })
+    ben.addEventListener('scroll', syncBenThumb)
+    window.addEventListener('resize', syncBenThumb)
+    syncBenThumb()
+  }
+
+  var tTrack = document.querySelector('[data-app-testimonials]')
+  var dots = document.querySelectorAll('[data-t-dot]')
+  function tSlideStep() {
+    if (!tTrack) return 360
+    var card = tTrack.querySelector('.app-t-card')
+    if (!card) return tTrack.clientWidth || 360
+    var st = getComputedStyle(tTrack)
+    var gap = parseFloat(st.gap || st.columnGap || '16') || 16
+    return card.getBoundingClientRect().width + gap
+  }
+  if (tTrack && dots.length) {
+    function setDot(i) {
+      dots.forEach(function (d, j) {
+        d.classList.toggle('is-on', j === i)
+      })
+    }
+    dots.forEach(function (dot, i) {
+      dot.addEventListener('click', function () {
+        tTrack.scrollTo({left: i * tSlideStep(), behavior: 'smooth'})
+        setDot(i)
+      })
+    })
+    tTrack.addEventListener('scroll', function () {
+      var step = tSlideStep() || 1
+      var i = Math.round(tTrack.scrollLeft / step)
+      setDot(Math.max(0, Math.min(i, dots.length - 1)))
+    })
+  }
+
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    var revealNodes = document.querySelectorAll('[data-reveal]')
+    if (revealNodes.length) {
+      var rio = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible')
+              rio.unobserve(entry.target)
+            }
+          })
+        },
+        {threshold: 0.12, rootMargin: '0px 0px -6% 0px'},
+      )
+      revealNodes.forEach(function (el) {
+        rio.observe(el)
+      })
+    }
+  } else {
+    document.querySelectorAll('[data-reveal]').forEach(function (el) {
+      el.classList.add('is-visible')
+    })
+  }
+</script>
+
 <style>
-  .container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
-  h1 { margin: 0 0 10px; }
-  .lead { margin: 0 0 16px; color: #64748b; line-height: 1.8; }
-  .hero { width: 100%; border-radius: 12px; border: 1px solid #e5e7eb; margin: 0 0 20px; }
-  .prose { line-height: 1.8; color: #334155; }
-  .block { margin-top: 22px; }
-  .block h2 { margin: 0 0 10px; font-size: 1.12rem; }
-  .block ul { margin: 0; padding-left: 18px; color: #475569; line-height: 1.7; }
-  .cta-box { border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px; background: #fff; }
-  .cta-box p { margin: 0 0 10px; color: #475569; line-height: 1.7; }
-  .cta-box a { display: inline-flex; background: #111827; color: #fff; text-decoration: none; border-radius: 8px; padding: 9px 12px; font-weight: 700; }
-  .links { margin-top: 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
-  .links > div { border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px; background: #fff; }
-  .links h2 { margin: 0 0 8px; font-size: 1rem; }
-  .links ul { margin: 0; padding-left: 18px; color: #475569; line-height: 1.7; }
-  .links a {
-    color: #334155;
+  .app-page {
+    background: #fff;
+    color: #111827;
+  }
+
+  .app-wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .app-hero {
+    position: relative;
+    min-height: min(52vw, 420px);
+    max-height: 520px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .app-hero-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transform: scale(1);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .app-hero-bg {
+      animation: appHeroKen 32s ease-in-out infinite alternate;
+    }
+  }
+
+  @keyframes appHeroKen {
+    from {
+      transform: scale(1);
+    }
+    to {
+      transform: scale(1.07);
+    }
+  }
+
+  .app-hero-fallback {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #1e293b, #334155);
+  }
+
+  .app-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(15, 23, 42, 0.65) 0%, rgba(15, 23, 42, 0.25) 100%);
+  }
+
+  .app-hero-inner {
+    position: relative;
+    z-index: 1;
+    max-width: 1180px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 48px 20px;
+  }
+
+  .app-hero-inner h1 {
+    margin: 0;
+    max-width: 18ch;
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: #fff;
+    line-height: 1.08;
+    text-shadow: 0 2px 28px rgba(0, 0, 0, 0.35);
+  }
+
+  .app-crumb {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 14px 20px 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+
+  .app-crumb a {
+    color: #f07179;
     text-decoration: none;
-    border-bottom: 1px solid rgba(51, 65, 85, 0.26);
-    transition: color 0.18s ease, border-color 0.18s ease;
   }
-  .links a:hover {
-    color: #0f172a;
-    border-bottom-color: #0f172a;
+
+  .app-crumb a:hover {
+    text-decoration: underline;
   }
-  .faq-mini details {
-    border: none;
-    border-radius: 0;
-    background: transparent;
-    padding: 6px 0;
-    border-bottom: 1px dashed #d1d5db;
+
+  .app-crumb .sep {
+    color: #f07179;
+    opacity: 0.85;
   }
-  .faq-mini details + details {
-    margin-top: 6px;
+
+  .app-crumb .here {
+    color: #64748b;
   }
-  .faq-mini summary {
-    list-style: none;
-    cursor: pointer;
-    font-weight: 700;
-    color: #334155;
+
+  .app-intro {
+    padding: 36px 20px 8px;
+  }
+
+  .app-intro h2 {
+    margin: 0 0 14px;
+    font-size: clamp(1.5rem, 2.6vw, 2.1rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  .app-intro-copy {
+    margin: 0;
+    max-width: 72ch;
+    color: #475569;
+    line-height: 1.85;
+    font-size: 1.02rem;
+  }
+
+  .app-rich {
+    padding: 12px 20px 28px;
+  }
+
+  .app-prose {
+    max-width: 72ch;
+    color: #475569;
+    line-height: 1.85;
+    font-size: 1rem;
+  }
+
+  .app-prose :global(p) {
+    margin: 0 0 12px;
+  }
+
+  .app-scents {
+    padding: 28px 0 40px;
+    background: #fafafa;
+    border-top: 1px solid #f1f5f9;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .app-scents-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .app-scents-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 800;
+  }
+
+  .app-strip-nav {
+    display: flex;
     gap: 8px;
   }
-  .faq-mini summary::-webkit-details-marker {
+
+  .app-round-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+    color: #334155;
+    transition:
+      background 0.18s ease,
+      border-color 0.18s ease;
+  }
+
+  .app-round-btn:hover {
+    background: #fff5f5;
+    border-color: #f9d6dc;
+    color: #f07179;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .app-round-btn {
+      transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.22s ease;
+    }
+    .app-round-btn:hover {
+      transform: scale(1.06);
+    }
+    .app-round-btn:active {
+      transform: scale(0.96);
+    }
+  }
+
+  .app-scents-track-wrap {
+    overflow: hidden;
+  }
+
+  .app-scents-track {
+    display: flex;
+    gap: 18px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    padding-bottom: 8px;
+    scrollbar-width: thin;
+  }
+
+  .app-scent-card {
+    flex: 0 0 min(260px, 82vw);
+    scroll-snap-align: start;
+    background: #f3f4f6;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+  }
+
+  .app-scent-media {
+    aspect-ratio: 4 / 3;
+    background: #e5e7eb;
+  }
+
+  .app-scent-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .app-scent-body {
+    padding: 14px 14px 16px;
+  }
+
+  .app-scent-body h3 {
+    margin: 0 0 8px;
+    font-size: 1.05rem;
+    font-weight: 800;
+  }
+
+  .app-scent-body p {
+    margin: 0 0 10px;
+    font-size: 0.9rem;
+    color: #64748b;
+    line-height: 1.65;
+  }
+
+  .app-read-more {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #f07179;
+    text-decoration: none;
+  }
+
+  .app-read-more:hover {
+    text-decoration: underline;
+  }
+
+  .app-zigzag {
+    padding: 48px 0;
+  }
+
+  .app-zig-row {
+    max-width: 1180px;
+    margin: 0 auto 48px;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: center;
+  }
+
+  .app-zig-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .app-zig-row.is-reverse .app-zig-media {
+    order: 2;
+  }
+
+  .app-zig-row.is-reverse .app-zig-copy {
+    order: 1;
+  }
+
+  .app-zig-media {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.1);
+  }
+
+  .app-zig-media img {
+    width: 100%;
+    height: 100%;
+    min-height: 280px;
+    object-fit: cover;
+    display: block;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .app-zig-row[data-reveal]:not(.is-visible) .app-zig-media img {
+      transform: scale(1.07);
+    }
+    .app-zig-row[data-reveal].is-visible .app-zig-media img {
+      transform: scale(1);
+      transition: transform 0.95s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+  }
+
+  .app-zig-copy h2 {
+    margin: 0 0 12px;
+    font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .app-zig-copy p {
+    margin: 0 0 20px;
+    color: #475569;
+    line-height: 1.8;
+    font-size: 1.02rem;
+  }
+
+  .app-testimonials {
+    background: #fafafa;
+    padding: 48px 20px 40px;
+    border-top: 1px solid #f1f5f9;
+  }
+
+  .app-t-inner {
+    text-align: center;
+  }
+
+  .app-t-title {
+    margin: 0 0 8px;
+    font-size: clamp(1.45rem, 2.4vw, 1.9rem);
+    font-weight: 800;
+  }
+
+  .app-t-sub {
+    margin: 0 0 24px;
+    color: #94a3b8;
+    font-size: 0.98rem;
+  }
+
+  .app-t-track-wrap {
+    overflow: hidden;
+    margin: 0 -20px;
+  }
+
+  .app-t-track {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    gap: 16px;
+    padding: 4px 20px 12px;
+    scrollbar-width: none;
+  }
+
+  .app-t-track::-webkit-scrollbar {
     display: none;
   }
-  .faq-mini summary::after {
+
+  .app-t-card {
+    flex: 0 0 min(340px, 88vw);
+    scroll-snap-align: center;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 14px;
+    text-align: left;
+    padding: 18px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+  }
+
+  .app-t-right {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .app-t-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 10px;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .app-t-avatar-ph {
+    background: #e2e8f0;
+  }
+
+  .app-t-name {
+    margin: 0 0 4px;
+    font-weight: 800;
+    font-size: 1rem;
+  }
+
+  .app-t-role {
+    margin: 0 0 8px;
+    font-size: 0.85rem;
+    color: #94a3b8;
+  }
+
+  .app-t-quote {
+    margin: 0;
+    color: #475569;
+    line-height: 1.65;
+    font-size: 0.95rem;
+    width: 100%;
+  }
+
+  .app-t-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .app-t-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    border: none;
+    background: #e2e8f0;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .app-t-dot.is-on {
+    background: #f07179;
+  }
+
+  .app-why {
+    padding: 48px 20px;
+  }
+
+  .app-why-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: center;
+  }
+
+  .app-why-copy h2 {
+    margin: 0 0 18px;
+    font-size: clamp(1.35rem, 2.3vw, 1.85rem);
+    font-weight: 800;
+    line-height: 1.25;
+  }
+
+  .app-check-list {
+    list-style: none;
+    margin: 0 0 22px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .app-check-list .app-check-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    color: #475569;
+    line-height: 1.65;
+    font-size: 0.98rem;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .app-why-copy .app-check-item {
+      opacity: 0;
+      transform: translateX(-12px);
+      transition:
+        opacity 0.48s ease,
+        transform 0.48s ease;
+    }
+    .app-why-copy.is-visible .app-check-item {
+      opacity: 1;
+      transform: none;
+      transition-delay: calc(var(--check-i, 0) * 0.1s);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .app-why-copy .app-check-item {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .app-check {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    background: #f07179;
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+  }
+
+  .app-why-media {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.1);
+  }
+
+  .app-why-media img {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+    min-height: 280px;
+  }
+
+  .app-benefits {
+    padding: 36px 0 52px;
+    background: #f5f5f5;
+    border-top: 1px solid #ebebeb;
+  }
+
+  .app-benefits-title {
+    text-align: center;
+    margin: 0 0 20px;
+    padding: 0 20px;
+    font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+    font-weight: 800;
+  }
+
+  .app-benefits-wrap {
+    position: relative;
+  }
+
+  .app-ben-scroll-track {
+    position: relative;
+    height: 5px;
+    background: #e8eaed;
+    border-radius: 999px;
+    margin: 14px 0 14px;
+    overflow: hidden;
+  }
+
+  .app-ben-scroll-thumb {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 30%;
+    border-radius: inherit;
+    background: #94a3b8;
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .app-ben-scroll-thumb {
+      transition:
+        width 0.12s ease-out,
+        left 0.12s ease-out;
+    }
+  }
+
+  .app-benefits-track {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    padding: 8px 0 16px;
+  }
+
+  .app-benefit-slide {
+    flex: 0 0 min(300px, 85vw);
+    scroll-snap-align: start;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+  }
+
+  .app-benefit-slide img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    display: block;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .app-benefit-slide img {
+      transition: transform 0.45s ease;
+    }
+    .app-benefit-slide:hover img {
+      transform: scale(1.045);
+    }
+    .app-scent-media img {
+      transition: transform 0.4s ease;
+    }
+    .app-scent-card:hover .app-scent-media img {
+      transform: scale(1.04);
+    }
+  }
+
+  .app-benefits-nav {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .app-rec {
+    padding: 8px 20px 32px;
+  }
+
+  .app-rec h2 {
+    margin: 0 0 12px;
+    font-size: 1.1rem;
+    font-weight: 800;
+  }
+
+  .app-rec-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .app-rec-pill {
+    display: inline-flex;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+    text-decoration: none;
+    font-weight: 650;
+    font-size: 0.88rem;
+    transition:
+      border-color 0.18s ease,
+      color 0.18s ease;
+  }
+
+  .app-rec-pill:hover {
+    border-color: #f07179;
+    color: #f07179;
+  }
+
+  .app-faq-wrap {
+    padding: 12px 20px 40px;
+  }
+
+  .app-faq-card {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+    padding: 28px 22px 32px;
+  }
+
+  .app-faq-h {
+    margin: 0 0 18px;
+    text-align: center;
+    font-size: 1.35rem;
+    font-weight: 800;
+  }
+
+  .app-faq-item {
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .app-faq-item:last-child {
+    border-bottom: none;
+  }
+
+  .app-faq-item summary {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 4px;
+    cursor: pointer;
+    font-weight: 700;
+  }
+
+  .app-faq-item summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .app-faq-n {
+    color: #94a3b8;
+    font-weight: 800;
+    min-width: 1.5rem;
+  }
+
+  .app-faq-q {
+    flex: 1;
+    text-align: left;
+  }
+
+  .app-faq-toggle {
+    width: 28px;
+    height: 28px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: #f8fafc;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .app-faq-item:not([open]) .app-faq-toggle::before {
     content: '+';
     color: #64748b;
     font-weight: 700;
   }
-  .faq-mini details[open] summary::after {
-    content: '−';
+
+  .app-faq-item[open] .app-faq-toggle::before {
+    content: '×';
+    color: #64748b;
+    font-size: 1.1rem;
+    line-height: 1;
   }
-  .faq-mini .ans {
-    margin-top: 8px;
+
+  .app-faq-a {
+    padding: 0 4px 16px 2.25rem;
     color: #475569;
-    line-height: 1.6;
-    font-size: 0.92rem;
+    line-height: 1.75;
+    font-size: 0.95rem;
+  }
+
+  .app-faq-a p {
+    margin: 0;
+  }
+
+  .app-faq-a a {
+    color: #f07179;
+    font-weight: 700;
+  }
+
+  .app-cta-band {
+    margin-top: 0;
+    padding: 48px 20px 52px;
+    text-align: center;
+    background: #fdecef;
+    border-top: 1px solid #f9d6dc;
+  }
+
+  .app-cta-band h2 {
+    margin: 0 0 8px;
+    font-size: clamp(1.65rem, 3vw, 2.1rem);
+    font-weight: 800;
+    color: #334155;
+  }
+
+  .app-cta-sub {
+    margin: 0 0 22px;
+    color: #64748b;
+    font-size: 1.05rem;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    [data-reveal]:not(.is-visible) {
+      opacity: 0;
+      transform: translateY(22px);
+    }
+    [data-reveal].is-visible {
+      opacity: 1;
+      transform: none;
+      transition:
+        opacity 0.58s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.58s cubic-bezier(0.22, 1, 0.36, 1);
+      transition-delay: calc(var(--reveal-i, 0) * 0.07s);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-reveal] {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .app-page .btn-coral-solid {
+    transition:
+      filter 0.2s ease,
+      transform 0.2s ease,
+      box-shadow 0.22s ease;
+  }
+
+  .app-page .btn-coral-solid:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(240, 113, 121, 0.32);
+  }
+
+  .app-page .btn-coral-solid:active {
+    transform: translateY(0);
+  }
+
+  @media (max-width: 900px) {
+    .app-zig-row,
+    .app-zig-row.is-reverse {
+      grid-template-columns: 1fr;
+    }
+
+    .app-zig-row.is-reverse .app-zig-media,
+    .app-zig-row.is-reverse .app-zig-copy {
+      order: unset;
+    }
+
+    .app-why-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .app-scents-head {
+      flex-direction: column;
+      align-items: flex-start;
+    }
   }
 </style>

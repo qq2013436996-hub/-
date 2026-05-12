@@ -1,0 +1,119 @@
+---
+import MainLayout from '../../../layouts/MainLayout.astro'
+import BlogListing from '../../../components/BlogListing.astro'
+import {BLOG_PAGE_SIZE, fetchBlogPosts} from '../../../lib/blogPosts'
+
+export async function getStaticPaths() {
+  const all = await fetchBlogPosts()
+  const totalPages = Math.max(1, Math.ceil(all.length / BLOG_PAGE_SIZE))
+  if (totalPages <= 1) {
+    return []
+  }
+  return Array.from({length: totalPages - 1}, (_, i) => {
+    const pageNum = i + 2
+    const start = (pageNum - 1) * BLOG_PAGE_SIZE
+    return {
+      params: {page: String(pageNum)},
+      props: {
+        posts: all.slice(start, start + BLOG_PAGE_SIZE),
+        currentPage: pageNum,
+        totalPages,
+      },
+    }
+  })
+}
+
+type Props = {
+  posts: Awaited<ReturnType<typeof fetchBlogPosts>>
+  currentPage: number
+  totalPages: number
+}
+
+const {posts, currentPage, totalPages} = Astro.props as Props
+const pageLabel = `Blog — page ${currentPage}`
+---
+
+<MainLayout
+  title={`${pageLabel} | bike`}
+  description={`Blog posts page ${currentPage} of ${totalPages}.`}
+  seo={{canonicalUrl: `/blog/page/${currentPage}/`}}
+>
+  <main class="blog-page">
+    <section class="blog-hero">
+      <div class="blog-hero-inner">
+        <h1>Blog</h1>
+      </div>
+    </section>
+
+    <div class="container">
+      <nav class="crumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span>&gt;&gt;</span>
+        <a href="/blog/">Blog</a>
+        <span>&gt;&gt;</span>
+        <span>Page {currentPage}</span>
+      </nav>
+
+      <BlogListing posts={posts} currentPage={currentPage} totalPages={totalPages} />
+    </div>
+  </main>
+</MainLayout>
+
+<style>
+  .blog-page {
+    background: #fff;
+  }
+
+  .blog-hero {
+    min-height: clamp(180px, 24vw, 290px);
+    background:
+      linear-gradient(rgba(32, 25, 21, 0.45), rgba(32, 25, 21, 0.45)),
+      url('/contact/hero-candles.png') center / cover no-repeat;
+    display: flex;
+    align-items: center;
+  }
+
+  .blog-hero-inner {
+    width: min(1140px, 100%);
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .blog-hero h1 {
+    margin: 0;
+    color: #fff;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700;
+  }
+
+  .container {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 12px 20px 60px;
+  }
+
+  .crumb {
+    margin: 0 0 22px;
+    font-size: 0.82rem;
+    color: #e85d6f;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .crumb a {
+    color: #e85d6f;
+    text-decoration: none;
+    font-weight: 700;
+  }
+
+  .crumb a:hover {
+    text-decoration: underline;
+  }
+
+  .crumb span:last-child {
+    color: #64748b;
+    font-weight: 600;
+  }
+</style>
