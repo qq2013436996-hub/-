@@ -2,62 +2,482 @@
 import {sanityClient} from 'sanity:client'
 import MainLayout from '../layouts/MainLayout.astro'
 
-const faqs = await sanityClient.fetch<Array<{question: string | null; answer: string | null}>>(
+type FaqRow = {
+  question: string | null
+  answer: string | null
+  category: string | null
+}
+
+const faqs = await sanityClient.fetch<FaqRow[]>(
   `*[_type == "faq"] | order(coalesce(displayOrder, sortOrder, 100) asc){
     question,
-    answer
+    answer,
+    category
   }`,
 )
+
+const SECTION_ORDER = [
+  {id: 'general', label: 'General'},
+  {id: 'products', label: 'Products'},
+  {id: 'customization', label: 'Customization'},
+  {id: 'service', label: 'Service'},
+  {id: 'payment', label: 'Payment'},
+  {id: 'shipping', label: 'Shipping'},
+] as const
+
+type SectionId = (typeof SECTION_ORDER)[number]['id']
+
+function normalizeSection(raw: string | null | undefined): SectionId {
+  const v = (raw || 'general').toLowerCase().trim()
+  const map: Record<string, SectionId> = {
+    general: 'general',
+    products: 'products',
+    product: 'products',
+    customization: 'customization',
+    service: 'service',
+    payment: 'payment',
+    shipping: 'shipping',
+    moq: 'general',
+    lead_time: 'general',
+    warranty: 'service',
+    samples: 'products',
+  }
+  return map[v] ?? 'general'
+}
+
+const normalized = (faqs ?? []).map((row) => ({
+  question: row.question,
+  answer: row.answer,
+  section: normalizeSection(row.category),
+}))
+
+const sections = SECTION_ORDER.map((sec) => ({
+  ...sec,
+  items: normalized.filter((i) => i.section === sec.id),
+}))
 ---
 
 <MainLayout
   title="Help Center | bike"
-  description="Frequently asked questions on products, customization, MOQ, and lead time."
+  description="Find answers about products, customization, service, payment, and shipping."
   seo={{canonicalUrl: '/faqs/'}}
 >
-  <main class="container">
-    <h1>Help Center</h1>
-    {faqs?.length ? (
-      <div class="faq-list">
-        {faqs.map((item) => (
-          <details>
-            <summary>{item.question || 'Question'}</summary>
-            <p>{item.answer || ''}</p>
-          </details>
-        ))}
+  <div class="hc-page">
+    <section class="hc-hero" aria-label="Help Center">
+      <img
+        class="hc-hero-bg"
+        src="/help-center/hero-bg.png"
+        alt=""
+        width="1024"
+        height="256"
+        loading="eager"
+        fetchpriority="high"
+      />
+      <div class="hc-hero-overlay"></div>
+      <div class="hc-hero-inner">
+        <h1>Help Center</h1>
+        <nav class="hc-hero-crumb" aria-label="Breadcrumb">
+          <a href="/">Home</a>
+          <span class="sep">&gt;&gt;</span>
+          <span class="here">Help center</span>
+        </nav>
       </div>
-    ) : (
-      <p>No FAQs yet. Add and publish `faq` documents in Sanity Studio.</p>
-    )}
-  </main>
+    </section>
+
+    {
+      normalized.length ? (
+        <div class="hc-shell">
+          <aside class="hc-toc" aria-label="Table of contents">
+            <p class="hc-toc-title">Table of Contents</p>
+            <ul class="hc-toc-list">
+              {sections.map((s) => (
+                <li>
+                  <a class="hc-toc-link" href={`#${s.id}`} data-section={s.id}>
+                    {s.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </aside>
+
+          <div class="hc-main">
+            {sections.map((s) => (
+              <section class="hc-section-card" id={s.id} data-section-card={s.id}>
+                <h2 class="hc-section-heading">{s.label}</h2>
+                {s.items.length ? (
+                  <div class="hc-acc-list">
+                    {s.items.map((item) => (
+                      <details class="hc-acc" name={`faq-${s.id}`}>
+                        <summary>
+                          <span class="hc-q">{item.question || 'Question'}</span>
+                          <span class="hc-toggle" aria-hidden="true" />
+                        </summary>
+                        <div class="hc-a">
+                          <p>{item.answer || ''}</p>
+                        </div>
+                      </details>
+                    ))}
+                  </div>
+                ) : (
+                  <p class="hc-empty">No questions in this section yet.</p>
+                )}
+              </section>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div class="hc-shell hc-shell-empty">
+          <p class="hc-empty-global">No FAQs yet. Add and publish FAQ documents in Sanity Studio.</p>
+        </div>
+      )
+    }
+
+    <section class="hc-cta-band" aria-labelledby="hc-cta-heading">
+      <h2 id="hc-cta-heading">Contact our specialist</h2>
+      <p class="hc-cta-sub">We're here to help you</p>
+      <a href="/request-quote" class="btn-coral-solid">Get An Instant Quote</a>
+    </section>
+  </div>
 </MainLayout>
 
+<script is:inline>
+  const links = Array.from(document.querySelectorAll('.hc-toc-link[href^="#"]'))
+  const cards = Array.from(document.querySelectorAll('[data-section-card]'))
+
+  function setActive(id) {
+    links.forEach((a) => {
+      const href = a.getAttribute('href')
+      const on = id && href === '#' + id
+      a.classList.toggle('is-active', Boolean(on))
+    })
+  }
+
+  links.forEach((a) => {
+    a.addEventListener('click', () => {
+      const id = a.getAttribute('href')?.slice(1) ?? null
+      setActive(id)
+    })
+  })
+
+  if (cards.length && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => (b.intersectionRatio || 0) - (a.intersectionRatio || 0))[0]
+        if (visible && visible.target && visible.target.id) setActive(visible.target.id)
+      },
+      {root: null, rootMargin: '-38% 0px -38% 0px', threshold: [0, 0.1, 0.25, 0.5]},
+    )
+    cards.forEach((c) => io.observe(c))
+  }
+
+  const hash = window.location.hash ? window.location.hash.slice(1) : ''
+  if (hash && cards.some((c) => c.id === hash)) setActive(hash)
+  else if (cards[0] && cards[0].id) setActive(cards[0].id)
+</script>
+
 <style>
-  .container {
-    max-width: 900px;
+  .hc-page {
+    background: #f3f4f6;
+    color: #0f172a;
+  }
+
+  .hc-hero {
+    position: relative;
+    min-height: min(28vw, 220px);
+    max-height: 280px;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+  }
+
+  .hc-hero-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .hc-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(15, 23, 42, 0.72) 0%, rgba(15, 23, 42, 0.45) 55%, rgba(15, 23, 42, 0.25) 100%);
+  }
+
+  .hc-hero-inner {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 40px 20px;
+    width: 100%;
+    padding: 36px 20px 32px;
   }
-  h1 {
-    margin: 0 0 14px;
+
+  .hc-hero-inner h1 {
+    margin: 0 0 10px;
+    font-size: clamp(2.1rem, 4.5vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: #fff;
+    line-height: 1.1;
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.35);
   }
-  .faq-list {
+
+  .hc-hero-crumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .hc-hero-crumb a {
+    color: #f07179;
+    text-decoration: none;
+  }
+
+  .hc-hero-crumb a:hover {
+    text-decoration: underline;
+  }
+
+  .hc-hero-crumb .sep {
+    color: #f07179;
+    opacity: 0.9;
+  }
+
+  .hc-hero-crumb .here {
+    color: rgba(255, 255, 255, 0.95);
+  }
+
+  .hc-shell {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 20px 48px;
     display: grid;
-    gap: 10px;
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: 36px 40px;
+    align-items: start;
   }
-  details {
-    border: 1px solid #e5e7eb;
+
+  .hc-toc {
+    position: sticky;
+    top: 88px;
+    background: #eceff3;
     border-radius: 10px;
-    padding: 12px;
+    padding: 18px 16px 20px;
+    border: 1px solid #e2e8f0;
+  }
+
+  .hc-toc-title {
+    margin: 0 0 12px;
+    font-weight: 800;
+    font-size: 0.98rem;
+    color: #0f172a;
+  }
+
+  .hc-toc-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .hc-toc-link {
+    display: block;
+    padding: 6px 4px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #475569;
+    text-decoration: none;
+    border-radius: 6px;
+    transition:
+      color 0.15s ease,
+      background 0.15s ease;
+  }
+
+  .hc-toc-link:hover {
+    color: #0f172a;
+    background: rgba(255, 255, 255, 0.55);
+  }
+
+  .hc-toc-link.is-active {
+    color: #f07179;
+    background: rgba(240, 113, 121, 0.12);
+  }
+
+  .hc-main {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    min-width: 0;
+  }
+
+  .hc-section-card {
     background: #fff;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 6px 22px rgba(15, 23, 42, 0.06);
+    padding: 26px 22px 28px;
   }
-  summary {
+
+  .hc-section-heading {
+    margin: 0 0 20px;
+    text-align: center;
+    font-size: clamp(1.35rem, 2.4vw, 1.75rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #0f172a;
+  }
+
+  .hc-acc-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .hc-acc {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #fff;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  }
+
+  .hc-acc summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 16px;
     cursor: pointer;
+    list-style: none;
     font-weight: 700;
+    color: #0f172a;
+    font-size: 0.96rem;
+    line-height: 1.45;
   }
-  p {
-    margin: 8px 0 0;
+
+  .hc-acc summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .hc-q {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .hc-toggle {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    font-weight: 500;
+    line-height: 1;
+    color: #64748b;
+    border-radius: 6px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+  }
+
+  .hc-acc:not([open]) .hc-toggle::before {
+    content: '+';
+  }
+
+  .hc-acc[open] .hc-toggle::before {
+    content: '×';
+    font-size: 1.45rem;
+    line-height: 1;
+  }
+
+  .hc-a {
+    padding: 0 16px 16px;
+    border-top: 1px solid #f1f5f9;
+  }
+
+  .hc-a p {
+    margin: 12px 0 0;
     color: #475569;
     line-height: 1.8;
+    font-size: 0.95rem;
+    font-weight: 450;
+    white-space: pre-line;
+  }
+
+  .hc-empty {
+    margin: 0;
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.92rem;
+    padding: 8px 0 4px;
+  }
+
+  .hc-shell-empty {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 48px 20px 56px;
+  }
+
+  .hc-shell-empty .hc-empty-global {
+    margin: 0;
+    padding: 24px;
+    text-align: center;
+    color: #64748b;
+    background: #fff;
+    border-radius: 12px;
+    border: 1px dashed #cbd5e1;
+  }
+
+  .hc-cta-band {
+    margin-top: 0;
+    padding: 48px 20px 52px;
+    text-align: center;
+    background: #fdecef;
+    border-top: 1px solid #f9d6dc;
+  }
+
+  .hc-cta-band h2 {
+    margin: 0 0 8px;
+    font-size: clamp(1.65rem, 3vw, 2.1rem);
+    font-weight: 800;
+    color: #334155;
+    letter-spacing: -0.02em;
+  }
+
+  .hc-cta-sub {
+    margin: 0 0 22px;
+    color: #64748b;
+    font-size: 1.05rem;
+  }
+
+  @media (max-width: 900px) {
+    .hc-shell {
+      grid-template-columns: 1fr;
+    }
+
+    .hc-toc {
+      position: relative;
+      top: auto;
+    }
+
+    .hc-toc-list {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .hc-toc-link {
+      padding: 8px 12px;
+      border: 1px solid #e2e8f0;
+      background: #fff;
+    }
   }
 </style>
