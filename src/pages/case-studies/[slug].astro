@@ -151,8 +151,7 @@ const appointmentHref = resolveAppointmentHref(doc.appointmentUrl)
       />
       <div class="sd-hero-overlay"></div>
       <div class="sd-hero-inner">
-        <p class="sd-hero-eyebrow"><a href="/case-studies">Shows & Events</a></p>
-        <h1 class="sd-hero-title">{doc.title}</h1>
+        <h1 class="sd-hero-title">Shows & Events</h1>
       </div>
     </section>
 
@@ -166,6 +165,7 @@ const appointmentHref = resolveAppointmentHref(doc.appointmentUrl)
           )}
         </div>
         <div class="sd-lead-body">
+          <h2 class="sd-event-name">{doc.title}</h2>
           {(dateLine || location) ? (
             <p class="sd-meta">
               {dateLine ? (
@@ -299,8 +299,8 @@ const appointmentHref = resolveAppointmentHref(doc.appointmentUrl)
 
   .sd-hero {
     position: relative;
-    min-height: min(42vw, 340px);
-    max-height: 400px;
+    min-height: min(52vw, 420px);
+    max-height: 480px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -330,34 +330,14 @@ const appointmentHref = resolveAppointmentHref(doc.appointmentUrl)
     max-width: 900px;
   }
 
-  .sd-hero-eyebrow {
-    margin: 0 0 10px;
-    font-size: 0.82rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  .sd-hero-eyebrow a {
-    color: rgba(248, 250, 252, 0.92);
-    text-decoration: none;
-    border-bottom: 1px solid rgba(248, 250, 252, 0.35);
-  }
-
-  .sd-hero-eyebrow a:hover {
-    color: #fff;
-    border-bottom-color: #fff;
-  }
-
   .sd-hero-title {
     margin: 0;
-    font-size: clamp(1.35rem, 3.5vw, 2rem);
+    font-size: clamp(2.1rem, 5vw, 3.1rem);
     font-weight: 800;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    line-height: 1.2;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
     color: #fff;
-    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.35);
+    text-shadow: 0 2px 24px rgba(0, 0, 0, 0.35);
   }
 
   .sd-wrap {
@@ -398,6 +378,16 @@ const appointmentHref = resolveAppointmentHref(doc.appointmentUrl)
 
   .sd-lead-body {
     padding: 26px 28px 30px;
+  }
+
+  .sd-event-name {
+    margin: 0 0 12px;
+    font-size: clamp(1.15rem, 2.2vw, 1.45rem);
+    font-weight: 800;
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: #0f172a;
   }
 
   .sd-meta {
