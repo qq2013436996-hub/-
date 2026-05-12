@@ -109,6 +109,10 @@ const footerProductLinks = assignCategoryPathSlugs(footerCategoryRows ?? [])
   .filter((r) => Boolean(r.title && r.pathSlug))
   .slice(0, 4)
 
+const drawerCategoryLinks = assignCategoryPathSlugs(footerCategoryRows ?? [])
+  .filter((r) => Boolean(r.title && r.pathSlug))
+  .slice(0, 10)
+
 type NavAppRow = {title: string | null; slug: string | null}
 const navApplicationRows = await sanityClient.fetch<NavAppRow[]>(
   `*[_type == "application" && defined(slug.current)] | order(title asc)[0...8]{
@@ -146,6 +150,12 @@ const navApplicationLinks = (navApplicationRows ?? []).filter(
         <script type="application/ld+json" set:html={JSON.stringify(item)} />
       ))
     }
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&display=swap"
+      rel="stylesheet"
+    />
     <style
       is:global
       define:vars={{
@@ -154,14 +164,14 @@ const navApplicationLinks = (navApplicationRows ?? []).filter(
     >
       :root {
         --primary-color: var(--themeColor);
-        --text-main: #111827;
-        --text-muted: #6b7280;
-        --bg-light: #f3f4f6;
-        --border-color: #e5e7eb;
+        --text-main: #14110f;
+        --text-muted: #5a534c;
+        --bg-light: #ebe6df;
+        --border-color: rgba(20, 17, 15, 0.12);
         --coral-cta: #f07179;
+        --page-bg: #f4f1ec;
       }
 
-      /* Solid coral buttons (Shows & Events, promos) — one block style sitewide */
       .btn-coral-solid {
         display: inline-flex;
         align-items: center;
@@ -190,447 +200,218 @@ const navApplicationLinks = (navApplicationRows ?? []).filter(
         transform: translateY(1px);
       }
 
-      body {
-        font-family:
-          'Inter',
-          -apple-system,
-          BlinkMacSystemFont,
-          'Segoe UI',
-          Roboto,
-          sans-serif;
+      body.lux-theme {
         margin: 0;
         padding: 0;
-        background-color: #f9fafb;
-        color: #111827;
         display: flex;
         flex-direction: column;
         min-height: 100vh;
-        -webkit-font-smoothing: antialiased;
-      }
-
-      .site-header {
-        background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
-        color: #f8fafc;
-        padding: 10px 0;
-        border-bottom: 1px solid rgba(148, 163, 184, 0.24);
-        box-shadow: 0 8px 20px rgba(2, 6, 23, 0.22);
-      }
-      .header-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 16px;
-      }
-      .site-brand {
-        display: flex;
-        align-items: center;
-        text-decoration: none;
-        color: inherit;
-      }
-      .site-logo-img {
-        display: block;
-        height: 34px;
-        width: auto;
-        max-width: 220px;
-        object-fit: contain;
-      }
-      .site-logo-text {
-        font-size: 1.5rem;
-        font-weight: 900;
-        color: var(--primary-color);
-        text-decoration: none;
-        letter-spacing: -0.02em;
-      }
-      .main-nav {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 8px 20px;
-      }
-      .nav-item {
-        position: relative;
-      }
-      .main-nav a {
-        color: #cbd5e1;
-        text-decoration: none;
-        font-size: 0.92rem;
-        font-weight: 650;
-        transition: color 0.2s ease;
-      }
-      .main-nav a:hover {
-        color: #ffffff;
-      }
-      .dropdown-toggle {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-      }
-      .dropdown-toggle::after {
-        content: '▾';
-        font-size: 0.72rem;
-        opacity: 0.8;
-      }
-      .nav-menu-btn {
-        font-family: inherit;
-        font-size: 0.92rem;
-        font-weight: 650;
-        color: #cbd5e1;
-        background: transparent;
-        border: none;
-        padding: 0;
-        cursor: pointer;
-        transition: color 0.2s ease;
-      }
-      .nav-menu-btn:hover {
-        color: #ffffff;
-      }
-      .dropdown-menu {
-        position: absolute;
-        top: calc(100% + 10px);
-        left: 0;
-        min-width: 224px;
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 10px;
-        box-shadow: 0 14px 30px rgba(15, 23, 42, 0.14);
-        padding: 8px;
-        z-index: 40;
-        opacity: 0;
-        visibility: hidden;
-        transform: translateY(6px);
-        transition:
-          opacity 0.2s ease,
-          transform 0.2s ease,
-          visibility 0.2s ease;
-      }
-      .dropdown-menu a {
-        color: #4b5563;
-        display: block;
-        padding: 8px 10px;
-        border-radius: 7px;
-        font-size: 0.88rem;
-        font-weight: 650;
-      }
-      .dropdown-menu a:hover {
-        background: #f3f4f6;
-        color: var(--primary-color);
-      }
-      .dropdown-divider {
-        height: 1px;
-        background: #e5e7eb;
-        margin: 8px 0;
-      }
-      .nav-item:hover .dropdown-menu,
-      .nav-item:focus-within .dropdown-menu {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
-      }
-      .btn-quote-nav {
-        background-color: var(--primary-color);
-        color: white !important;
-        padding: 8px 18px;
-        border-radius: 6px;
-        font-weight: 800;
-        transition: filter 0.2s ease;
-      }
-      .btn-quote-nav:hover {
-        filter: brightness(0.92);
       }
 
       .site-content {
         flex-grow: 1;
       }
-
-      .site-footer {
-        background:
-          repeating-linear-gradient(
-            to right,
-            rgba(255, 255, 255, 0.03) 0,
-            rgba(255, 255, 255, 0.03) 1px,
-            transparent 1px,
-            transparent 32px
-          ),
-          linear-gradient(180deg, #0a1020 0%, #070b14 100%);
-        color: #9ca3af;
-        padding: 36px 20px 28px;
-        margin-top: 60px;
-        border-top: 4px solid var(--primary-color);
-      }
-      .footer-cta {
-        max-width: 1200px;
-        margin: 0 auto 40px;
-        text-align: center;
-        padding: 48px 20px 40px;
-        border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-      }
-      .footer-cta h2 {
-        margin: 0 0 10px;
-        color: #ffffff;
-        font-size: clamp(1.7rem, 2.6vw, 2.3rem);
-        font-weight: 900;
-        letter-spacing: -0.02em;
-      }
-      .footer-cta p {
-        margin: 0 auto 20px;
-        color: #cbd5e1;
-        max-width: 62ch;
-        line-height: 1.7;
-      }
-      .footer-cta-actions {
-        display: flex;
-        gap: 10px;
-        justify-content: center;
-        flex-wrap: wrap;
-      }
-      .footer-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 11px 16px;
-        border-radius: 8px;
-        font-weight: 800;
-        text-decoration: none;
-        font-size: 0.9rem;
-        transition: all 0.2s ease;
-      }
-      .footer-btn.primary {
-        background: var(--primary-color);
-        color: #fff;
-      }
-      .footer-btn.primary:hover {
-        filter: brightness(0.95);
-      }
-      .footer-btn.secondary {
-        border: 1px solid rgba(203, 213, 225, 0.35);
-        color: #e2e8f0;
-        background: rgba(255, 255, 255, 0.02);
-      }
-      .footer-btn.secondary:hover {
-        border-color: #e2e8f0;
-      }
-      .footer-cta-tags {
-        margin-top: 16px;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 14px;
-      }
-      .footer-cta-tags span {
-        color: #94a3b8;
-        font-size: 0.8rem;
-        font-weight: 700;
-      }
-      .footer-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        display: grid;
-        grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.05fr);
-        gap: 32px 48px;
-        margin-bottom: 40px;
-        align-items: start;
-      }
-
-      .footer-col-company {
-        padding-left: 28px;
-        margin-left: 4px;
-        border-left: 1px solid rgba(148, 163, 184, 0.28);
-      }
-      .footer-title {
-        color: white;
-        font-size: 1.1rem;
-        font-weight: 700;
-        margin-bottom: 20px;
-      }
-      .site-footer p,
-      .site-footer a {
-        color: #9ca3af;
-        text-decoration: none;
-        margin-bottom: 10px;
-        display: block;
-        font-size: 0.9rem;
-      }
-      .footer-link-list a:hover {
-        color: #f8fafc;
-      }
-      .footer-bottom {
-        text-align: center;
-        border-top: 1px solid rgba(148, 163, 184, 0.2);
-        padding-top: 20px;
-        font-size: 0.85rem;
-      }
-      @media (max-width: 900px) {
-        .footer-container {
-          grid-template-columns: 1fr;
-          gap: 26px;
-        }
-
-        .footer-col-company {
-          padding-left: 0;
-          margin-left: 0;
-          border-left: none;
-        }
-      }
     </style>
   </head>
-  <body>
-    <header class="site-header">
-      <div class="header-container">
-        <a href="/" class="site-brand">
+  <body class="lux-theme">
+    <div class="lux-announce">
+      OEM / ODM · Global shipping · Sampling &amp; compliance support · Reply within 24 hours
+    </div>
+
+    <header class="lux-topbar">
+      <div class="lux-topbar-inner">
+        <button
+          type="button"
+          id="lux-menu-btn"
+          class="lux-menu-btn"
+          aria-expanded="false"
+          aria-controls="lux-drawer-panel"
+        >
+          <span class="lux-menu-icon" aria-hidden="true">
+            <span class="lux-menu-mid"></span>
+          </span>
+          <span class="lux-menu-label">Menu</span>
+        </button>
+
+        <a href="/" class="lux-topbar-logo">
           {
             settings?.logoUrl ? (
-              <img
-                class="site-logo-img"
-                src={settings.logoUrl}
-                alt={displayName}
-                height="40"
-                loading="eager"
-              />
+              <img src={settings.logoUrl} alt={displayName} width="180" height="40" loading="eager" />
             ) : (
-              <span class="site-logo-text">{displayName}</span>
+              <span class="lux-topbar-logo-text">{displayName}</span>
             )
           }
         </a>
-        <nav class="main-nav">
-          <div class="nav-item">
-            <a href="/products" class="dropdown-toggle">Products</a>
-            <div class="dropdown-menu" role="menu" aria-label="Products menu">
-              {
-                footerProductLinks.length ? (
-                  footerProductLinks.map((item) => (
-                    <a href={`/category/${item.pathSlug}`} role="menuitem">
-                      {item.title}
-                    </a>
-                  ))
-                ) : (
-                  <>
-                    <a href="/products" role="menuitem">Audi</a>
-                    <a href="/products" role="menuitem">BMW</a>
-                    <a href="/products" role="menuitem">Mercedes-Benz</a>
-                    <a href="/products" role="menuitem">Honda</a>
-                  </>
-                )
-              }
-              <div class="dropdown-divider"></div>
-              <a href="/products">All Products</a>
-            </div>
-          </div>
-          <div class="nav-item">
-            <a href="/applications" class="dropdown-toggle">Applications</a>
-            <div class="dropdown-menu" role="menu" aria-label="Applications menu">
-              <a href="/applications" role="menuitem">All applications</a>
-              {navApplicationLinks.length ? (
-                <>
-                  <div class="dropdown-divider"></div>
-                  {navApplicationLinks.map((item) => (
-                    <a href={`/applications/${item.slug}`} role="menuitem">
-                      {item.title}
-                    </a>
-                  ))}
-                </>
-              ) : (
-                <>
-                  <div class="dropdown-divider"></div>
-                  <a href="/applications" role="menuitem">Browse scenarios</a>
-                </>
-              )}
-            </div>
-          </div>
-          <div class="nav-item">
-            <button type="button" class="dropdown-toggle nav-menu-btn" aria-haspopup="true">Company</button>
-            <div class="dropdown-menu" role="menu" aria-label="Company menu">
-              <a href="/introduction" role="menuitem">About Us</a>
-              <a href="/contact" role="menuitem">Contact Us</a>
-            </div>
-          </div>
-          <div class="nav-item">
-            <button type="button" class="dropdown-toggle nav-menu-btn" aria-haspopup="true">Resources</button>
-            <div class="dropdown-menu" role="menu" aria-label="Resources menu">
-              <a href="/case-studies" role="menuitem">Shows & Events</a>
-              <a href="/faqs" role="menuitem">Help center</a>
-              <a href="/blog" role="menuitem">Blog</a>
-              <a href="/video" role="menuitem">Video</a>
-            </div>
-          </div>
-          <a href="/contact">Contact</a>
-          <a href="/request-quote" class="btn-quote-nav">Get Instant Quote</a>
-        </nav>
+
+        <div class="lux-topbar-actions">
+          <a href="/contact" class="lux-topbar-link">Contact</a>
+          <a href="/request-quote" class="lux-topbar-cta">Request quote</a>
+        </div>
       </div>
     </header>
+
+    <div id="lux-drawer" class="lux-drawer" aria-hidden="true">
+      <div class="lux-drawer-backdrop" id="lux-drawer-backdrop" tabindex="-1"></div>
+      <div
+        id="lux-drawer-panel"
+        class="lux-drawer-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Site navigation"
+        inert
+      >
+        <button type="button" id="lux-drawer-close" class="lux-drawer-close" aria-label="Close menu">
+          ×
+        </button>
+
+        <div class="lux-drawer-menu">
+          <div class="lux-drawer-frame">
+            <div class="lux-drawer-rows">
+              <div class="lux-drawer-row">
+                <a class="lux-major" href="/products">
+                  <span class="lux-major-n">01</span>
+                  <span class="t">The products</span>
+                </a>
+                <ul class="lux-subs">
+                  <li><a href="/products">All products</a></li>
+                  {
+                    drawerCategoryLinks.length ? (
+                      drawerCategoryLinks.map((item) => (
+                        <li>
+                          <a href={`/category/${item.pathSlug}`}>{item.title}</a>
+                        </li>
+                      ))
+                    ) : (
+                      <>
+                        <li><a href="/products">Browse catalogue</a></li>
+                        <li><a href="/request-quote">Request a quote</a></li>
+                      </>
+                    )
+                  }
+                </ul>
+              </div>
+
+              <div class="lux-drawer-row">
+                <a class="lux-major" href="/applications">
+                  <span class="lux-major-n">02</span>
+                  <span class="t">Applications</span>
+                </a>
+                <ul class="lux-subs">
+                  <li><a href="/applications">All applications</a></li>
+                  {
+                    navApplicationLinks.length ? (
+                      navApplicationLinks.map((item) => (
+                        <li>
+                          <a href={`/applications/${item.slug}`}>{item.title}</a>
+                        </li>
+                      ))
+                    ) : (
+                      <li><a href="/applications">Browse scenarios</a></li>
+                    )
+                  }
+                </ul>
+              </div>
+
+              <div class="lux-drawer-row">
+                <a class="lux-major" href="/introduction">
+                  <span class="lux-major-n">03</span>
+                  <span class="t">Company</span>
+                </a>
+                <ul class="lux-subs">
+                  <li><a href="/introduction">About us</a></li>
+                  <li><a href="/contact">Contact</a></li>
+                  <li><a href="/request-quote">Request quote</a></li>
+                </ul>
+              </div>
+
+              <div class="lux-drawer-row">
+                <a class="lux-major" href="/blog">
+                  <span class="lux-major-n">04</span>
+                  <span class="t">Resources</span>
+                </a>
+                <ul class="lux-subs">
+                  <li><a href="/case-studies">Shows &amp; events</a></li>
+                  <li><a href="/faqs">Help center</a></li>
+                  <li><a href="/blog">Blog</a></li>
+                  <li><a href="/video">Video</a></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="lux-drawer-foot">
+              <a href="/faqs">FAQ</a>
+              <span aria-hidden="true">·</span>
+              <a href="/contact">Contact us</a>
+              <span class="lux-drawer-lang">EN / 中文</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="lux-drawer-visual" aria-hidden="true">
+          <img src="/home/hero-banner.png" alt="" width="800" height="1200" loading="lazy" decoding="async" />
+        </div>
+      </div>
+    </div>
 
     <div class="site-content">
       <slot />
     </div>
 
-    <footer class="site-footer">
-      <section class="footer-cta">
-        <h2>Ready to Work With Us?</h2>
+    <footer class="lux-site-footer">
+      <section class="lux-footer-cta">
+        <h2>Ready to work with us?</h2>
         <p>
-          Whether you need a standard product or a customized OEM solution, our team is ready to support
-          your next project.
+          Whether you need a standard product or a customized OEM solution, our team is ready to support your
+          next project.
         </p>
-        <div class="footer-cta-actions">
-          <a href="/request-quote" class="footer-btn primary">Contact Our Team</a>
-          <a href="/products" class="footer-btn secondary">Ask for a Sample</a>
+        <div class="lux-footer-actions">
+          <a href="/request-quote" class="lux-footer-btn lux-footer-btn--solid">Contact our team</a>
+          <a href="/products" class="lux-footer-btn lux-footer-btn--ghost">Browse products</a>
         </div>
-        <div class="footer-cta-tags">
-          <span>✓ 3-Year Warranty</span>
-          <span>✓ CE / RoHS / E-Mark Certified</span>
-          <span>✓ Free Sample Available</span>
-          <span>✓ Reply Within 24 Hours</span>
+        <div class="lux-footer-tags">
+          <span>OEM / ODM</span>
+          <span>Global shipping</span>
+          <span>Sampling</span>
+          <span>Reply within 24 hours</span>
         </div>
       </section>
-      <div class="footer-container">
+      <div class="lux-footer-grid">
         <div>
-          <h3 class="footer-title">{displayName}</h3>
+          <h3 class="lux-footer-title">{displayName}</h3>
           <p>{footerBlurb}</p>
         </div>
-        <div class="footer-col-products">
-          <h3 class="footer-title">Products</h3>
-          <div class="footer-link-list">
-            <a href="/products">All Products</a>
-            {
-              footerProductLinks.length ? (
-                footerProductLinks.map((item) => (
-                  <a href={`/category/${item.pathSlug}`}>{item.title}</a>
-                ))
-              ) : (
-                <>
-                  <a href="/products">Audi</a>
-                  <a href="/products">BMW</a>
-                  <a href="/products">Mercedes-Benz</a>
-                  <a href="/products">Honda</a>
-                </>
-              )
-            }
-          </div>
-        </div>
-        <div class="footer-col-company">
-          <h3 class="footer-title">Company</h3>
-          <div class="footer-link-list">
-            <a href="/introduction">About Us</a>
-            <a href="/blog">Blog</a>
-            <a href="/faqs">Help Center</a>
-            <a href="/video">Video</a>
-            <a href="/applications">Applications</a>
-            <a href="/case-studies">Shows & Events</a>
-            <a href="/contact">Contact Us</a>
-          </div>
+        <div>
+          <h3 class="lux-footer-title">Products</h3>
+          <a href="/products">All products</a>
+          {
+            footerProductLinks.length ? (
+              footerProductLinks.map((item) => <a href={`/category/${item.pathSlug}`}>{item.title}</a>)
+            ) : (
+              <>
+                <a href="/products">Catalogue</a>
+                <a href="/request-quote">Get a quote</a>
+              </>
+            )
+          }
         </div>
         <div>
-          <h3 class="footer-title">Contact Us</h3>
+          <h3 class="lux-footer-title">Company</h3>
+          <a href="/introduction">About us</a>
+          <a href="/blog">Blog</a>
+          <a href="/faqs">Help center</a>
+          <a href="/video">Video</a>
+          <a href="/applications">Applications</a>
+          <a href="/case-studies">Shows &amp; events</a>
+          <a href="/contact">Contact us</a>
+        </div>
+        <div>
+          <h3 class="lux-footer-title">Contact</h3>
           <p>
-            Email:{' '}
             <a href={`mailto:${footerEmail}`}>{footerEmail}</a>
           </p>
           {
             footerPhone ? (
               <p>
-                Phone:{' '}
                 <a href={`tel:${footerPhone.replace(/\s/g, '')}`}>{footerPhone}</a>
               </p>
             ) : (
@@ -639,7 +420,7 @@ const navApplicationLinks = (navApplicationRows ?? []).filter(
           }
         </div>
       </div>
-      <div class="footer-bottom">
+      <div class="lux-footer-bottom">
         <p>
           {
             settings?.footerText?.trim() ||
@@ -648,5 +429,56 @@ const navApplicationLinks = (navApplicationRows ?? []).filter(
         </p>
       </div>
     </footer>
+
+    <link rel="stylesheet" href="/lux-theme.css" />
+
+    <script is:inline>
+      (function () {
+        var drawer = document.getElementById('lux-drawer')
+        var panel = document.getElementById('lux-drawer-panel')
+        var btn = document.getElementById('lux-menu-btn')
+        var closeBtn = document.getElementById('lux-drawer-close')
+        var backdrop = document.getElementById('lux-drawer-backdrop')
+        if (!drawer || !panel || !btn || !closeBtn) return
+
+        var lastFocus = null
+
+        function setOpen(open) {
+          drawer.classList.toggle('is-open', open)
+          drawer.setAttribute('aria-hidden', open ? 'false' : 'true')
+          btn.setAttribute('aria-expanded', open ? 'true' : 'false')
+          if (open) {
+            lastFocus = document.activeElement
+            document.body.style.overflow = 'hidden'
+            panel.removeAttribute('inert')
+            window.setTimeout(function () {
+              closeBtn.focus()
+            }, 60)
+          } else {
+            document.body.style.overflow = ''
+            panel.setAttribute('inert', '')
+            if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus()
+          }
+        }
+
+        function openDrawer() {
+          setOpen(true)
+        }
+        function closeDrawer() {
+          setOpen(false)
+        }
+
+        btn.addEventListener('click', function () {
+          if (drawer.classList.contains('is-open')) closeDrawer()
+          else openDrawer()
+        })
+        closeBtn.addEventListener('click', closeDrawer)
+        if (backdrop) backdrop.addEventListener('click', closeDrawer)
+
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape' && drawer.classList.contains('is-open')) closeDrawer()
+        })
+      })()
+    </script>
   </body>
 </html>

@@ -192,173 +192,276 @@ const testimonials = [
     avatar: '/home/customers/customer-3.png',
   },
 ]
+
+const featureBlocks = [
+  ['Features One', 'Tailored to you · Choose from custom packaging, fragrances, and wax types to match your brand identity.'],
+  ['Features Two', 'Eco-Friendly Focus · We use soy, beeswax, coconut, and sustainable packaging to elevate your environmental values.'],
+  ['Features Three', 'Fast and Flexible Production · 10 production lines and rapid prototyping help you meet tight deadlines.'],
+  ['Features Four', 'Stable Supply Chain · In-house design, domestic sourcing, and long-term supplier partnerships ensure reliable output.'],
+  ['Features Five', 'International Trust · Shipped to over 130 countries, trusted by global brands for 15 years.'],
+  ['Features Six', 'Full-Service Support · From design to delivery, we guide you through every step.'],
+] as const
+
+const blogList = blogs.length
+  ? blogs
+  : [
+      {
+        title: 'Late Summer to Fall Transition Scents',
+        slug: '#',
+        excerpt: 'Bridge seasons with scented candles.',
+        publishedAt: null,
+        imageUrl: '/products/types/woody.png',
+      },
+    ]
 ---
 
 <MainLayout title={homeTitle} description={homeDescription} seo={{canonicalUrl: '/'}}>
   <main class="home-page">
-    <section class="hero">
-      <img src="/home/hero-banner.png" alt="Scented candles wholesale manufacturer" loading="eager" />
-      <div class="hero-overlay"></div>
-      <div class="hero-inner">
-        <h1 class="hero-heading">
-          <span class="hero-line">Scented Candles Wholesale</span>
-          <span class="hero-line">Manufacturer in China</span>
-        </h1>
-        <p>
-          With our wholesale candle manufacturing services, we provide unique custom scented candle
-          solutions for your retail, branding, events, and gifting, making every moment more captivating.
-        </p>
-        <a href="/contact" class="btn">Contact Now</a>
+    <div class="home-marquee" aria-hidden="true">
+      <div class="home-marquee-track">
+        <span>OEM / ODM</span>
+        <span class="home-dot">·</span>
+        <span>130+ countries shipped</span>
+        <span class="home-dot">·</span>
+        <span>15 years export craft</span>
+        <span class="home-dot">·</span>
+        <span>10 production lines</span>
+        <span class="home-dot">·</span>
+        <span>Reply within 24h</span>
+        <span class="home-dot">·</span>
+        <span>OEM / ODM</span>
+        <span class="home-dot">·</span>
+        <span>130+ countries shipped</span>
+        <span class="home-dot">·</span>
+        <span>15 years export craft</span>
+        <span class="home-dot">·</span>
+        <span>10 production lines</span>
+        <span class="home-dot">·</span>
+        <span>Reply within 24h</span>
+      </div>
+    </div>
+
+    <section class="home-hero" aria-labelledby="home-hero-heading">
+      <div class="home-hero-grid">
+        <div class="home-hero-copy">
+          <p class="home-eyebrow">{displayName}</p>
+          <h1 id="home-hero-heading" class="home-display">
+            <span class="home-display-line">Wholesale candle craft</span>
+            <span class="home-display-line home-display-accent">for brands that want</span>
+            <span class="home-display-line">a quiet kind of luxury.</span>
+          </h1>
+          <p class="home-lede">
+            With our wholesale candle manufacturing services, we provide unique custom scented candle solutions
+            for your retail, branding, events, and gifting—making every moment more captivating.
+          </p>
+          <div class="home-hero-actions">
+            <a href="/contact" class="home-btn home-btn-solid">Contact</a>
+            <a href="/request-quote" class="home-btn home-btn-ghost">Request a quote</a>
+            <a href="/products" class="home-link-arrow">Browse capabilities →</a>
+          </div>
+        </div>
+        <figure class="home-hero-visual">
+          <img
+            src="/home/hero-banner.png"
+            alt="Scented candles wholesale manufacturing"
+            loading="eager"
+            decoding="async"
+          />
+          <figcaption class="home-caption">Wholesale production</figcaption>
+        </figure>
       </div>
     </section>
 
-    <section class="scent-types section">
-      <h2>Types of scented candles</h2>
-      <div class="card-grid">
+    <section class="home-statement" aria-label="Brand positioning">
+      <p class="home-statement-text">
+        {homeDescription}
+      </p>
+    </section>
+
+    <section class="home-section home-scents" aria-labelledby="scents-heading">
+      <header class="home-section-head">
+        <span class="home-index">01</span>
+        <div>
+          <p class="home-kicker">Olfactory families</p>
+          <h2 id="scents-heading" class="home-section-title">Types of scented candles</h2>
+        </div>
+      </header>
+      <div class="home-scent-grid">
         {scentTypes.map((item) => (
-          <a class="scent-card" href="/request-quote">
-            <img src={item.image} alt={item.title} loading="lazy" />
-            <div class="scent-body">
+          <a class="home-scent-card" href="/request-quote">
+            <div class="home-scent-media">
+              <img src={item.image} alt={item.title} loading="lazy" />
+            </div>
+            <div class="home-scent-body">
               <h3>{item.title}</h3>
               <p>{item.description}</p>
-              <span>Get Fast Quote &gt;&gt;</span>
+              <span class="home-scent-cta">Configure & sample →</span>
             </div>
           </a>
         ))}
       </div>
     </section>
 
-    <section class="mid-banner">
-      <div class="mid-banner-overlay"></div>
-      <div class="mid-banner-inner">
+    <section class="home-band" aria-labelledby="band-heading">
+      <div class="home-band-inner">
         <div>
-          <h2>Your Scent Solution Awaits</h2>
-          <p>Explore Our Premium Candle Collection</p>
+          <p class="home-kicker home-kicker-on-dark">Next step</p>
+          <h2 id="band-heading" class="home-band-title">Your scent solution awaits</h2>
+          <p class="home-band-text">Explore Our Premium Candle Collection</p>
         </div>
-        <a href="/request-quote" class="btn">Quote Now</a>
+        <a href="/request-quote" class="home-btn home-btn-light">Quote now</a>
       </div>
     </section>
 
-    <section class="features section">
-      <h2>Why Your Business Needs MW Candle</h2>
-      <div class="feature-grid">
-        {[
-          ['Features One', 'Tailored to you · Choose from custom packaging, fragrances, and wax types to match your brand identity.'],
-          ['Features Two', 'Eco-Friendly Focus · We use soy, beeswax, coconut, and sustainable packaging to elevate your environmental values.'],
-          ['Features Three', 'Fast and Flexible Production · 10 production lines and rapid prototyping help you meet tight deadlines.'],
-          ['Features Four', 'Stable Supply Chain · In-house design, domestic sourcing, and long-term supplier partnerships ensure reliable output.'],
-          ['Features Five', 'International Trust · Shipped to over 130 countries, trusted by global brands for 15 years.'],
-          ['Features Six', 'Full-Service Support · From design to delivery, we guide you through every step.'],
-        ].map((f, idx) => (
-          <article class="feature-card">
-            <div class="icon">{idx + 1}</div>
-            <h3>{f[0]}</h3>
-            <p>{f[1]}</p>
-          </article>
-        ))}
-      </div>
-    </section>
-
-    <section class="about-split section">
-      <div class="about-copy">
-        <h2>What Sets MW Candle Apart</h2>
-        <p>
-          With over 15 years of foreign trade experience and clients across 130+ countries, MW Candle
-          combines expert craftsmanship with innovative design. Backed by high-tech facility and passionate
-          team, our candles are created with precision, creativity, and reliability.
-        </p>
-        <a href="/introduction" class="btn">More About Us</a>
-      </div>
-      <div class="about-image">
-        <img src="/home/building.png" alt="MW Candle building" loading="lazy" />
-      </div>
-    </section>
-
-    <section class="factory section">
-      <h2>Your Strategic Partner in Luxury Candle Manufacturing</h2>
-      <p>When you partner with MW Candle, you’re not just selecting a manufacturer—you’re choosing a strategic collaborator committed to elevating your business.</p>
-      <a href="/request-quote" class="btn">Get A Free Quote</a>
-      <div class="factory-marquee">
-        <div class="factory-row row-right">
-          {[...factoryRowTop, ...factoryRowTop].map((img) => (
-            <img src={img} alt="Factory production line" loading="lazy" />
-          ))}
+    <section class="home-section home-pillars" aria-labelledby="pillars-heading">
+      <header class="home-section-head home-section-head-split">
+        <div class="home-pillars-intro">
+          <span class="home-index">02</span>
+          <p class="home-kicker">Capability matrix</p>
+          <h2 id="pillars-heading" class="home-section-title">Why your business needs {displayName}</h2>
         </div>
-        <div class="factory-row row-left">
-          {[...factoryRowBottom, ...factoryRowBottom].map((img) => (
-            <img src={img} alt="Factory production line" loading="lazy" />
-          ))}
-        </div>
-      </div>
-    </section>
-
-    <section class="testimonials section">
-      <h2>What Our Customers Say</h2>
-      <div class="testimonial-grid">
-        {testimonials.map((t) => (
-          <article class="testimonial">
-            <div class="testimonial-head">
-              <img src={t.avatar} alt={t.name} loading="lazy" />
-              <div>
-                <h3>{t.name}</h3>
-                <span>{t.role}</span>
-              </div>
+      </header>
+      <div class="home-feature-matrix">
+        {featureBlocks.map((f, idx) => (
+          <article class="home-feature-row">
+            <span class="home-feature-num">{String(idx + 1).padStart(2, '0')}</span>
+            <div>
+              <h3>{f[0]}</h3>
+              <p>{f[1]}</p>
             </div>
-            <p>{t.quote}</p>
           </article>
         ))}
       </div>
     </section>
 
-    <section class="home-blog section">
-      <div class="head-row">
+    <section class="home-split" aria-labelledby="about-heading">
+      <div class="home-split-visual">
+        <img src="/home/building.png" alt="MW Candle facility exterior" loading="lazy" />
+      </div>
+      <div class="home-split-copy">
+        <span class="home-index">03</span>
+        <p class="home-kicker">Heritage &amp; rigor</p>
+        <h2 id="about-heading">What sets {displayName} apart</h2>
+        <p>
+          With over 15 years of foreign trade experience and clients across 130+ countries, {displayName}
+          combines expert craftsmanship with innovative design. Backed by high-tech facility and passionate team,
+          our candles are created with precision, creativity, and reliability.
+        </p>
+        <a href="/introduction" class="home-btn home-btn-solid">More about us</a>
+      </div>
+    </section>
+
+    <section class="home-section home-factory" aria-labelledby="factory-heading">
+      <header class="home-factory-head">
+        <span class="home-index">04</span>
         <div>
-          <h2>Blog</h2>
+          <p class="home-kicker">Manufacturing</p>
+          <h2 id="factory-heading">Your strategic partner in luxury candle manufacturing</h2>
           <p>
-            Discover a variety of topics on our blog—from the history and benefits of scented candles to DIY
-            guides, safety tips, and decor ideas.
+            When you partner with {displayName}, you’re not just selecting a manufacturer—you’re choosing a
+            strategic collaborator committed to elevating your business.
           </p>
         </div>
-        <a href="/blog" class="btn">View All</a>
+        <a href="/request-quote" class="home-btn home-btn-ghost home-factory-cta">Get a free quote</a>
+      </header>
+      <div class="home-factory-marquee" aria-hidden="true">
+        <div class="home-factory-row row-right">
+          {[...factoryRowTop, ...factoryRowTop].map((img) => (
+            <img src={img} alt="" loading="lazy" />
+          ))}
+        </div>
+        <div class="home-factory-row row-left">
+          {[...factoryRowBottom, ...factoryRowBottom].map((img) => (
+            <img src={img} alt="" loading="lazy" />
+          ))}
+        </div>
       </div>
-      <div class="blog-grid">
-        {(blogs.length ? blogs : [
-          {
-            title: 'Late Summer to Fall Transition Scents',
-            slug: '#',
-            excerpt: 'Bridge seasons with scented candles.',
-            publishedAt: null,
-            imageUrl: '/products/types/woody.png',
-          },
-        ]).map((b) => (
-          <a class="blog-card" href={b.slug === '#' ? '/blog' : `/blog/${b.slug}`}>
-            <img src={b.imageUrl || '/products/types/floral.png'} alt={b.title ?? 'Blog'} loading="lazy" />
-            <div class="meta-row">
-              <span>{b.publishedAt ? new Date(b.publishedAt).toLocaleDateString() : 'Latest'}</span>
+    </section>
+
+    <section class="home-section home-voices" aria-labelledby="voices-heading">
+      <header class="home-voices-head">
+        <span class="home-index">05</span>
+        <div>
+          <p class="home-kicker">Field notes</p>
+          <h2 id="voices-heading" class="home-section-title">What our customers say</h2>
+        </div>
+      </header>
+      <div class="home-quote-grid">
+        {testimonials.map((t, i) => (
+          <figure class="home-quote">
+            <blockquote>“{t.quote}”</blockquote>
+            <figcaption>
+              <img src={t.avatar} alt="" width="48" height="48" loading="lazy" />
+              <div>
+                <cite>{t.name}</cite>
+                <span>{t.role}</span>
+                <span class="home-quote-date">
+                  {new Date(2025, 4, 12 + i * 9).toLocaleString('en-US', {month: 'long', year: 'numeric'})}
+                </span>
+              </div>
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
+
+    <section class="home-section home-journal" aria-labelledby="journal-heading">
+      <header class="home-journal-head">
+        <div>
+          <span class="home-index">06</span>
+          <p class="home-kicker">Journal</p>
+          <h2 id="journal-heading" class="home-section-title">Blog</h2>
+          <p class="home-journal-dek">
+            From the history and benefits of scented candles to DIY guides, safety tips, and decor ideas.
+          </p>
+        </div>
+        <a href="/blog" class="home-btn home-btn-ghost">View all</a>
+      </header>
+      <div class="home-journal-grid">
+        {blogList.map((b) => (
+          <a class="home-journal-card" href={b.slug === '#' ? '/blog' : `/blog/${b.slug}`}>
+            <div class="home-journal-media">
+              <img src={b.imageUrl || '/products/types/floral.png'} alt="" loading="lazy" />
             </div>
-            <h3>{b.title}</h3>
+            <div class="home-journal-body">
+              {b.publishedAt ? (
+                <time datetime={b.publishedAt}>
+                  {new Date(b.publishedAt).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                  })}
+                </time>
+              ) : (
+                <span class="home-journal-time-fallback">Latest</span>
+              )}
+              <h3>{b.title}</h3>
+              {b.excerpt ? <p>{b.excerpt}</p> : null}
+            </div>
           </a>
         ))}
       </div>
     </section>
 
-    <section class="home-faq-section" aria-labelledby="home-faq-heading">
-      <div class="home-faq-inner">
-        <div class="home-faq-left">
-          <h2 id="home-faq-heading">Frequently Asked Questions</h2>
-          <p class="home-faq-intro">
+    <section class="home-faq" aria-labelledby="home-faq-heading">
+      <div class="home-faq-grid">
+        <div class="home-faq-intro-block">
+          <span class="home-index">07</span>
+          <p class="home-kicker">Clarity</p>
+          <h2 id="home-faq-heading">Frequently asked questions</h2>
+          <p>
             Below are some frequently asked questions regarding scented candle wholesale and services. If you
             can&apos;t find what you&apos;re looking for, please feel free to contact us. Whether your business is
             complex or simple, you will get an accurate quote within 6 hours.
           </p>
-          <a href="/faqs/" class="btn home-faq-cta">View All</a>
+          <a href="/faqs/" class="home-btn home-btn-solid">View all</a>
         </div>
-        <div class="home-faq-right">
+        <div class="home-faq-list">
           {
             homeFaqs.map((item, idx) => (
               <details class="home-faq-item">
                 <summary>
-                  <span class="home-faq-n">{idx + 1}.</span>
+                  <span class="home-faq-n">{String(idx + 1).padStart(2, '0')}</span>
                   <span class="home-faq-q">{item.question}</span>
                   <span class="home-faq-toggle" aria-hidden="true" />
                 </summary>
@@ -375,136 +478,659 @@ const testimonials = [
 </MainLayout>
 
 <style>
-  .home-page { background:#fff; color:#111; }
-  .section { max-width:1140px; margin:0 auto; padding:42px 20px; }
-  h2 { margin:0 0 16px; font-size: clamp(1.5rem,2.8vw,2.15rem); font-weight:800; letter-spacing:-0.01em; text-align:center; }
-  p { color:#4b5563; line-height:1.7; }
-  .btn { display:inline-flex; align-items:center; justify-content:center; padding:10px 18px; border-radius:6px; background:#f07179; color:#fff; text-decoration:none; font-weight:700; font-size:.9rem; border:none; }
-
-  .hero { position:relative; min-height:520px; display:flex; align-items:center; }
-  .hero > img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
-  .hero-overlay { position:absolute; inset:0; background:rgba(0,0,0,.46); }
-  .hero-inner {
-    position:relative;
-    z-index:1;
-    width:100%;
-    padding:0 clamp(18px, 8vw, 96px);
-    color:#fff;
+  .home-page {
+    --hx-bg: #f4f1ec;
+    --hx-bg-2: #ebe6df;
+    --hx-ink: #14110f;
+    --hx-muted: #5a534c;
+    --hx-line: rgba(20, 17, 15, 0.12);
+    --hx-accent: #2a2420;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: var(--hx-bg);
+    color: var(--hx-ink);
+    letter-spacing: -0.01em;
   }
-  .hero-heading {
-    margin:0 0 14px;
-    max-width:900px;
-    font-weight:800;
-    letter-spacing:-0.02em;
-    line-height:1;
+
+  .home-marquee {
+    border-bottom: 1px solid var(--hx-line);
+    background: #faf8f5;
+    overflow: hidden;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    font-weight: 600;
+    color: var(--hx-muted);
   }
-  .hero-heading .hero-line {
-    display:block;
-    font-size:clamp(2.35rem, 5.8vw, 5.2rem);
-    line-height:1.02;
+  .home-marquee-track {
+    display: flex;
+    gap: 1.25rem;
+    width: max-content;
+    padding: 0.55rem 0;
+    animation: homeMarquee 42s linear infinite;
   }
-  .hero-heading .hero-line + .hero-line {
-    margin-top:0.06em;
+  .home-dot {
+    opacity: 0.45;
   }
-  .hero-inner p { max-width:610px; margin:0 0 22px; color:#f3f4f6; font-size:1.07rem; line-height:1.65; }
-
-  .card-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
-  .scent-card { border:1px solid #e5e7eb; text-decoration:none; color:inherit; background:#fff; transition:transform .22s ease, box-shadow .22s ease; }
-  .scent-card:hover { transform: translateY(-3px); box-shadow:0 12px 24px rgba(15,23,42,.1); }
-  .scent-card img { width:100%; aspect-ratio:16/9; object-fit:cover; display:block; border-bottom:1px solid #e5e7eb; }
-  .scent-body { padding:9px 10px 12px; }
-  .scent-body h3 { margin:0 0 6px; font-size:1.7rem; line-height:1.05; }
-  .scent-body p { margin:0 0 8px; font-size:.86rem; min-height:56px; }
-  .scent-body span { color:#f07179; font-size:.84rem; font-weight:700; }
-
-  .mid-banner { position:relative; min-height:128px; background:linear-gradient(rgba(28,22,18,.4),rgba(28,22,18,.4)),url('/contact/hero-candles.png') center/cover no-repeat; display:flex; align-items:center; margin: 18px 0 0; }
-  .mid-banner-inner { position:relative; z-index:1; max-width:1140px; width:100%; margin:0 auto; padding:0 20px; display:flex; justify-content:space-between; align-items:center; }
-  .mid-banner h2 { margin:0 0 4px; color:#fff; text-align:left; font-size:2.2rem; }
-  .mid-banner p { margin:0; color:#f3f4f6; }
-
-  .feature-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
-  .feature-card { background:#fafafa; border:1px solid #f1f5f9; padding:20px; text-align:center; transition:transform .22s ease, box-shadow .22s ease; }
-  .feature-card:hover { transform:translateY(-3px); box-shadow:0 12px 24px rgba(15,23,42,.08); }
-  .feature-card .icon { width:26px; height:26px; border-radius:6px; background:#f07179; color:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:.8rem; margin-bottom:10px; }
-  .feature-card h3 { margin:0 0 6px; font-size:1.5rem; }
-  .feature-card p { margin:0; font-size:.84rem; }
-
-  .about-split { display:grid; grid-template-columns:1fr 1fr; gap:18px; align-items:center; }
-  .about-split h2 { text-align:left; margin-bottom:10px; }
-  .about-image img { width:100%; display:block; border-radius:2px; }
-
-  .factory { text-align:center; overflow:hidden; }
-  .factory p { max-width:760px; margin:0 auto 12px; }
-  .factory-marquee { margin-top:16px; display:grid; gap:10px; }
-  .factory-row { display:flex; gap:8px; width:max-content; }
-  .factory-row img { width:200px; aspect-ratio:4/3; object-fit:cover; display:block; flex:0 0 auto; transition:transform .2s ease, filter .2s ease; }
-  .factory-row img:hover { transform:scale(1.03); filter:saturate(1.08); }
-  .row-right { animation: moveRight 36s linear infinite; }
-  .row-left { animation: moveLeft 36s linear infinite; }
-  .factory-marquee:hover .row-right,
-  .factory-marquee:hover .row-left { animation-play-state: paused; }
-
-  .testimonials h2 { margin-bottom:14px; }
-  .testimonial-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
-  .testimonial { border:1px solid #f1f5f9; background:#fafafa; padding:16px; transition:transform .22s ease, box-shadow .22s ease; }
-  .testimonial:hover { transform:translateY(-2px); box-shadow:0 10px 18px rgba(15,23,42,.08); }
-  .testimonial-head { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
-  .testimonial-head img { width:42px; height:42px; border-radius:50%; object-fit:cover; flex:0 0 auto; }
-  .testimonial h3 { margin:0 0 2px; font-size:1.05rem; }
-  .testimonial span { font-size:.8rem; color:#64748b; }
-  .testimonial p { margin:0; font-size:.86rem; }
-
-  .head-row { display:flex; justify-content:space-between; align-items:flex-end; gap:18px; margin-bottom:12px; }
-  .head-row h2 { text-align:left; margin:0 0 8px; }
-  .head-row p { max-width:620px; margin:0; }
-  .blog-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
-  .blog-card { text-decoration:none; color:inherit; transition:transform .22s ease, box-shadow .22s ease; border:1px solid transparent; }
-  .blog-card:hover { transform:translateY(-3px); box-shadow:0 12px 22px rgba(15,23,42,.1); border-color:#e5e7eb; }
-  .blog-card img { width:100%; aspect-ratio:16/9; object-fit:cover; display:block; }
-  .meta-row { margin-top:6px; }
-  .meta-row span { font-size:.72rem; color:#64748b; }
-  .blog-card h3 { margin:6px 0 0; font-size:1.02rem; line-height:1.35; }
-
-  .home-faq-section {
-    background: #faf9f7;
-    border-top: 1px solid #f0ebe6;
-    padding: 48px 20px 56px;
+  @keyframes homeMarquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
   }
-  .home-faq-inner {
-    max-width: 1140px;
+  @media (prefers-reduced-motion: reduce) {
+    .home-marquee-track {
+      animation: none;
+      justify-content: center;
+      flex-wrap: wrap;
+      width: auto;
+      max-width: 72rem;
+      margin: 0 auto;
+      padding: 0.55rem 1rem;
+    }
+  }
+
+  .home-hero {
+    padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1.25rem, 4vw, 3rem) clamp(3rem, 7vw, 5rem);
+  }
+  .home-hero-grid {
+    max-width: 1200px;
     margin: 0 auto;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr);
-    gap: clamp(28px, 4vw, 52px);
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: end;
+  }
+  .home-eyebrow {
+    margin: 0 0 1rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.28em;
+    font-weight: 600;
+    color: var(--hx-muted);
+  }
+  .home-display {
+    font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+    font-weight: 500;
+    line-height:0.98;
+    margin: 0 0 1.5rem;
+    font-size: clamp(2.6rem, 5.2vw, 4.25rem);
+  }
+  .home-display-line {
+    display: block;
+  }
+  .home-display-accent {
+    font-style: italic;
+    font-weight: 400;
+    color: #3d3833;
+  }
+  .home-lede {
+    margin: 0 0 1.75rem;
+    max-width: 38rem;
+    font-size: 1.05rem;
+    line-height: 1.65;
+    color: var(--hx-muted);
+    font-weight: 400;
+  }
+  .home-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.25rem;
+    align-items: center;
+  }
+  .home-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.65rem 1.35rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    transition:
+      background 0.2s ease,
+      color 0.2s ease,
+      border-color 0.2s ease,
+      transform 0.15s ease;
+  }
+  .home-btn-solid {
+    background: var(--hx-accent);
+    color: #faf7f2;
+    border-color: var(--hx-accent);
+  }
+  .home-btn-solid:hover {
+    background: #000;
+    border-color: #000;
+  }
+  .home-btn-ghost {
+    background: transparent;
+    color: var(--hx-ink);
+    border-color: var(--hx-line);
+  }
+  .home-btn-ghost:hover {
+    border-color: var(--hx-ink);
+  }
+  .home-btn-light {
+    background: #f4f1ec;
+    color: var(--hx-ink);
+    border-color: rgba(244, 241, 236, 0.35);
+  }
+  .home-btn-light:hover {
+    background: #fff;
+  }
+  .home-link-arrow {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--hx-muted);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+  }
+  .home-link-arrow:hover {
+    color: var(--hx-ink);
+    border-color: var(--hx-ink);
+  }
+  .home-hero-visual {
+    margin: 0;
+    position: relative;
+  }
+  .home-hero-visual img {
+    width: 100%;
+    display: block;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    filter: saturate(0.92) contrast(1.02);
+    box-shadow: 0 28px 60px rgba(20, 17, 15, 0.14);
+  }
+  .home-caption {
+    margin: 0.65rem 0 0;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--hx-muted);
+  }
+
+  .home-statement {
+    padding: clamp(2.5rem, 6vw, 4rem) clamp(1.25rem, 4vw, 3rem);
+    border-top: 1px solid var(--hx-line);
+    border-bottom: 1px solid var(--hx-line);
+    background: linear-gradient(180deg, #f0ebe4 0%, var(--hx-bg) 100%);
+  }
+  .home-statement-text {
+    margin: 0 auto;
+    max-width: 52rem;
+    text-align: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.35rem, 2.4vw, 1.85rem);
+    line-height: 1.45;
+    font-weight: 400;
+    color: #2f2a26;
+  }
+
+  .home-section {
+    padding: clamp(3.25rem, 8vw, 6rem) clamp(1.25rem, 4vw, 3rem);
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .home-section-head {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: clamp(1rem, 3vw, 2.5rem);
+    align-items: start;
+    margin-bottom: clamp(2rem, 4vw, 3rem);
+    border-bottom: 1px solid var(--hx-line);
+    padding-bottom: clamp(1.5rem, 3vw, 2.25rem);
+  }
+  .home-section-head-split {
+    grid-template-columns: minmax(0, 1fr);
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: clamp(1.5rem, 3vw, 2rem);
+  }
+  .home-pillars-intro {
+    max-width: 40rem;
+  }
+  .home-index {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    color: var(--hx-muted);
+  }
+  .home-kicker {
+    margin: 0.35rem 0 0.4rem;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-weight: 600;
+    color: var(--hx-muted);
+  }
+  .home-kicker-on-dark {
+    color: rgba(244, 241, 236, 0.65);
+  }
+  .home-section-title {
+    margin: 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 3.5vw, 2.85rem);
+    font-weight: 500;
+    line-height: 1.08;
+  }
+
+  .home-scent-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(0.75rem, 2vw, 1.25rem);
+  }
+  .home-scent-card {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    background: #faf8f5;
+    border: 1px solid var(--hx-line);
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+  .home-scent-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 22px 50px rgba(20, 17, 15, 0.1);
+  }
+  .home-scent-media {
+    overflow: hidden;
+    aspect-ratio: 16 / 10;
+  }
+  .home-scent-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.35s ease;
+  }
+  .home-scent-card:hover .home-scent-media img {
+    transform: scale(1.04);
+  }
+  .home-scent-body {
+    padding: 1.1rem 1.15rem 1.35rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    flex: 1;
+  }
+  .home-scent-body h3 {
+    margin: 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.65rem;
+    font-weight: 600;
+  }
+  .home-scent-body p {
+    margin: 0;
+    font-size: 0.86rem;
+    line-height: 1.55;
+    color: var(--hx-muted);
+    flex: 1;
+  }
+  .home-scent-cta {
+    margin-top: 0.35rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--hx-accent);
+  }
+
+  .home-band {
+    background: #12100e;
+    color: #f4f1ec;
+    padding: clamp(2.5rem, 6vw, 4rem) clamp(1.25rem, 4vw, 3rem);
+  }
+  .home-band-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+  .home-band-title {
+    margin: 0.25rem 0 0.5rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.85rem, 3.2vw, 2.65rem);
+    font-weight: 500;
+    line-height: 1.1;
+  }
+  .home-band-text {
+    margin: 0;
+    max-width: 36rem;
+    color: rgba(244, 241, 236, 0.72);
+    line-height: 1.65;
+    font-size: 0.98rem;
+  }
+
+  .home-feature-matrix {
+    display: grid;
+    gap: 0;
+    border: 1px solid var(--hx-line);
+    background: #faf8f5;
+  }
+  .home-feature-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1.25rem 1.75rem;
+    padding: 1.35rem 1.25rem;
+    border-bottom: 1px solid var(--hx-line);
+    align-items: baseline;
+  }
+  .home-feature-row:last-child {
+    border-bottom: none;
+  }
+  .home-feature-num {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    color: var(--hx-muted);
+  }
+  .home-feature-row h3 {
+    margin: 0 0 0.35rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+  .home-feature-row p {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: var(--hx-muted);
+  }
+
+  .home-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: 0;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    min-height: min(70vh, 720px);
+    border-top: 1px solid var(--hx-line);
+    border-bottom: 1px solid var(--hx-line);
+  }
+  .home-split-visual img {
+    width: 100%;
+    height: 100%;
+    min-height: 320px;
+    object-fit: cover;
+    display: block;
+  }
+  .home-split-copy {
+    padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1.5rem, 5vw, 4rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.85rem;
+    background: linear-gradient(135deg, #ebe6df 0%, var(--hx-bg) 55%);
+  }
+  .home-split-copy h2 {
+    margin: 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 3.2vw, 2.75rem);
+    font-weight: 500;
+    line-height: 1.1;
+  }
+  .home-split-copy p {
+    margin: 0;
+    max-width: 40rem;
+    font-size: 0.98rem;
+    line-height: 1.65;
+    color: var(--hx-muted);
+  }
+
+  .home-factory-head {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: clamp(1rem, 3vw, 2rem);
+    align-items: end;
+    margin-bottom: clamp(1.75rem, 3vw, 2.5rem);
+  }
+  .home-factory-head h2 {
+    margin: 0.35rem 0 0.65rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.75rem, 3vw, 2.35rem);
+    font-weight: 500;
+    line-height: 1.12;
+  }
+  .home-factory-head p {
+    margin: 0;
+    max-width: 52rem;
+    color: var(--hx-muted);
+    line-height: 1.65;
+    font-size: 0.95rem;
+  }
+  .home-factory-cta {
+    align-self: end;
+    white-space: nowrap;
+  }
+  .home-factory-marquee {
+    overflow: hidden;
+    display: grid;
+    gap: 0.65rem;
+    mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  }
+  .home-factory-row {
+    display: flex;
+    gap: 0.55rem;
+    width: max-content;
+  }
+  .home-factory-row img {
+    width: clamp(160px, 18vw, 220px);
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    flex: 0 0 auto;
+    filter: saturate(0.95);
+    transition: transform 0.25s ease;
+  }
+  .home-factory-row img:hover {
+    transform: scale(1.02);
+  }
+  .row-right {
+    animation: homeMoveRight 38s linear infinite;
+  }
+  .row-left {
+    animation: homeMoveLeft 38s linear infinite;
+  }
+  .home-factory-marquee:hover .row-right,
+  .home-factory-marquee:hover .row-left {
+    animation-play-state: paused;
+  }
+  @keyframes homeMoveLeft {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @keyframes homeMoveRight {
+    from {
+      transform: translateX(-50%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .row-right,
+    .row-left {
+      animation: none;
+    }
+  }
+
+  .home-voices-head {
+    display: flex;
+    gap: 1.5rem;
+    align-items: baseline;
+    margin-bottom: clamp(1.75rem, 3vw, 2.5rem);
+    flex-wrap: wrap;
+  }
+  .home-quote-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(1rem, 2vw, 1.5rem);
+  }
+  .home-quote {
+    margin: 0;
+    padding: 1.5rem 1.35rem;
+    border: 1px solid var(--hx-line);
+    background: #faf8f5;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    min-height: 100%;
+  }
+  .home-quote blockquote {
+    margin: 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.15rem, 2vw, 1.35rem);
+    line-height: 1.45;
+    font-weight: 400;
+  }
+  .home-quote figcaption {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    font-size: 0.82rem;
+    color: var(--hx-muted);
+  }
+  .home-quote img {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .home-quote cite {
+    font-style: normal;
+    font-weight: 600;
+    color: var(--hx-ink);
+    display: block;
+  }
+  .home-quote figcaption > div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+  .home-quote-date {
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .home-journal-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1.25rem;
+    margin-bottom: clamp(1.75rem, 3vw, 2.5rem);
+  }
+  .home-journal-dek {
+    margin: 0.5rem 0 0;
+    max-width: 40rem;
+    color: var(--hx-muted);
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+  .home-journal-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(0.75rem, 2vw, 1.25rem);
+  }
+  .home-journal-card {
+    text-decoration: none;
+    color: inherit;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    border: 1px solid var(--hx-line);
+    background: #faf8f5;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+  .home-journal-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 40px rgba(20, 17, 15, 0.08);
+  }
+  .home-journal-media {
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+  }
+  .home-journal-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.35s ease;
+  }
+  .home-journal-card:hover .home-journal-media img {
+    transform: scale(1.03);
+  }
+  .home-journal-body {
+    padding: 1rem 1.1rem 1.25rem;
+  }
+  .home-journal-body time,
+  .home-journal-time-fallback {
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--hx-muted);
+  }
+  .home-journal-body h3 {
+    margin: 0.45rem 0 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+  .home-journal-body p {
+    margin: 0.4rem 0 0;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: var(--hx-muted);
+  }
+
+  .home-faq {
+    padding: clamp(3rem, 7vw, 5rem) clamp(1.25rem, 4vw, 3rem) clamp(4rem, 9vw, 6rem);
+    border-top: 1px solid var(--hx-line);
+    background: linear-gradient(180deg, #ebe6df 0%, var(--hx-bg) 45%);
+  }
+  .home-faq-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.15fr);
+    gap: clamp(2rem, 4vw, 3.5rem);
     align-items: start;
   }
-  .home-faq-left h2 {
-    margin: 0 0 14px;
-    font-size: clamp(1.45rem, 2.6vw, 2rem);
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    text-align: left;
-    color: #111827;
+  .home-faq-intro-block h2 {
+    margin: 0.35rem 0 0.75rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.85rem, 3vw, 2.5rem);
+    font-weight: 500;
+    line-height: 1.1;
   }
-  .home-faq-intro {
-    margin: 0 0 22px;
-    color: #4b5563;
-    line-height: 1.75;
-    font-size: 0.98rem;
-    text-align: left;
+  .home-faq-intro-block > p {
+    margin: 0 0 1.25rem;
+    color: var(--hx-muted);
+    line-height: 1.65;
+    font-size: 0.95rem;
   }
-  .home-faq-cta {
-    align-self: flex-start;
-  }
-  .home-faq-right {
-    background: #fff;
-    border: 1px solid #ebe7e2;
-    border-radius: 8px;
-    padding: 4px 0 6px;
-    box-shadow: 0 8px 28px rgba(15, 23, 42, 0.04);
+  .home-faq-list {
+    border: 1px solid var(--hx-line);
+    background: #faf8f5;
   }
   .home-faq-item {
-    border-bottom: 1px solid #f1ede8;
+    border-bottom: 1px solid var(--hx-line);
   }
   .home-faq-item:last-child {
     border-bottom: none;
@@ -513,25 +1139,24 @@ const testimonials = [
     list-style: none;
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 14px 16px 14px 18px;
+    gap: 0.75rem;
+    padding: 1rem 1.1rem;
     cursor: pointer;
-    font-weight: 700;
-    color: #111827;
-    font-size: 0.95rem;
+    font-weight: 600;
+    font-size: 0.92rem;
     transition: background 0.18s ease;
   }
   .home-faq-item summary::-webkit-details-marker {
     display: none;
   }
   .home-faq-item summary:hover {
-    background: #fafafa;
+    background: rgba(20, 17, 15, 0.03);
   }
   .home-faq-n {
-    color: #94a3b8;
-    font-weight: 800;
-    min-width: 1.35rem;
-    flex-shrink: 0;
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    color: var(--hx-muted);
+    min-width: 2rem;
   }
   .home-faq-q {
     flex: 1;
@@ -539,81 +1164,69 @@ const testimonials = [
     line-height: 1.35;
   }
   .home-faq-toggle {
-    width: 28px;
-    height: 28px;
-    border: 1px solid #e5e7eb;
-    border-radius: 6px;
-    background: #f8fafc;
+    width: 1.75rem;
+    height: 1.75rem;
+    border: 1px solid var(--hx-line);
+    border-radius: 50%;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    transition:
-      border-color 0.18s ease,
-      background 0.18s ease;
-  }
-  .home-faq-item summary:hover .home-faq-toggle {
-    border-color: #f07179;
-    background: #fff5f5;
   }
   .home-faq-item:not([open]) .home-faq-toggle::before {
     content: '+';
-    color: #64748b;
-    font-weight: 700;
-    font-size: 1.05rem;
-    line-height: 1;
+    font-size: 1rem;
+    color: var(--hx-muted);
   }
   .home-faq-item[open] .home-faq-toggle::before {
     content: '×';
-    color: #64748b;
-    font-size: 1.15rem;
-    line-height: 1;
+    font-size: 1.1rem;
+    color: var(--hx-muted);
   }
   .home-faq-a {
-    padding: 0 18px 16px 2.6rem;
-    color: #475569;
-    line-height: 1.75;
-    font-size: 0.92rem;
+    padding: 0 1.1rem 1.1rem 3.25rem;
+    color: var(--hx-muted);
+    line-height: 1.65;
+    font-size: 0.88rem;
   }
   .home-faq-a p {
     margin: 0;
   }
 
-  @keyframes moveLeft {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
+  @media (max-width: 1024px) {
+    .home-section-head {
+      grid-template-columns: 1fr;
+    }
+    .home-hero-grid {
+      grid-template-columns: 1fr;
+    }
+    .home-hero-visual img {
+      aspect-ratio: 16 / 10;
+    }
+    .home-scent-grid,
+    .home-quote-grid,
+    .home-journal-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .home-factory-head {
+      grid-template-columns: 1fr;
+    }
+    .home-factory-cta {
+      justify-self: start;
+    }
   }
 
-  @keyframes moveRight {
-    from { transform: translateX(-50%); }
-    to { transform: translateX(0); }
-  }
-
-  @media (max-width: 980px) {
-    .card-grid, .feature-grid, .blog-grid { grid-template-columns:repeat(2,1fr); }
-    .about-split { grid-template-columns:1fr; }
-    .factory-row img { width:180px; }
-    .testimonial-grid { grid-template-columns:1fr; }
-    .mid-banner-inner { flex-direction:column; align-items:flex-start; gap:10px; padding:18px 20px; }
-    .home-faq-inner { grid-template-columns: 1fr; }
-  }
-
-  @media (max-width: 640px) {
-    .hero { min-height:420px; }
-    .hero-inner {
-      padding: 0 20px;
+  @media (max-width: 680px) {
+    .home-scent-grid,
+    .home-quote-grid,
+    .home-journal-grid {
+      grid-template-columns: 1fr;
     }
-    .hero-inner h1 {
-      max-width: 100%;
-      font-size: clamp(1.9rem, 8vw, 2.6rem);
+    .home-split {
+      grid-template-columns: 1fr;
     }
-    .hero-inner p {
-      max-width: 100%;
-      font-size: 0.98rem;
+    .home-faq-grid {
+      grid-template-columns: 1fr;
     }
-    .card-grid, .feature-grid, .blog-grid { grid-template-columns:1fr; }
-    .factory-row img { width:150px; }
-    .head-row { flex-direction:column; align-items:flex-start; }
-    .mid-banner h2 { font-size:1.6rem; }
   }
 </style>
