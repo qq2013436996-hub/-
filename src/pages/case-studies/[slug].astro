@@ -159,9 +159,17 @@ const appointmentHref = resolveAppointmentHref(doc.appointmentUrl)
       <article class="sd-lead-card">
         <div class="sd-lead-media">
           {doc.heroImageUrl ? (
-            <img src={doc.heroImageUrl} alt={doc.heroImageAlt ?? doc.title ?? 'Event'} width="480" height="320" loading="eager" />
+            <div class="sd-lead-media-fill">
+              <img
+                src={doc.heroImageUrl}
+                alt={doc.heroImageAlt ?? doc.title ?? 'Event'}
+                width="640"
+                height="480"
+                loading="eager"
+              />
+            </div>
           ) : (
-            <div class="sd-lead-fallback"></div>
+            <div class="sd-lead-fallback" aria-hidden="true"></div>
           )}
         </div>
         <div class="sd-lead-body">
@@ -189,7 +197,7 @@ const appointmentHref = resolveAppointmentHref(doc.appointmentUrl)
             </p>
           ) : null}
           <div class="sd-actions">
-            <a class="sd-btn" href={appointmentHref}>
+            <a class="btn-coral-solid" href={appointmentHref}>
               Get Appointment
             </a>
             {doc.showWebsiteUrl?.trim() ? (
@@ -258,7 +266,7 @@ const appointmentHref = resolveAppointmentHref(doc.appointmentUrl)
       </section>
     ) : null}
     <p class="cta">
-      <a href="/request-quote">{doc.inquiryCtaText || 'Request a Quote'}</a>
+      <a class="btn-coral-solid" href="/request-quote">{doc.inquiryCtaText || 'Request a Quote'}</a>
     </p>
 
     <section class="links">
@@ -348,7 +356,7 @@ const appointmentHref = resolveAppointmentHref(doc.appointmentUrl)
 
   .sd-lead-card {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    grid-template-columns: minmax(260px, 380px) minmax(0, 1fr);
     gap: 0;
     background: #fff;
     border: 1px solid #e2e8f0;
@@ -359,20 +367,29 @@ const appointmentHref = resolveAppointmentHref(doc.appointmentUrl)
   }
 
   .sd-lead-media {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
     background: #f1f5f9;
-    min-height: 220px;
+    overflow: hidden;
   }
 
-  .sd-lead-media img {
+  .sd-lead-media-fill {
+    position: absolute;
+    inset: 0;
+  }
+
+  .sd-lead-media-fill img {
     width: 100%;
     height: 100%;
-    min-height: 220px;
     object-fit: cover;
+    object-position: center;
     display: block;
   }
 
   .sd-lead-fallback {
-    min-height: 240px;
+    position: absolute;
+    inset: 0;
     background: linear-gradient(135deg, #e2e8f0, #f8fafc);
   }
 
@@ -434,24 +451,8 @@ const appointmentHref = resolveAppointmentHref(doc.appointmentUrl)
     gap: 14px 22px;
   }
 
-  .sd-btn {
-    display: inline-flex;
-    padding: 11px 24px;
-    background: #f07179;
-    color: #fff !important;
-    font-weight: 700;
-    font-size: 0.93rem;
-    text-decoration: none;
-    border-radius: 2px;
-    transition: filter 0.2s ease;
-  }
-
-  .sd-btn:hover {
-    filter: brightness(0.94);
-  }
-
   .sd-link {
-    color: #f07179;
+    color: var(--coral-cta, #f07179);
     font-weight: 700;
     font-size: 0.93rem;
     text-decoration: none;
@@ -532,14 +533,7 @@ const appointmentHref = resolveAppointmentHref(doc.appointmentUrl)
     border: 1px solid #e5e7eb;
   }
 
-  .sd-main .cta a {
-    display: inline-flex;
-    background: var(--primary-color, #f07179);
-    color: #fff;
-    text-decoration: none;
-    padding: 10px 14px;
-    border-radius: 8px;
-    font-weight: 700;
+  .sd-main .cta {
     margin-top: 12px;
   }
 
